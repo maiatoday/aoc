@@ -1,9 +1,9 @@
 fun main() {
 
-    val dayName = "Day02"
-    val day = Day02
-    val dayTestAnswer1 = 150
-    val dayTestAnswer2 = 900
+    val dayName = "Day03"
+    val day = Day03
+    val dayTestAnswer1 = 198
+    val dayTestAnswer2 = 230
 
     println("***** $dayName *****")
     // test if implementation meets criteria from the description, like:
