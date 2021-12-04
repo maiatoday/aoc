@@ -29,22 +29,12 @@ object Day04 {
         return 0
     }
 
-    private fun extractBoards(input: List<String>): List<Board> {
-        val bb = mutableListOf<Board>()
-        val boardList = mutableListOf<String>()
-        input.subList(2, input.size).forEach { entryString ->
-            if (entryString.isEmpty()) {
-                bb.add(Board(boardList))
-                boardList.clear()
-            } else {
-                boardList.add(entryString)
-            }
+    private fun extractBoards(input: List<String>): List<Board> =
+        input.drop(1).chunked(6).map { boardInput ->
+            Board(boardInput.filter {
+                it.isNotEmpty()
+            })
         }
-        if (boardList.isNotEmpty()) {
-            bb.add(Board(boardList))
-        }
-        return bb
-    }
 }
 
 class Board(input: List<String>) {
@@ -59,6 +49,8 @@ class Board(input: List<String>) {
 
     fun bingo(call: Int): Boolean {
         if (hasWon) return false
+
+        // check rows
         board.forEach { row ->
             row.forEach { cell ->
                 if (cell.value == call) {
@@ -71,6 +63,7 @@ class Board(input: List<String>) {
             }
         }
 
+        // check columns
         for (column in 0 until board[0].size) {
             if (board.map { it[column] }.count { it.checked } == board.size) {
                 hasWon = true
