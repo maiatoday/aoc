@@ -1,10 +1,5 @@
 fun main() {
 
-    val dayName = "Day04"
-    val day = Day04
-    val dayTestAnswer1 = 4512
-    val dayTestAnswer2 = 1924
-
     println("***** $dayName *****")
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("${dayName}_test")
@@ -19,3 +14,8 @@ fun main() {
     println("🌟 two : ${day.part2(input)}")
     println("*****************")
 }
+
+const val dayName = "Day05"
+val day = Day05
+const val dayTestAnswer1 = 5
+const val dayTestAnswer2 = 12
