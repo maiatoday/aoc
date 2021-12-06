@@ -1,3 +1,4 @@
+import java.math.BigDecimal
 import java.math.BigInteger
 
 // Day object template
@@ -22,42 +23,31 @@ object Day06 {
     }
 
     fun part2(input: List<String>): String {
-        val days = 80
-        // split it into array of BigIntegers counting fish at a timer day.
-        // set from input array
-        // decrement means bins shift ie count in bin for 3 days becomes count for bin in 2 days
-        // count for bin in 0 days becomes new count for bin in 8 days
-        // some tricksy ness with the 8 days vs 6 day counts
-        // answer is addition of all counts
-
-        // so it is the number of days mapped to the array index that moves and the 0 day one that gets addition in it
-        val schoolCount = List(10) {
-            FishCountDay(BigInteger("0"), it)
+        val days = 256
+        val schoolCount = List(9) {
+            FishCountDay(BigInteger.ZERO, it)
         }
         input[0].trim().split(",").map { it.toInt() }.forEach {
             // starting off index 0 is day 0
             schoolCount[it].count = schoolCount[it].count.inc()
         }
-        for (days in 1 until days) {
-            schoolCount.forEach {
-                if (it.day == 0) {
-                    it.day = 9
-                } else it.day--
+        for (day in 1..days) {
+            schoolCount.forEach { bucket ->
+                if (bucket.day == 0) {
+                    bucket.day = 8 //babies go directly to 8
+                } else bucket.day--
             }
-
-            val fishies = schoolCount.first { it.day == 9 }.count
-            schoolCount.first { it.day == 6 }.count += fishies
+            // the spawn happens here we know there should be as many more parents in day 6 as new babies in 8
+            val day8Count = schoolCount.find { parent -> parent.day == 8 }?.count ?: BigInteger.ZERO
+            schoolCount.find { parent -> parent.day == 6 }?.let { it.count += day8Count }
         }
-        // could be done with a reduce
-        var total = BigInteger("0")
-        schoolCount.forEach() {
-            total += (it.count)
-        }
-        return total.toString()
+        return schoolCount.map { it.count }.fold(BigInteger.ZERO) { total, count -> total + count }.toString()
     }
 
+    // the bucket fish count and days until spawn
     data class FishCountDay(var count: BigInteger, var day: Int)
 
+    // The hungry ones
     class LanternFish(private var dayCount: Long) {
         fun dayTick(): LanternFish? {
             if (dayCount == 0L) dayCount = 6
