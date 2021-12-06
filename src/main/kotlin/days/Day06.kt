@@ -21,8 +21,8 @@ object Day06 {
         return school.size
     }
 
-    fun part2(input: List<String>): Int {
-        val days = 256
+    fun part2(input: List<String>): String {
+        val days = 80
         // split it into array of BigIntegers counting fish at a timer day.
         // set from input array
         // decrement means bins shift ie count in bin for 3 days becomes count for bin in 2 days
@@ -31,28 +31,29 @@ object Day06 {
         // answer is addition of all counts
 
         // so it is the number of days mapped to the array index that moves and the 0 day one that gets addition in it
-        val schoolCount = List(9) {
+        val schoolCount = List(10) {
             FishCountDay(BigInteger("0"), it)
         }
-        input[0].trim().split(",").map { it.toInt() }.forEach{
+        input[0].trim().split(",").map { it.toInt() }.forEach {
             // starting off index 0 is day 0
-            schoolCount[it].count.inc()
-            schoolCount[it].day = it
+            schoolCount[it].count = schoolCount[it].count.inc()
         }
         for (days in 1 until days) {
             schoolCount.forEach {
-                if (it.day == 0) it.day = 6
-                else it.day--
+                if (it.day == 0) {
+                    it.day = 9
+                } else it.day--
             }
-            val zeroDay = schoolCount.find {it.day == 0}
-            // take the count of zeroDay and add it to an 8 Day
+
+            val fishies = schoolCount.first { it.day == 9 }.count
+            schoolCount.first { it.day == 6 }.count += fishies
         }
         // could be done with a reduce
-        val total = BigInteger("0")
+        var total = BigInteger("0")
         schoolCount.forEach() {
-            total.add(it.count)
+            total += (it.count)
         }
-        return total.toInt()
+        return total.toString()
     }
 
     data class FishCountDay(var count: BigInteger, var day: Int)

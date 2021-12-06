@@ -14,7 +14,8 @@ class Day06Test {
     private val day = Day06
     private val dayTestAnswer1 = 5934
   //  private val dayTestAnswer2 = 5934L
-    private val dayTestAnswer2 = 26984457539L
+    private val dayTestAnswer2 = "5934"
+   // private val dayTestAnswer2 = "26984457539"
     private val testInput = readInput("${dayName}_test")
     @Test
     fun part1() {
