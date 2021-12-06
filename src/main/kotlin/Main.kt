@@ -15,7 +15,7 @@ fun main() {
     println("*****************")
 }
 
-const val dayName = "Day05"
-val day = Day05
-const val dayTestAnswer1 = 5
-const val dayTestAnswer2 = 12
+const val dayName = "Day06"
+val day = Day06
+const val dayTestAnswer1 = 5934
+const val dayTestAnswer2 = 26984457539L
