@@ -1,17 +1,35 @@
+import kotlin.system.measureTimeMillis
+
 fun main() {
 
     println("***** $dayName *****")
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("${dayName}_test")
-    check(day.part1(testInput) == dayTestAnswer1)
-    println("✅ one with $dayTestAnswer1 ✅")
-    check(day.part2(testInput) == dayTestAnswer2)
-    println("✅ two with $dayTestAnswer2 ✅")
+    var part1Test = 0
+    val part1TestMillis = measureTimeMillis {
+        part1Test = day.part1(testInput)
+    }
+    check( part1Test == dayTestAnswer1)
+    println("✅ one with $dayTestAnswer1 ✅ in $part1TestMillis ms")
+    var part2Test = ""
+    val part2TestMillis = measureTimeMillis {
+        part2Test = day.part2(testInput)
+    }
+    check(part2Test == dayTestAnswer2)
+    println("✅ two with $dayTestAnswer2 ✅ in $part2TestMillis ms")
     println("*****************")
 
     val input = readInput(dayName)
-    println("🌟 one : ${day.part1(input)}")
-    println("🌟 two : ${day.part2(input)}")
+    var part1 = 0
+    val part1Millis = measureTimeMillis {
+        part1 = day.part1(input)
+    }
+    var part2 = ""
+    val part2Millis = measureTimeMillis {
+        part2 = day.part2(input)
+    }
+    println("🌟 one : $part1 in $part1Millis ms")
+    println("🌟 two : $part2 in $part2Millis ms")
     println("*****************")
 }
 
