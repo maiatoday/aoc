@@ -1,6 +1,6 @@
 package days
 
-import Day06
+import Day07
 import Day0X
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
@@ -8,12 +8,11 @@ import org.junit.Test
 
 import readInput
 
-//Test template
-class Day06Test {
-    private val dayName = "Day06"
-    private val day = Day06
-    private val dayTestAnswer1 = 5934
-    private val dayTestAnswer2 = "26984457539"
+class Day07Test {
+    private val dayName = "Day07"
+    private val day = Day07
+    private val dayTestAnswer1 = 37
+    private val dayTestAnswer2 = 168
     private val testInput = readInput("${dayName}_test")
     @Test
     fun part1() {

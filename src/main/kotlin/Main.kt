@@ -3,15 +3,14 @@ import kotlin.system.measureTimeMillis
 fun main() {
 
     println("***** $dayName *****")
-    // test if implementation meets criteria from the description, like:
     val testInput = readInput("${dayName}_test")
     var part1Test = 0
     val part1TestMillis = measureTimeMillis {
         part1Test = day.part1(testInput)
     }
-    check( part1Test == dayTestAnswer1)
+    check(part1Test == dayTestAnswer1)
     println("✅ one with $dayTestAnswer1 ✅ in $part1TestMillis ms")
-    var part2Test = ""
+    var part2Test = 0
     val part2TestMillis = measureTimeMillis {
         part2Test = day.part2(testInput)
     }
@@ -24,7 +23,7 @@ fun main() {
     val part1Millis = measureTimeMillis {
         part1 = day.part1(input)
     }
-    var part2 = ""
+    var part2 = 0
     val part2Millis = measureTimeMillis {
         part2 = day.part2(input)
     }
@@ -33,7 +32,7 @@ fun main() {
     println("*****************")
 }
 
-const val dayName = "Day06"
-val day = Day06
-const val dayTestAnswer1 = 5934
-const val dayTestAnswer2 = "26984457539"
+const val dayName = "Day07"
+val day = Day07
+const val dayTestAnswer1 = 37
+const val dayTestAnswer2 = 168
