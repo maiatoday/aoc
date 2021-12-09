@@ -30,60 +30,111 @@ object Day09 {
     fun part2(input: List<String>): Int {
         val heightMap = input.map { it.trim().toCharArray().map { c -> c.toString().toInt() } }
         val lowPoints = findLowPoints(heightMap)
-        val basins: List<List<Int>> = lowPoints.map { findBasin(it, heightMap) }
-        val sizes = basins.map { it.size }.sorted().take(3)
-        //{ it.size }.sorted().take(3).sum()
-        return sizes.sum()
+        val basins: List<Set<LowPoint>> = lowPoints.map { findBasin(it, heightMap) }
+        val sizes = basins.map { it.size }.sorted().takeLast(3)
+        return sizes.fold(1) { acc, num -> acc * num }
     }
 
-    private fun findBasin(lowPoint: LowPoint, heightMap: List<List<Int>>): List<Int> {
-        val basin = mutableListOf<Int>()
-        var prevPoint = lowPoint.value
-        for (above in lowPoint.y downTo 0) {
-            val currentPoint = heightMap[above][lowPoint.x]
-            if ((prevPoint<=currentPoint) and  (currentPoint != 9)) {
-                basin.add(currentPoint)
-                prevPoint = currentPoint
-            } else {
-                basin.removeFirst() // we added the currentPoint
-                break
-            }
-        }
-        prevPoint = lowPoint.value
-        for (left in lowPoint.x downTo 0) {
-            val currentPoint = heightMap[lowPoint.y][left]
-            if ((prevPoint<=currentPoint) and  (currentPoint != 9)) {
-                basin.add(currentPoint)
-                prevPoint = currentPoint
-            } else {
-                basin.removeFirst() // we added the currentPoint
-                break
-            }
+    private fun basinNeighbours(heightMap: List<List<Int>>, point: LowPoint): List<LowPoint> {
+        val neighbours = buildList<LowPoint> {
+            add(
+                LowPoint(
+                    value = if (point.y == 0) BORDER else heightMap[point.y - 1][point.x],
+                    x = point.x,
+                    y = point.y - 1
+                )
+            )
+            add(
+                LowPoint(
+                    value = if (point.y == heightMap.size - 1) BORDER else heightMap[point.y + 1][point.x],
+                    x = point.x,
+                    y = point.y + 1
+                )
+            )
+            add(
+                LowPoint(
+                    value = if (point.x == 0) BORDER else heightMap[point.y][point.x - 1],
+                    x = point.x - 1,
+                    y = point.y
+                )
+            )
+            add(
+                LowPoint(
+                    value = if (point.x == heightMap.first().size - 1) BORDER else heightMap[point.y][point.x + 1],
+                    x = point.x + 1,
+                    y = point.y
+                )
+            )
         }
 
-        prevPoint = lowPoint.value
-        for (below in lowPoint.y until heightMap.size) {
-            val currentPoint = heightMap[below][lowPoint.x]
-            if ((prevPoint<=currentPoint) and  (currentPoint != 9)) {
-                basin.add(currentPoint)
-                prevPoint = currentPoint
-            } else {
-                basin.removeFirst() // we added the currentPoint
-                break
-            }
+        return neighbours.filter { it.value != 9 }
+    }
+
+    private const val BORDER = 9
+
+    private fun findBasin(
+        lowPoint: LowPoint,
+        heightMap: List<List<Int>>
+    ): Set<LowPoint> {
+        val basin = mutableSetOf<LowPoint>()
+        val firstRow = findBasinRow(lowPoint, heightMap)
+        val firstColumn = findBasinColumn(lowPoint, heightMap)
+        for (point in firstRow) {
+            basin.addAll(findBasinColumn(point, heightMap))
         }
-        prevPoint = lowPoint.value
-        for (right in lowPoint.x until heightMap.first().size) {
-            val currentPoint = heightMap[lowPoint.y][right]
-            if ((prevPoint<=currentPoint) and  (currentPoint != 9)) {
-                basin.add(currentPoint)
-                prevPoint = currentPoint
-            } else {
-                basin.removeFirst() // we added the currentPoint
-                break
-            }
+        for (point in firstColumn) {
+            basin.addAll(findBasinRow(point, heightMap))
         }
-        basin.add(lowPoint.value)
         return basin
     }
+
+    private fun findBasinRow(
+        lowPoint: LowPoint,
+        heightMap: List<List<Int>>,
+    ): Set<LowPoint> {
+        val basin = mutableSetOf<LowPoint>()
+        for (left in lowPoint.x downTo 0) {
+            val currentPoint = LowPoint(heightMap[lowPoint.y][left], y = lowPoint.y, x = left)
+            if (currentPoint.value != 9) {
+                basin.add(currentPoint)
+            } else {
+                break
+            }
+        }
+        for (right in lowPoint.x until heightMap.first().size) {
+            val currentPoint = LowPoint(heightMap[lowPoint.y][right], x = right, lowPoint.y)
+            if (currentPoint.value != 9) {
+                basin.add(currentPoint)
+            } else {
+                break
+            }
+        }
+        return basin
+    }
+
+    private fun findBasinColumn(
+        lowPoint: LowPoint,
+        heightMap: List<List<Int>>,
+    ): Set<LowPoint> {
+        val basin = mutableSetOf<LowPoint>()
+        for (above in lowPoint.y downTo 0) {
+            val currentPoint = LowPoint(heightMap[above][lowPoint.x], y = above, x = lowPoint.x)
+            if (currentPoint.value != 9) {
+                basin.add(currentPoint)
+            } else {
+                break
+            }
+        }
+        for (below in lowPoint.y until heightMap.size) {
+            val currentPoint = LowPoint(heightMap[below][lowPoint.x], x = lowPoint.x, y = below)
+            if (currentPoint.value != 9) {
+                basin.add(currentPoint)
+            } else {
+                break
+            }
+        }
+        return basin
+    }
+
+
 }

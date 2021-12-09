@@ -28,7 +28,7 @@ fun main() {
         part2 = day.part2(input)
     }
     println("🌟 one : $part1 in $part1Millis ms")
-    println("🌟 two : $part2 in $part2Millis ms")
+    println("🌟 two : $part2 in $part2Millis ms ... 919790 too low")
     println("*****************")
 }
 
