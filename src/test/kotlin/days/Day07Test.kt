@@ -1,7 +1,6 @@
 package days
 
 import Day07
-import Day0X
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.Test

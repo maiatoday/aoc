@@ -1,16 +1,15 @@
 package days
 
-import Day0X
+import Day1X
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.Test
 
 import readInput
 
-//Test template
-class Day0XTest {
-    private val dayName = "Day0X"
-    private val day = Day0X
+class Day1XTest {
+    private val dayName = "Day1X"
+    private val day = Day1X
     private val dayTestAnswer1 = 150
     private val dayTestAnswer2 = 900
     private val testInput = readInput("${dayName}_test")

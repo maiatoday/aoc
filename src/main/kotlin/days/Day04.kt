@@ -35,50 +35,50 @@ object Day04 {
                 it.isNotEmpty()
             })
         }
-}
 
-class Board(input: List<String>) {
-    private val board: List<List<Cell>> = buildBoard(input)
-    var hasWon: Boolean = false
+    class Board(input: List<String>) {
+        private val board: List<List<Cell>> = buildBoard(input)
+        var hasWon: Boolean = false
 
-    private fun buildBoard(input: List<String>): List<List<Cell>> =
-        input.map { rowString ->
-            rowString.trim().replace("  ", " ").split(" ")
-                .map { Cell(it.toInt(), false) }
-        }
+        private fun buildBoard(input: List<String>): List<List<Cell>> =
+            input.map { rowString ->
+                rowString.trim().replace("  ", " ").split(" ")
+                    .map { Cell(it.toInt(), false) }
+            }
 
-    fun bingo(call: Int): Boolean {
-        if (hasWon) return false
+        fun bingo(call: Int): Boolean {
+            if (hasWon) return false
 
-        // check rows
-        board.forEach { row ->
-            row.forEach { cell ->
-                if (cell.value == call) {
-                    cell.checked = true
+            // check rows
+            board.forEach { row ->
+                row.forEach { cell ->
+                    if (cell.value == call) {
+                        cell.checked = true
+                    }
+                }
+                if (row.count { it.checked } == row.size) {
+                    hasWon = true
+                    return true
                 }
             }
-            if (row.count { it.checked } == row.size) {
-                hasWon = true
-                return true
+
+            // check columns
+            for (column in 0 until board[0].size) {
+                if (board.map { it[column] }.count { it.checked } == board.size) {
+                    hasWon = true
+                    return true
+                }
             }
+
+            return false
         }
 
-        // check columns
-        for (column in 0 until board[0].size) {
-            if (board.map { it[column] }.count { it.checked } == board.size) {
-                hasWon = true
-                return true
-            }
-        }
+        fun score(): Int =
+            board.flatten()
+                .filterNot { it.checked }
+                .sumOf { it.value }
 
-        return false
+        data class Cell(val value: Int, var checked: Boolean)
+
     }
-
-    fun score(): Int =
-        board.flatten()
-            .filterNot { it.checked }
-            .sumOf { it.value }
-
-    data class Cell(val value: Int, var checked: Boolean)
-
 }

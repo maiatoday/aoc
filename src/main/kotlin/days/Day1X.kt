@@ -1,5 +1,5 @@
 // Day object template
-object Day0X {
+object Day1X {
 
     fun part1(input: List<String>): Int {
         return input.size
