@@ -10,8 +10,8 @@ import readInput
 class Day1XTest {
     private val dayName = "Day1X"
     private val day = Day1X
-    private val dayTestAnswer1 = 150
-    private val dayTestAnswer2 = 900
+    private val dayTestAnswer1 = 150L
+    private val dayTestAnswer2 = 900L
     private val testInput = readInput("${dayName}_test")
     @Test
     fun part1() {
