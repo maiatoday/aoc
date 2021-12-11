@@ -4,7 +4,7 @@ fun main() {
 
     println("***** $dayName *****")
     val testInput = readInput("${dayName}_test")
-    var part1Test = 0
+    var part1Test = 0L
     val part1TestMillis = measureTimeMillis {
         part1Test = day.part1(testInput)
     }
@@ -19,7 +19,7 @@ fun main() {
     println("*****************")
 
     val input = readInput(dayName)
-    var part1 = 0
+    var part1 = 0L
     val part1Millis = measureTimeMillis {
         part1 = day.part1(input)
     }
@@ -32,7 +32,7 @@ fun main() {
     println("*****************")
 }
 
-const val dayName = "Day10"
-val day = Day10
-const val dayTestAnswer1 = 26397
-const val dayTestAnswer2 = 288957L
+const val dayName = "Day11"
+val day = Day11
+const val dayTestAnswer1 = 1656L
+const val dayTestAnswer2 = 195L
