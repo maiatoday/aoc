@@ -27,7 +27,7 @@ fun main() {
     val part2Millis = measureTimeMillis {
         part2 = day.part2(input)
     }
-    println("🌟 one : $part1 in $part1Millis ms 6100 too high")
+    println("🌟 one : $part1 in $part1Millis ms")
     println("🌟 two : $part2 in $part2Millis ms")
     println("*****************")
 }
@@ -35,4 +35,4 @@ fun main() {
 const val dayName = "Day12"
 val day = Day12
 const val dayTestAnswer1 = 226L
-const val dayTestAnswer2 = -1L
+const val dayTestAnswer2 = 3509L
