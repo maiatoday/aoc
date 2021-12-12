@@ -11,7 +11,7 @@ import readInput
 class Day12Test {
     private val dayName = "Day12"
     private val day = Day12
-    private val dayTestAnswer1 = 10L
+    private val dayTestAnswer1 = 226L
     private val dayTestAnswer2 = -1L
     private val testInput = readInput("${dayName}_test")
     @Test
