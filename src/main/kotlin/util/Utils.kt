@@ -21,3 +21,28 @@ fun String.md5(): String = BigInteger(1, MessageDigest.getInstance("MD5").digest
 //val regex = """(\d)-(\d)-(\d)""".toRegex() //https://rubular.com/
 //val moreNumbers = "1-2-3"
 //val (a, b, c) = regex.find(moreNumbers)?.destructured ?: kotlin.error("oops")
+
+fun Int.reverseBits(): Int {
+    var n = this
+    var reverse = 0
+    while (n > 0) {
+        reverse = reverse shl 1
+        if ((n and 1) == 1) reverse = reverse xor 1
+        n = n shr 1
+    }
+    return reverse
+}
+
+fun String.decodeHex(): LongArray {
+    return chunked(8)
+        .map {
+            it
+                // .toInt(16)
+                .toLong(16)
+            //.reverseBits()
+            // .toByte()
+        }
+        .toLongArray()
+    // .toIntArray()
+    // .toByteArray()
+}
