@@ -1,26 +1,26 @@
 object Day18 {
 
     fun part1(input: List<String>): Long {
-//        val values = input.map { s ->
-//            s.removePrefix("[")
-//                .removeSuffix("]")
-//                .split(",")
-//                .map { SnailfishNumber(regularNumber = it.toInt()) }
-//        }.map { l-> l[0] + l[1]}
-//        val c = values.reduce {
-//            acc, sfn -> acc + sfn
-//        }
-        val i = SnailfishNumber(4)
-        val j = SnailfishNumber(3)
-        val d = SnailfishNumber(4)
-        val dd = SnailfishNumber(4)
-        val ddd = SnailfishNumber(7)
-        val b = SnailfishNumber(8)
-        val bb = SnailfishNumber(4)
-        val bbb = SnailfishNumber(9)
-        val bbbb = SnailfishNumber(1)
-        val bbbbb = SnailfishNumber(1)
-        val c = ((((i + j) + d) + dd) + (ddd + ((b + bb) + bbb))) + (bbbb + bbbbb)
+        val values = input.map { s ->
+            s.removePrefix("[")
+                .removeSuffix("]")
+                .split(",")
+                .map { SnailfishNumber(regularNumber = it.toInt()) }
+        }.map { l-> l[0] + l[1]}
+        val c = values.reduce {
+            acc, sfn -> acc + sfn
+        }
+//        val i = SnailfishNumber(4)
+//        val j = SnailfishNumber(3)
+//        val d = SnailfishNumber(4)
+//        val dd = SnailfishNumber(4)
+//        val ddd = SnailfishNumber(7)
+//        val b = SnailfishNumber(8)
+//        val bb = SnailfishNumber(4)
+//        val bbb = SnailfishNumber(9)
+//        val bbbb = SnailfishNumber(1)
+//        val bbbbb = SnailfishNumber(1)
+        //val c = ((((i + j) + d) + dd) + (ddd + ((b + bb) + bbb))) + (bbbb + bbbbb)
         println("start")
         c.debug()
 
@@ -46,6 +46,11 @@ object Day18 {
         var right: SnailfishNumber? = null,
         var parent: SnailfishNumber? = null,
     ) {
+//        fun parse(str:String) : SnailfishNumber {
+//            if (str[0] ==  '[') {
+//                var node = SnailfishNumber(this)
+//            }
+//        }
         fun debug() {
             if (regularNumber != null) {
                 print("$regularNumber")
