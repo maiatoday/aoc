@@ -13,7 +13,8 @@ object Day18 {
             reductionHappened = c.reduce(0)
             c.debug()
         } while (reductionHappened)
-
+        println("   END")
+        println("[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]] ... expected")
         val mag = c.magnitude()
         return mag.toLong()
     }
