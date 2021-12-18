@@ -1,15 +1,17 @@
 object Day18 {
 
     fun part1(input: List<String>): Long {
-        val values = input.map { s ->
-            s.removePrefix("[")
-                .removeSuffix("]")
-                .split(",")
-                .map { SnailfishNumber(regularNumber = it.toInt()) }
-        }.map { l-> l[0] + l[1]}
-        val c = values.reduce {
-            acc, sfn -> acc + sfn
-        }
+//        val values = input.map { s ->
+//            s.removePrefix("[")
+//                .removeSuffix("]")
+//                .split(",")
+//                .map { SnailfishNumber(regularNumber = it.toInt()) }
+//        }.map { l -> l[0] + l[1] }
+//        val c = values.reduce { acc, sfn ->
+//            acc + sfn
+//        }
+        val c = SnailfishNumber("[0,1]", parent = null)
+
 //        val i = SnailfishNumber(4)
 //        val j = SnailfishNumber(3)
 //        val d = SnailfishNumber(4)
@@ -46,7 +48,28 @@ object Day18 {
         var right: SnailfishNumber? = null,
         var parent: SnailfishNumber? = null,
     ) {
-//        fun parse(str:String) : SnailfishNumber {
+        constructor(
+            str: String,
+            parent: SnailfishNumber? = null
+        ) : this(parent = parent) {
+            str.forEach { s ->
+                when {
+                    s == '[' -> {
+                        left = SnailfishNumber(str.drop(1))
+                    }
+                    s == ']' -> {}
+                    s == ',' -> {
+                        right = SnailfishNumber(str.drop(1))
+                    }
+                    s.isDigit() -> {
+                        regularNumber = str[0].toString().toInt()
+                    }
+                }
+            }
+        }
+
+
+        //        fun parse(str:String) : SnailfishNumber {
 //            if (str[0] ==  '[') {
 //                var node = SnailfishNumber(this)
 //            }
