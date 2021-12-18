@@ -34,5 +34,5 @@ fun main() {
 
 const val dayName = "Day18"
 val day = Day18
-const val dayTestAnswer1 = -1L
+const val dayTestAnswer1 = 4140L
 const val dayTestAnswer2 = -1L
