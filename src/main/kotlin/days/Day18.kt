@@ -74,7 +74,7 @@ object Day18 {
 
         fun reduce(nestingLevel: Int): Boolean {
             // complex number
-            if (regularNumber == null && nestingLevel == 4) {
+            if (regularNumber == null && nestingLevel >= 4) {
                 // children could explode
                 if (explode(nestingLevel)) return true
             }
@@ -104,7 +104,7 @@ object Day18 {
             //  and the pair's right value is added to the first regular number to the right of the exploding pair (if any).
             //  Exploding pairs will always consist of two regular numbers.
             //  Then, the entire exploding pair is replaced with the regular number 0.
-            if (regularNumber == null) {
+            if (regularNumber == null && left?.regularNumber !== null && right?.regularNumber != null) {
                 println("nest $nestingLevel explode")
                 // complex
                 // :face_palm: the left of me parent might be me
