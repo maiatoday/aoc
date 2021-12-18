@@ -97,8 +97,8 @@ object Day18 {
                 println("nest $nestingLevel explode")
                 // complex
                 // :face_palm: the left of me parent might be me
-                parent?.addToLeft(left?.regularNumber ?: 0)
-                parent?.addToRight(right?.regularNumber ?: 0)
+                parent?.addToLeft(left?.regularNumber ?: 0, this)
+                parent?.addToRight(right?.regularNumber ?: 0, this)
                 convertToNumber(0)
                 return true
             }
@@ -111,19 +111,63 @@ object Day18 {
             right = null
         }
 
-        private fun addToLeft(number: Int) {
+        private fun addToLeft(number: Int, downStream: SnailfishNumber) {
             if (left?.regularNumber != null) {
                 left?.regularNumber = (left?.regularNumber ?: 0) + number
             } else if (parent != null) {
-                parent?.addToLeft(number)
+                parent?.addToLeft(number, this)
+            } else {
+                // parent == null we are at the top of the parent list
+                // but we can still add it to the right most element of the sibling lefthand
+                // but only if we came from the right
+                if (downStream == right) addToLeftFromTop(number)
             }
         }
 
-        private fun addToRight(number: Int) {
+        private fun addToLeftFromTop(number: Int) {
+            if (left?.regularNumber != null) {
+                left?.regularNumber = (left?.regularNumber ?: 0) + number
+            } else if (left != null) {
+                left?.rr(number)
+            }
+        }
+
+        private fun rr(number: Int) {
+            if (regularNumber != null) {
+                regularNumber = (regularNumber ?: 0) + number
+            } else if (right != null) {
+                right?.ll(number)
+            }
+        }
+
+        private fun addToRight(number: Int, downStream: SnailfishNumber) {
             if (right?.regularNumber != null) {
                 right?.regularNumber = (right?.regularNumber ?: 0) + number
             } else if (parent != null) {
-                parent?.addToRight(number)
+                parent?.addToRight(number, this)
+            } else {
+                // parent == null so we are at the top of the parent list
+                // but we can still add it to the left most element of the sibling righthand
+                // but only if we came from the left
+                if (downStream == left)
+                    addToRightFromTop(number)
+            }
+        }
+
+
+        private fun addToRightFromTop(number: Int) {
+            if (right?.regularNumber != null) {
+                right?.regularNumber = (right?.regularNumber ?: 0) + number
+            } else if (right != null) {
+                right?.ll(number)
+            }
+        }
+
+        private fun ll(number: Int) {
+            if (regularNumber != null) {
+                regularNumber = (regularNumber ?: 0) + number
+            } else if (left != null) {
+                left?.ll(number)
             }
         }
 
