@@ -1,7 +1,9 @@
 object Day18 {
 
     fun part1(input: List<String>): Long {
-        val c = input.filter{it[0]!= '#'}.map { s -> parse(s) }
+        val answerStrings = input.filter { it[0] == '='}
+        val answer = if (answerStrings.isEmpty()) "no answer" else answerStrings.first().removePrefix("= ")
+        val c = input.filter { (it[0] != '#') && (it[0] != '=') }.map { s -> parse(s.replace("+", "").trim()) }
             .reduce { acc, sfn -> acc + sfn }
         println("start")
         c.debug()
@@ -13,7 +15,7 @@ object Day18 {
             c.debug()
         } while (reductionHappened)
         println("   END")
-        println("[[[[0,7],4],[[7,8],[6,0]]],[8,1]] ... expected")
+        println("$answer ... expected")
         val mag = c.magnitude()
         return mag.toLong()
     }
@@ -77,7 +79,14 @@ object Day18 {
             if (!isRegular() && nestingLevel >= 4) {
                 // children could explode
                 if (explode(nestingLevel)) return true
+
             }
+            if (left != null && right != null) {
+                //println("down one nesting level $nestingLevel")
+                if ((left?.reduce(nestingLevel + 1) == true)) return true
+                else if (right?.reduce(nestingLevel + 1) == true) return true
+            }
+            // aargh argh how to make it continue to explode and not split first. my brain is fried
             regularNumber?.let {
                 // regular number not complex
                 if (it >= 10) {
@@ -92,11 +101,6 @@ object Day18 {
                     return true
                 }
             }
-            if (left != null && right != null) {
-                //println("down one nesting level $nestingLevel")
-                if ((left?.reduce(nestingLevel + 1) == true)) return true
-                else if (right?.reduce(nestingLevel + 1) == true) return true
-            }
             return false
         }
 
@@ -110,9 +114,11 @@ object Day18 {
                 println(" nest $nestingLevel !!!!explode")
                 // complex
                 // :face_palm: the left of me parent might be me
-                parent?.upSearchLeft(left?.regularNumber ?: 0, this)
-                parent?.upSearchRight(right?.regularNumber ?: 0, this)
+                val leftNum = left?.regularNumber ?: 0
+                val rightNum = right?.regularNumber ?: 0
                 convertToNumber(0)
+                parent?.upSearchLeft(leftNum, this)
+                parent?.upSearchRight(rightNum, this)
                 return true
             }
             return false
