@@ -12,6 +12,7 @@ object Day18 {
         do {
             println(">>>>>")
             reductionHappened = c.reduce(0)
+            println()
             c.debug()
         } while (reductionHappened)
         println("   END")
@@ -25,8 +26,12 @@ object Day18 {
     }
 
     private fun parse(str: String): SnailfishNumber {
+        println("parsing")
+        println("input string $str")
         val sn = SnailfishNumber()
         sn.parse(str)
+        println("resulting tree")
+        sn.debug()
         return sn
     }
 
@@ -81,6 +86,7 @@ object Day18 {
         }
 
         private fun checkExplode(nestingLevel: Int): Boolean {
+            print("-x$nestingLevel-")
             if (!isRegular() && nestingLevel >= 4) {
                 // children could explode
                 if (explode(nestingLevel)) return true
@@ -94,9 +100,11 @@ object Day18 {
         }
 
         private fun checkSplit(nestingLevel: Int): Boolean {
+            print("-s$nestingLevel -")
             regularNumber?.let {
                 // regular number not complex
                 if (it >= 10) {
+                    println()
                     debug()
                     println(" nest $nestingLevel ~~~~split")
                     // split
@@ -108,6 +116,11 @@ object Day18 {
                     return true
                 }
             }
+            if (left != null && right != null) {
+                //println("down one nesting level $nestingLevel")
+                if ((left?.checkSplit(nestingLevel + 1) == true)) return true
+                if (right?.checkSplit(nestingLevel + 1) == true) return true
+            }
             return false
         }
 
@@ -117,6 +130,7 @@ object Day18 {
             //  Exploding pairs will always consist of two regular numbers.
             //  Then, the entire exploding pair is replaced with the regular number 0.
             if (!isRegular() && left.isRegular() && right.isRegular()) {
+                println()
                 debug()
                 println(" nest $nestingLevel !!!!explode")
                 // complex
