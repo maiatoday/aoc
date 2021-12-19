@@ -75,18 +75,25 @@ object Day18 {
             regularNumber ?: (((left?.magnitude() ?: 0) * 3) + ((right?.magnitude() ?: 0) * 2))
 
         fun reduce(nestingLevel: Int): Boolean {
-            // complex number
+            if (checkExplode(nestingLevel)) return true
+            if (checkSplit(nestingLevel)) return true
+            return false
+        }
+
+        private fun checkExplode(nestingLevel: Int): Boolean {
             if (!isRegular() && nestingLevel >= 4) {
                 // children could explode
                 if (explode(nestingLevel)) return true
-
             }
             if (left != null && right != null) {
                 //println("down one nesting level $nestingLevel")
-                if ((left?.reduce(nestingLevel + 1) == true)) return true
-                else if (right?.reduce(nestingLevel + 1) == true) return true
+                if ((left?.checkExplode(nestingLevel + 1) == true)) return true
+                if (right?.checkExplode(nestingLevel + 1) == true) return true
             }
-            // aargh argh how to make it continue to explode and not split first. my brain is fried
+            return false
+        }
+
+        private fun checkSplit(nestingLevel: Int): Boolean {
             regularNumber?.let {
                 // regular number not complex
                 if (it >= 10) {
