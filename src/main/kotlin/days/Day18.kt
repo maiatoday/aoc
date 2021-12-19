@@ -13,7 +13,7 @@ object Day18 {
             c.debug()
         } while (reductionHappened)
         println("   END")
-        println("[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]] ... expected")
+        println("[[[[0,7],4],[[7,8],[6,0]]],[8,1]] ... expected")
         val mag = c.magnitude()
         return mag.toLong()
     }
@@ -147,7 +147,7 @@ object Day18 {
                 return
             }
             if (parent == null) return
-            parent?.upSearchLeft(number, this)
+            parent?.upSearchRight(number, this)
         }
 
         private fun downSearchLeft(number: Int) {
