@@ -1,36 +1,51 @@
+import java.lang.Integer.max
+
 object Day18 {
 
     fun part1(input: List<String>): Long {
-        val answerStrings = input.filter { it[0] == '='}
-        val answer = if (answerStrings.isEmpty()) "no answer" else answerStrings.first().removePrefix("= ")
-        val c = input.filter { (it[0] != '#') && (it[0] != '=') }.map { s -> parse(s.replace("+", "").trim()) }
-            .reduce { acc, sfn -> acc + sfn }
-        println("start")
+//        val answerStrings = input.filter { it[0] == '=' }
+//        val answer = if (answerStrings.isEmpty()) "no answer" else answerStrings.first().removePrefix("= ")
+        val listNums = input.filter { (it[0] != '#') && (it[0] != '=') }.map { s -> parse(s.replace("+", "").trim()) }
+        val c = listNums.reduce { acc, sfn -> addReduce(acc, sfn) }
         c.debug()
-
-        var reductionHappened = true
-        do {
-            println(">>>>>")
-            reductionHappened = c.reduce(0)
-            println()
-            c.debug()
-        } while (reductionHappened)
-        println("   END")
-        println("$answer ... expected")
+//        println("$answer ... expected")
         val mag = c.magnitude()
         return mag.toLong()
     }
 
+    private fun addReduce(sn1: SnailfishNumber, sn2: SnailfishNumber): SnailfishNumber {
+        val c: SnailfishNumber = sn1 + sn2
+        var reductionHappened = true
+        do {
+            reductionHappened = c.reduce(0)
+        } while (reductionHappened)
+        return c
+    }
+
     fun part2(input: List<String>): Long {
-        return -1L
+        val answerStrings = input.filter { it[0] == '=' }
+        val answer = if (answerStrings.isEmpty()) "no answer" else answerStrings.first().removePrefix("= ")
+        val listNums = input.filter { (it[0] != '#') && (it[0] != '=') }.map { s -> s.replace("+", "").trim() }
+        var maxMagnitude = Int.MIN_VALUE
+        for (i in listNums.indices) for (j in listNums.indices) {
+            if (i!=j) {
+                val m = addReduceFromInput(listNums[i], listNums[j])
+                maxMagnitude = max(maxMagnitude, m.magnitude())
+            }
+        }
+        return maxMagnitude.toLong()
+    }
+
+    private fun addReduceFromInput(s1: String, s2: String): SnailfishNumber {
+        val sn1 = parse(s1)
+        val sn2 = parse(s2)
+        return addReduce(sn1, sn2)
     }
 
     private fun parse(str: String): SnailfishNumber {
-        println("parsing")
-        println("input string $str")
         val sn = SnailfishNumber()
+        //godfish = sn
         sn.parse(str)
-        println("resulting tree")
         sn.debug()
         return sn
     }
@@ -52,12 +67,21 @@ object Day18 {
                     }
                     c == ',' -> {
                         right = SnailfishNumber(parent = this)
+//                        godfish?.debug()
                         sss = right?.parse(sss.drop(1)) ?: ""
                     }
                     c.isDigit() -> {
-                        regularNumber = c.toString().toInt()
-                        return sss.drop(1)
+                        var count = 0
+                        var nn = ""
+                        while (sss[count].isDigit()) {
+                            nn += sss[count]
+                            count++
+                        }
+                        regularNumber = nn.toInt()
+//                        godfish?.debug()
+                        return sss.drop(count)
                     }
+                    else -> println(sss)
                 }
                 c = sss[0]
             }
@@ -65,15 +89,15 @@ object Day18 {
         }
 
         fun debug() {
-            if (isRegular()) {
-                print("$regularNumber")
-            } else {
-                print("[")
-                left?.debug()
-                print(",")
-                right?.debug()
-                print("]")
-            }
+//            if (isRegular()) {
+//                print("$regularNumber")
+//            } else {
+//                print("[")
+//                left?.debug()
+//                print(",")
+//                right?.debug()
+//                print("]")
+//            }
         }
 
         fun magnitude(): Int =
@@ -86,13 +110,12 @@ object Day18 {
         }
 
         private fun checkExplode(nestingLevel: Int): Boolean {
-            print("-x$nestingLevel-")
+            // print("-x$nestingLevel-")
             if (!isRegular() && nestingLevel >= 4) {
                 // children could explode
                 if (explode(nestingLevel)) return true
             }
             if (left != null && right != null) {
-                //println("down one nesting level $nestingLevel")
                 if ((left?.checkExplode(nestingLevel + 1) == true)) return true
                 if (right?.checkExplode(nestingLevel + 1) == true) return true
             }
@@ -100,19 +123,19 @@ object Day18 {
         }
 
         private fun checkSplit(nestingLevel: Int): Boolean {
-            print("-s$nestingLevel -")
+            // print("-s$nestingLevel -")
             regularNumber?.let {
                 // regular number not complex
                 if (it >= 10) {
-                    println()
-                    debug()
-                    println(" nest $nestingLevel ~~~~split")
+                    // println()
+                    //  debug()
+                    // println(" nest $nestingLevel ~~~~split")
                     // split
                     val leftNumber = it / 2
                     val rightNumber = (it + 2 - 1) / 2
                     regularNumber = null
-                    this.left = SnailfishNumber(regularNumber = leftNumber)
-                    this.right = SnailfishNumber(regularNumber = rightNumber)
+                    this.left = SnailfishNumber(regularNumber = leftNumber, parent = this)
+                    this.right = SnailfishNumber(regularNumber = rightNumber, parent = this)
                     return true
                 }
             }
@@ -130,13 +153,14 @@ object Day18 {
             //  Exploding pairs will always consist of two regular numbers.
             //  Then, the entire exploding pair is replaced with the regular number 0.
             if (!isRegular() && left.isRegular() && right.isRegular()) {
-                println()
-                debug()
-                println(" nest $nestingLevel !!!!explode")
+                // println()
+                //  debug()
+                //  println(" nest $nestingLevel !!!!explode")
                 // complex
                 // :face_palm: the left of me parent might be me
                 val leftNum = left?.regularNumber ?: 0
                 val rightNum = right?.regularNumber ?: 0
+                //  println(" leftNum $leftNum, rightNum $rightNum ")
                 convertToNumber(0)
                 parent?.upSearchLeft(leftNum, this)
                 parent?.upSearchRight(rightNum, this)
@@ -202,4 +226,6 @@ object Day18 {
         return parent
     }
 }
+
+//var godfish: Day18.SnailfishNumber? = null
 
