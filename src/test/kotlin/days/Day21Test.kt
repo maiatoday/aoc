@@ -1,18 +1,16 @@
 package days
 
-import Day1X
 import Day21
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.Test
-
 import readInput
 
 class Day21Test {
     private val dayName = "Day21"
     private val day = Day21
     private val dayTestAnswer1 = 739785L
-    private val dayTestAnswer2 = -1L
+    private val dayTestAnswer2 = 444356092776315L
     private val testInput = readInput("${dayName}_test")
     @Test
     fun part1() {

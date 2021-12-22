@@ -4,7 +4,7 @@ fun main() {
 
     println("***** $dayName *****")
     val testInput = readInput("${dayName}_test")
-    var part1Test = 590784L
+    var part1Test = 0L
     val part1TestMillis = measureTimeMillis {
         part1Test = day.part1(testInput)
     }
@@ -14,8 +14,8 @@ fun main() {
     val part2TestMillis = measureTimeMillis {
         part2Test = day.part2(testInput)
     }
-//    check(part2Test == dayTestAnswer2)
- //   println("✅ two with $dayTestAnswer2 ✅ in $part2TestMillis ms")
+    check(part2Test == dayTestAnswer2)
+    println("✅ two with $dayTestAnswer2 ✅ in $part2TestMillis ms")
     println("*****************")
 
     val input = readInput(dayName)
@@ -32,7 +32,7 @@ fun main() {
     println("*****************")
 }
 
-const val dayName = "Day22"
-val day = Day22
-const val dayTestAnswer1 = 474140L
-const val dayTestAnswer2 = 2758514936282235L
+const val dayName = "Day21"
+val day = Day21
+const val dayTestAnswer1 = 739785L
+const val dayTestAnswer2 = 444356092776315L
