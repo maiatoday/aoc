@@ -54,45 +54,54 @@ object Day22 {
     }
 
     private fun runInstructions(instructions: List<Instruction>): Long {
-        val (xMin, yMin, zMin) = findLowest(instructions)
-        val (xMax, yMax, zMax) = findHighest(instructions)
-        var count = 0L
-        for (ox in xMin..xMax)
-            for (oy in yMin..yMax)
-                for (oz in zMin..zMax) {
-                    count += parseInstructions(instructions, Triple(ox, oy, oz))
-                }
+        val (xSeams, ySeams, zSeams) = getSeams(instructions)
+        val mondrianCube = makeMondrianCube(xSeams, ySeams, zSeams).also {
+            parseInstructions(instructions, it, xSeams, ySeams, zSeams)
+        }
+        val count = countLights(mondrianCube, xSeams, ySeams, zSeams)
         return count
     }
 
+    private fun getSeams(instructions: List<Instruction>): Seams {
+        return Seams(emptyArray(), emptyArray(), emptyArray())
+    }
+
+    private fun makeMondrianCube(
+        xSeams: Array<Int>,
+        ySeams: Array<Int>,
+        zSeams: Array<Int>
+    ):
+            Array<Array<Array<Boolean>>> {
+        return emptyArray()
+    }
+    
     private fun parseInstructions(
         instructions: List<Instruction>,
-        coord: Triple<Int, Int, Int>,
+        mondrianCube: Array<Array<Array<Boolean>>>,
+        xSeams: Array<Int>,
+        ySeams: Array<Int>,
+        zSeams: Array<Int>,
+    ) {
+
+    }
+
+    private fun countLights(
+        mondrianCube: Array<Array<Array<Boolean>>>,
+        xSeams: Array<Int>,
+        ySeams: Array<Int>,
+        zSeams: Array<Int>
     ): Long {
-        var b = false
-        for (i in instructions) {
-            b = if (i.on) {
-                b or i.inBounds(coord.first, coord.second, coord.third)
-            } else {
-                b and (!i.inBounds(coord.first, coord.second, coord.third))
-            }
-        }
-        return if (b) 1 else 0
+
+        return -1L
     }
 
-    private fun findLowest(instructions: List<Instruction>): Triple<Int, Int, Int> {
-        val lowX = instructions.minOfOrNull { it.xBounds.first } ?: 0
-        val lowY = instructions.minOfOrNull { it.yBounds.first } ?: 0
-        val lowZ = instructions.minOfOrNull { it.zBounds.first } ?: 0
-        return Triple(lowX, lowY, lowZ)
-    }
 
-    private fun findHighest(instructions: List<Instruction>): Triple<Int, Int, Int> {
-        val highX = instructions.maxOfOrNull { it.xBounds.last } ?: 0
-        val highY = instructions.maxOfOrNull { it.yBounds.last } ?: 0
-        val highZ = instructions.maxOfOrNull { it.zBounds.last } ?: 0
-        return Triple(highX, highY, highZ)
-    }
+    data class Seams(
+        val xSeams: Array<Int>,
+        val ySeams: Array<Int>,
+        val zSeams: Array<Int>,
+    )
+
 }
 
 typealias Cuboid = Triple<Int, Int, Int>
