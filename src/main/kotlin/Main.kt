@@ -32,7 +32,7 @@ fun main() {
     println("*****************")
 }
 
-const val dayName = "Day21"
-val day = Day21
-const val dayTestAnswer1 = 739785L
-const val dayTestAnswer2 = 444356092776315L
+const val dayName = "Day22"
+val day = Day22
+const val dayTestAnswer1 = 474140L
+const val dayTestAnswer2 = 2758514936282235L
