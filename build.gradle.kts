@@ -1,12 +1,12 @@
 plugins {
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.7.21"
 }
 
 repositories {
     mavenCentral()
 }
 dependencies {
-    implementation("junit:junit:4.13.1")
+    implementation("junit:junit:4.13.2")
 }
 
 tasks {
