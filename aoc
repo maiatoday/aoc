@@ -1,5 +1,7 @@
 #!/usr/local/bin/zsh
 
+# Set the ADVENT_SESSION from the session id in your logged in browser in your env variables
+# Set the ADVENT_USER_AGENT to something like <your_username> by curl in your env variables
 #echo $ADVENT_SESSION
 if [ -z "$1" ]
 then
@@ -16,5 +18,5 @@ mkdir "$dayResourceFolder"
 cd "$dayResourceFolder" || exit
 pwd
 touch Day_test.txt
-curl -fsSL --cookie session="$ADVENT_SESSION" "$url"  > Day.txt
+curl -fsSL -A "$ADVENT_USER_AGENT" --cookie session="$ADVENT_SESSION" "$url"  > Day.txt
 ls -l
