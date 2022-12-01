@@ -1,0 +1,20 @@
+#!/usr/local/bin/zsh
+
+#echo $ADVENT_SESSION
+if [ -z "$1" ]
+then
+    echo "Enter a day number between 1 and 25"
+    read -r day
+else
+    day=$1
+fi
+url=https://adventofcode.com/2022/day/$day/input
+echo "Fetching AoC data for day" "$day"
+# echo "from" "$url"
+dayResourceFolder=src/main/resources/$day
+mkdir "$dayResourceFolder"
+cd "$dayResourceFolder" || exit
+pwd
+touch Day_test.txt
+curl -fsSL --cookie session="$ADVENT_SESSION" "$url"  > Day.txt
+ls -l
