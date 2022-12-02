@@ -14,25 +14,46 @@ object Day02 : Day {
                 else -> -1
             }
 
-        fun toLoose(): Play = when (this.move) {
+        fun playToLoose(): Play = when (this.move) {
             Move.ROCK -> Play(Move.SCISSORS)
             Move.PAPER -> Play(Move.ROCK)
             Move.SCISSORS -> Play(Move.PAPER)
         }
 
-        fun toWin(): Play = when (this.move) {
+        fun playToWin(): Play = when (this.move) {
             Move.ROCK -> Play(Move.PAPER)
             Move.PAPER -> Play(Move.SCISSORS)
             Move.SCISSORS -> Play(Move.ROCK)
         }
     }
 
-    data class Round(val elf: Play, val me: Play) {
+    class Round {
+        private var elf:Play
+        private lateinit var me:Play
+
+        private constructor(elf:Play) {
+            this.elf = elf
+        }
+        constructor(elf: Play, me: Play): this(elf) {
+            this.me = me
+        }
+
+        constructor(elf: Play, outcome:Outcome): this(elf) {
+            this.me = outcomeToPlay(elf, outcome)
+        }
+
+        private fun outcomeToPlay(elf: Play, outcome:Outcome): Play =
+            when (outcome) {
+                Outcome.WIN -> elf.playToWin()
+                Outcome.DRAW -> elf
+                Outcome.LOOSE -> elf.playToLoose()
+            }
+
         fun score(): Int =
             when {
-                (elf == me) -> 3 + me.move.score
-                (elf < me) -> 6 + me.move.score
-                else -> 0 + me.move.score
+                (elf > me) -> Outcome.LOOSE.score + me.move.score
+                (elf < me) -> Outcome.WIN.score + me.move.score
+                else -> Outcome.DRAW.score + me.move.score
             }
     }
 
@@ -43,7 +64,7 @@ object Day02 : Day {
         "A" -> Play(Move.ROCK)
         "B" -> Play(Move.PAPER)
         "C" -> Play(Move.SCISSORS)
-        else -> Play(Move.ROCK)  /// this could cause an error if the data is bad
+        else -> error("Aaargh bad bad data! $this")
     }
 
     private fun String.toRound() = Round(
@@ -60,45 +81,25 @@ object Day02 : Day {
         return scoreGame(game).toLong()
     }
 
-    enum class Outcome { WIN, DRAW, LOOSE }
+    enum class Outcome(val score:Int) { WIN(6), DRAW(3), LOOSE(0) }
 
     private fun String.toOutcome() =
         when (this) {
             "X" -> Outcome.LOOSE
             "Y" -> Outcome.DRAW
             "Z" -> Outcome.WIN
-            else -> Outcome.DRAW
+            else -> error("Bad bad outcome data! $this")
         }
 
-    private fun String.toRound2() = Round2(
+    private fun String.toRoundWithOutcome() = Round(
         elf = substringBefore(" ").toPlay(),
         outcome = substringAfter(" ").toOutcome()
     )
 
-    data class Round2(val elf: Play, val outcome: Outcome) {
-        private val me: Play = outcomeToPlay(elf)
-
-        private fun outcomeToPlay(elf: Play): Play =
-            when (outcome) {
-                Outcome.WIN -> elf.toWin()
-                Outcome.DRAW -> elf
-                Outcome.LOOSE -> elf.toLoose()
-            }
-
-        fun score(): Int =
-            when {
-                (elf == me) -> 3 + me.move.score
-                (elf < me) -> 6 + me.move.score
-                else -> 0 + me.move.score
-            }
-    }
-
-    private fun parseInput2(input: List<String>): List<Round2> = input.map { it.toRound2() }
-
-    private fun scoreGame2(game: List<Round2>) = game.sumOf { round -> round.score() }
+    private fun parseInputWithOutcome(input: List<String>): List<Round> = input.map { it.toRoundWithOutcome() }
 
     override fun part2(input: List<String>): Long {
-        val game = parseInput2(input)
-        return scoreGame2(game).toLong()
+        val game = parseInputWithOutcome(input)
+        return scoreGame(game).toLong()
     }
 }
