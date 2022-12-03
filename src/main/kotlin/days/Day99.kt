@@ -1,6 +1,4 @@
-import days.Day
-
-// Day object template
+package days
 object Day99: Day {
 
     override fun part1(input: List<String>): Long {
