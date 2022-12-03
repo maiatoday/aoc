@@ -1,9 +1,9 @@
 import kotlin.system.measureTimeMillis
 
-const val dayNumber = 2
-val day = Day02
-const val dayTestAnswer1 = 15L
-const val dayTestAnswer2 = 12L
+const val dayNumber = 3
+val day = Day03
+const val dayTestAnswer1 = 157L
+const val dayTestAnswer2 = 70L
 fun main() {
 
     println("***** Day$dayNumber *****")
