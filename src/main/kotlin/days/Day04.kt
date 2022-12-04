@@ -29,6 +29,14 @@ object Day04 : Day {
                 second.first <= first.first && second.last <= first.last && first.last <= second.first ||
                 checkCompleteOverlap(first, second)
 
+    fun part1Set(input: List<String>): Long = input
+        .map { line -> line.extractAreas() }
+        .count { (first, second) -> checkCompleteOverlapSet(first.toSet(), second.toSet()) }.toLong()
+
+    fun part2Set(input: List<String>): Long = input
+        .map { line -> line.extractAreas() }
+        .count { (first, second) -> checkPartialOverlapSet(first.toSet(), second.toSet()) }.toLong()
+
 //    Alternative solution using sets
     private fun checkCompleteOverlapSet(first: Set<Int>, second: Set<Int>) =
         first.containsAll(second) || second.containsAll(first)
