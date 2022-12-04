@@ -1,4 +1,4 @@
-import days.Day
+package days
 
 // Day object template
 object Day99: Day {
