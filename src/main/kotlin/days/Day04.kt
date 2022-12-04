@@ -27,10 +27,8 @@ object Day04 : Day {
     private fun checkCompleteOverlap(first: IntRange, second: IntRange) =
         first.first <= second.first && second.last <= first.last || second.first <= first.first && first.last <= second.last
 
-    private fun checkPartialOverlap(first: IntRange, second: IntRange): Boolean =
-        first.first <= second.first && first.last <= second.last && second.first <= first.last ||
-                second.first <= first.first && second.last <= first.last && first.last <= second.first ||
-                checkCompleteOverlap(first, second)
+    private fun checkPartialOverlap(a: IntRange, b: IntRange): Boolean =
+        a.first <= b.last && b.first <= a.last
 
     fun part1Set(input: List<String>): Long = input
         .map { line -> line.extractAreas() }
