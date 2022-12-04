@@ -1,7 +1,12 @@
-// Day object template
-object Day01 {
+package days
 
-    fun part1(input: List<String>): Long {
+// Day object template
+object Day01 :Day {
+    override val number: Int = 1
+    override val expectedPart1Test: Long = 24000L
+    override val expectedPart2Test: Long = 45000L
+
+    override fun part1(input: List<String>): Long {
         var maxCalories = Int.MIN_VALUE
         var elfNumber = 1
         var runningTotal = 0
@@ -18,7 +23,7 @@ object Day01 {
         return maxCalories.toLong()
     }
 
-    fun part2(input: List<String>): Long {
+    override fun part2(input: List<String>): Long {
         val elfRations = mutableListOf<Int>()
         var runningTotal = 0
         for (line in input) {

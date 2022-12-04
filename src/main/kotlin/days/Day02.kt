@@ -1,6 +1,9 @@
-import days.Day
+package days
 
 object Day02 : Day {
+    override val number: Int = 2
+    override val expectedPart1Test: Long = 15L
+    override val expectedPart2Test: Long = 12L
 
     enum class Move(val score: Int) { ROCK(1), PAPER(2), SCISSORS(3) }
 

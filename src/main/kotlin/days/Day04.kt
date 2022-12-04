@@ -1,6 +1,9 @@
 package days
 
 object Day04 : Day {
+    override val number: Int = 4
+    override val expectedPart1Test: Long = 2
+    override val expectedPart2Test: Long = 4
 
     override fun part1(input: List<String>): Long = input
         .map { line -> line.extractAreas() }

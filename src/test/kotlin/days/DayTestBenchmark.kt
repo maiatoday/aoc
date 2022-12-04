@@ -1,4 +1,5 @@
 package days
+
 import kotlinx.benchmark.Scope
 import org.openjdk.jmh.annotations.*
 import readInput
@@ -8,24 +9,25 @@ import java.util.concurrent.TimeUnit
 @Fork(1)
 @Warmup(iterations = 0)
 @Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
-open class Day04Benchmark{
+open class DayBenchmark{
 
     private var input: List<String> = emptyList()
+    private val day = Day04
     @Setup
     fun setUp() {
-        input = readInput(4, "Day")
+        input = readInput(day.number, "Day")
     }
 
     @Benchmark
-    fun part1(): Long = Day04.part1(input)
+    fun part1(): Long = day.part1(input)
 
     @Benchmark
-    fun part2(): Long = Day04.part2(input)
+    fun part2(): Long = day.part2(input)
 
     @Benchmark
-    fun part1Set(): Long = Day04.part1Set(input)
+    fun part1Alternative(): Long = day.part1Set(input)
 
     @Benchmark
-    fun part2Set(): Long = Day04.part2Set(input)
+    fun part2Alternative(): Long = day.part2Set(input)
 
 }
