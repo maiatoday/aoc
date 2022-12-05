@@ -2,7 +2,7 @@ package days
 import readInput
 import kotlin.system.measureTimeMillis
 
-val today = Day04
+val today = Day05
 fun main() {
 
     println("***** Day${Day04.number} *****")
