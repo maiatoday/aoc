@@ -1,7 +1,7 @@
 package days
 
 // Day object template
-object Day01 :Day {
+object Day01 :Day<Long, List<String>> {
     override val number: Int = 1
     override val expectedPart1Test: Long = 24000L
     override val expectedPart2Test: Long = 45000L

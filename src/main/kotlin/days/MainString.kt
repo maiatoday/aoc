@@ -8,26 +8,26 @@ fun main() {
     val testInput = readInputString(today.number,"Day_test")
     var part1Test = ""
     val part1TestMillis = measureTimeMillis {
-        part1Test = today.part1S(testInput)
+        part1Test = today.part1(testInput)
     }
-    check(part1Test == today.expectedPart1STest)
-    println("✅ one with ${today.expectedPart1STest} ✅ in $part1TestMillis ms")
+    check(part1Test == today.expectedPart1Test)
+    println("✅ one with ${today.expectedPart1Test} ✅ in $part1TestMillis ms")
     var part2Test = ""
     val part2TestMillis = measureTimeMillis {
-        part2Test = today.part2S(testInput)
+        part2Test = today.part2(testInput)
     }
-    check(part2Test == today.expectedPart2STest)
-    println("✅ two with ${today.expectedPart2STest} ✅ in $part2TestMillis ms")
+    check(part2Test == today.expectedPart2Test)
+    println("✅ two with ${today.expectedPart2Test} ✅ in $part2TestMillis ms")
     println("*****************")
 
     val input = readInputString(today.number, "Day")
     var part1 = ""
     val part1Millis = measureTimeMillis {
-        part1 = today.part1S(input)
+        part1 = today.part1(input)
     }
     var part2 = ""
     val part2Millis = measureTimeMillis {
-        part2 = today.part2S(input)
+        part2 = today.part2(input)
     }
     println("🌟 one : $part1 in $part1Millis ms")
     println("🌟 two : $part2 in $part2Millis ms")

@@ -1,11 +1,9 @@
 package days
 
-object Day05 : Day {
+object Day05 : Day<String, String> {
     override val number: Int = 5
-    override val expectedPart1Test: Long = -1L
-    override val expectedPart2Test: Long = -1L
-    const val expectedPart1STest: String = "CMZ"
-    const val expectedPart2STest: String = "MCD"
+    override val expectedPart1Test: String = "CMZ"
+    override val expectedPart2Test: String = "MCD"
     private fun String.parseInput(): Pair<Stacks, CraneMoves> {
         val (stacksString, movesString) = this.split("\n\n")
         val columnCount = stacksString.lines().single { it.startsWith(" 1") }.columnCount() ?: 0
@@ -72,13 +70,13 @@ object Day05 : Day {
         }
     }
 
-    override fun part1S(input: String): String {
+    override fun part1(input: String): String {
         val (stacks, craneMoves) = input.parseInput()
         stacks.applyMoves9000(craneMoves)
         return stacks.joinToString("") { s -> s.last() }
     }
 
-    override fun part2S(input: String): String {
+    override fun part2(input: String): String {
         val (stacks, craneMoves) = input.parseInput()
         stacks.applyMoves9001(craneMoves)
         return stacks.joinToString("") { s -> s.last() }

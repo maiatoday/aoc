@@ -1,6 +1,6 @@
 package days
 
-object Day02 : Day {
+object Day02 : Day<Long, List<String>> {
     override val number: Int = 2
     override val expectedPart1Test: Long = 15L
     override val expectedPart2Test: Long = 12L
