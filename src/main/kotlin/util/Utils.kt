@@ -7,6 +7,7 @@ import java.security.MessageDigest
  */
 fun readInput(dayNumber:Int, name: String) = File("src/main/resources/$dayNumber", "$name.txt").readLines()
 fun readInputString(dayNumber:Int, name: String) = File("src/main/resources/$dayNumber", "$name.txt").readText()
+fun readInputStringRepeat(dayNumber:Int, name: String, n:Int) = File("src/main/resources/$dayNumber", "$name.txt").readText().repeat(n)
 
 /**
  * Converts string to md5 hash.

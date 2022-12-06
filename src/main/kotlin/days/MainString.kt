@@ -3,16 +3,16 @@ import readInputString
 import kotlin.system.measureTimeMillis
 
 fun main() {
-    val today = Day05
+    val today = Day06
     println("***** Day${today.number} *****")
     val testInput = readInputString(today.number,"Day_test")
-    var part1Test = ""
+    var part1Test = 0
     val part1TestMillis = measureTimeMillis {
         part1Test = today.part1(testInput)
     }
     check(part1Test == today.expectedPart1Test)
     println("✅ one with ${today.expectedPart1Test} ✅ in $part1TestMillis ms")
-    var part2Test = ""
+    var part2Test = 0
     val part2TestMillis = measureTimeMillis {
         part2Test = today.part2(testInput)
     }
@@ -21,11 +21,11 @@ fun main() {
     println("*****************")
 
     val input = readInputString(today.number, "Day")
-    var part1 = ""
+    var part1 = 0
     val part1Millis = measureTimeMillis {
         part1 = today.part1(input)
     }
-    var part2 = ""
+    var part2 = 0
     val part2Millis = measureTimeMillis {
         part2 = today.part2(input)
     }
