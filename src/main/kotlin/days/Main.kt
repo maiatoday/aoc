@@ -1,13 +1,14 @@
 package days
+
 import readInput
 import kotlin.system.measureTimeMillis
 
 fun main() {
 
-    val today = Day04
+    val today = Day07
 
     println("***** Day${today.number} *****")
-    val testInput = readInput(today.number,"Day_test")
+    val testInput = readInput(today.number, "Day_test")
     var part1Test = 0L
     val part1TestMillis = measureTimeMillis {
         part1Test = today.part1(testInput)

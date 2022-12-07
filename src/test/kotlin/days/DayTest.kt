@@ -6,8 +6,9 @@ import org.junit.Test
 import readInput
 
 class DayTest {
-    private val day = Day04
+    private val day = Day07
     private val testInput = readInput(day.number,"Day_test")
+//    private val testInput = readInput(day.number,"Day")
     @Test
     fun part1() {
         MatcherAssert.assertThat(day.part1(testInput), CoreMatchers.`is`(day.expectedPart1Test))
