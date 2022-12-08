@@ -5,7 +5,7 @@ import kotlin.system.measureTimeMillis
 
 fun main() {
 
-    val today = Day07
+    val today = Day08
 
     println("***** Day${today.number} *****")
     val testInput = readInput(today.number, "Day_test")
