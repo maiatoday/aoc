@@ -24,10 +24,10 @@ object Day09 : Day<Long, List<String>> {
         steps.forEach { s ->
             repeat(s.count) {
                 rope = shakeRope(s.direction, rope)
-                positions.add(rope.last())
+                positions += rope.last()
             }
         }
-        return positions.count().toLong()
+        return positions.size.toLong()
     }
 
     private fun initRope(start: Pair<Int, Int> = (0 to 0), ropeLength:Int = 2) = buildList {
@@ -43,7 +43,7 @@ object Day09 : Day<Long, List<String>> {
             if (index == 0 ) {
                 newRope.add(moveHead(direction, k)) // this would be the initial value
             } else {
-                newRope.add(moveKnot(newRope.last(), k)) // this would be he operation 
+                newRope.add(moveKnot(newRope.last(), k)) // this would be he operation
             }
         }
         return newRope
@@ -71,7 +71,6 @@ object Day09 : Day<Long, List<String>> {
                 else (tail.first - 1 to tail.second)
             } else (tail.first to tail.second)
         }
-
         else -> {
             // diagonal
             // are they touching?
@@ -112,13 +111,13 @@ object Day09 : Day<Long, List<String>> {
             repeat(s.count) {
                 //println("====== ====== ${s.direction}${it} ====== ====== ")
                 rope = shakeRope(s.direction, rope)
-                positions.add(rope.last())
+                positions += rope.last()
             }
 //            showRope(rope)
         }
 //        println("====== Positions ${positions.count()} =====")
 //        showPositions(positions)
-        return positions.count().toLong()
+        return positions.size.toLong()
     }
 
     private fun showRope(rope: List<Pair<Int, Int>>) {
