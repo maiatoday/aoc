@@ -9,17 +9,18 @@ fun main() {
 
     data class Instruction(val ticks: Int = 1, val inc: Int = 0)
 
+    fun String.toInstruction() = when (substringBefore(" ")) {
+        "noop" -> Instruction()
+        "addx" -> Instruction(ticks = 2, inc =substringAfter(" ").toInt())
+        else -> error("oops")
+    }
+
     fun crtDisplay(input: List<String>) {
         val instructions: List<Instruction> = buildList {
             //transform a list of Strings to a list of Instructions
             for (s in input) {
                 // transform String to Instruction
-                val opcode = s.substringBefore(" ")
-                val instruction = when (opcode) {
-                    "noop" -> Instruction()
-                    "addx" -> Instruction(ticks = 2, inc = s.substringAfter(" ").toInt())
-                    else -> error("oops")
-                }
+                val instruction = s.toInstruction()
                 this.add(instruction)
             }
         }
