@@ -11,19 +11,13 @@ fun main() {
 
     fun String.toInstruction() = when (substringBefore(" ")) {
         "noop" -> Instruction()
-        "addx" -> Instruction(ticks = 2, inc =substringAfter(" ").toInt())
+        "addx" -> Instruction(ticks = 2, inc = substringAfter(" ").toInt())
         else -> error("oops")
     }
 
     fun crtDisplay(input: List<String>) {
-        val instructions: List<Instruction> = buildList {
-            //transform a list of Strings to a list of Instructions
-            for (s in input) {
-                // transform String to Instruction
-                val instruction = s.toInstruction()
-                this.add(instruction)
-            }
-        }
+        //transform a list of Strings to a list of Instructions
+        val instructions: List<Instruction> = input.map { it.toInstruction() }
         val xRegisterAtTick: List<Int> = buildList {
             // transform instructions to x register values
             var x = 1 // needs a running x register value
