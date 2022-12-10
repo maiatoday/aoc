@@ -19,26 +19,9 @@ fun main() {
             this.add(this@expandInstruction.inc)
         }
 
-    fun Int.toPixel(index:Int):String = if (index % crtW in this - 1..this + 1) "█" else "."
+    fun Int.toPixel(index:Int):String = if (index % crtW in this - 1..this + 1) "🔴" else "⚫️"
 
-    fun crtScan(input: List<String>): List<String> {
-        //transform a list of Strings to a list of Instructions
-        val instructions: List<Instruction> = input.map { it.toInstruction() }
-        // expand out the clock ticks making a list of values to add to x register
-        // it needs to be flattened
-        val instructionsFlatExpanded: List<Int> = instructions.flatMap { i ->
-            i.expandInstruction()
-        }
-
-        // calculate the x values
-        val xRegisterAtTick = instructionsFlatExpanded.runningFold(1) { acc, i -> acc + i }
-        val pixels = xRegisterAtTick.mapIndexed { index, x -> x.toPixel(index) }
-        val lines = pixels.chunked(40).map { it.joinToString("") }
-        return lines
-
-    }
-
-    fun crtScanCondensed(input: List<String>): List<String> =
+    fun crtScan(input: List<String>): List<String> =
         input.map { it.toInstruction() }// converts input to instruction
             .flatMap { i -> i.expandInstruction() } // expands multi tick instructions
             .runningFold(1) { x, i -> x + i } // runs through the instructions accumulating x
@@ -58,6 +41,5 @@ fun main() {
     println("============== real input ==============")
     val input = readInput(10, "Day")
     crtScan(input).display()
-    crtScanCondensed(input).display()
     println("\n\n")
 }
