@@ -1,11 +1,9 @@
 package days
 
 import readInput
-import kotlin.system.measureTimeMillis
 
 fun main() {
     val crtW = 40
-    val crtH = 6
 
     data class Instruction(val ticks: Int = 1, val inc: Int = 0)
 
@@ -15,42 +13,51 @@ fun main() {
         else -> error("oops")
     }
 
-    fun crtDisplay(input: List<String>) {
+    fun Instruction.expandInstruction(): List<Int> =
+        buildList {
+            repeat(this@expandInstruction.ticks - 1) { this.add(0) }
+            this.add(this@expandInstruction.inc)
+        }
+
+    fun Int.toPixel(index:Int):String = if (index % crtW in this - 1..this + 1) "█" else "."
+
+    fun crtScan(input: List<String>): List<String> {
         //transform a list of Strings to a list of Instructions
         val instructions: List<Instruction> = input.map { it.toInstruction() }
         // expand out the clock ticks making a list of values to add to x register
-        val instExpanded: List<List<Int>> = instructions.map { i ->
-            buildList {
-                repeat(i.ticks - 1) { this.add(0) }
-                this.add(i.inc)
-            }
-        }
         // it needs to be flattened
-        val instFlatExpanded: List<Int> = instructions.flatMap { i ->
-            buildList {
-                repeat(i.ticks - 1) { this.add(0) }
-                this.add(i.inc)
-            }
+        val instructionsFlatExpanded: List<Int> = instructions.flatMap { i ->
+            i.expandInstruction()
         }
 
         // calculate the x values
-        val xRegisterAtTick = instFlatExpanded.runningFold(1) { acc, i -> acc + i }
+        val xRegisterAtTick = instructionsFlatExpanded.runningFold(1) { acc, i -> acc + i }
+        val pixels = xRegisterAtTick.mapIndexed { index, x -> x.toPixel(index) }
+        val lines = pixels.chunked(40).map { it.joinToString("") }
+        return lines
 
-        for (i in 0 until (crtW * crtH)) {
-            // transform xRegister values to pixels(String)
-            // chop up in lines
-            // side effect: print pixels
-            if (i.mod(crtW) == 0) print("\n")                                                      //<============  side effect
-            print(if (i.mod(crtW) in xRegisterAtTick[i] - 1..xRegisterAtTick[i] + 1) "█" else ".") //<============  side effect
+    }
+
+    fun crtScanCondensed(input: List<String>): List<String> =
+        input.map { it.toInstruction() }// converts input to instruction
+            .flatMap { i -> i.expandInstruction() } // expands multi tick instructions
+            .runningFold(1) { x, i -> x + i } // runs through the instructions accumulating x
+            .mapIndexed { index, x -> x.toPixel(index) } // converts index and x register to a pixel
+            .chunked(40).map { it.joinToString("") } // spilt into lines for the screen
+
+
+    fun List<String>.display() { // side effect method
+        this.forEach {
+            println(it)
         }
     }
 
     val testInput = readInput(10, "Day_test")
     println(" ============== test input =============")
-    crtDisplay(testInput)
-    println("\n\n")
+    crtScan(testInput).display()
     println("============== real input ==============")
     val input = readInput(10, "Day")
-    crtDisplay(input)
+    crtScan(input).display()
+    crtScanCondensed(input).display()
     println("\n\n")
 }
