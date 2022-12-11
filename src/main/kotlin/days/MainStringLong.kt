@@ -7,13 +7,13 @@ fun main() {
     val today = Day11
     println("***** Day${today.number} *****")
     val testInput = readInputString(today.number,"Day_test")
-    var part1Test:BigInteger = BigInteger.ZERO
+    var part1Test = 0L
     val part1TestMillis = measureTimeMillis {
         part1Test = today.part1(testInput)
     }
     check(part1Test == today.expectedPart1Test)
     println("✅ one with ${today.expectedPart1Test} ✅ in $part1TestMillis ms")
-    var part2Test =  BigInteger.ZERO
+    var part2Test =  0L
     val part2TestMillis = measureTimeMillis {
         part2Test = today.part2(testInput)
     }
@@ -22,11 +22,11 @@ fun main() {
     println("*****************")
 
     val input = readInputString(today.number, "Day")
-    var part1 = BigInteger.ZERO
+    var part1 = 0L
     val part1Millis = measureTimeMillis {
         part1 = today.part1(input)
     }
-    var part2 = BigInteger.ZERO
+    var part2 = 0L
     val part2Millis = measureTimeMillis {
         part2 = today.part2(input)
     }
