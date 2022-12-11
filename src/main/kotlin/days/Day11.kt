@@ -9,7 +9,7 @@ object Day11 : Day<Long, String> {
 
     data class Monkey(
         val items: MutableList<Long>,
-        val operation: (Long) -> (Long),
+        val operation: (Long, Long) -> (Long),
         val test: (Long) -> (Boolean),
         val testValue: Long,
         val trueMonkey: Int,
@@ -18,12 +18,13 @@ object Day11 : Day<Long, String> {
         var inspectionCount: Long = 0
     ) {
         fun round(
-            doWorryDrop: Boolean = false
+            doWorryDrop: Boolean = false,
+            magicClampNumber: Long = 1L
         ): List<MonkeySwap> {
 //            val itemValues = items.map { operation(it) }.map { if (doWorryDrop) worryDrop(it) else it }
             val itemValues =
-                if (doWorryDrop) items.map { operation(it) }
-                    .map { worryDrop(it) } else items.map { operation(it) }
+                if (doWorryDrop) items.map { operation(it,  magicClampNumber) }
+                    .map { worryDrop(it) } else items.map { operation(it, magicClampNumber) }
             inspectionCount += itemValues.size
             val trueList = itemValues.filter { test(it) }
             val falseList = itemValues.filter { !test(it) }
@@ -60,33 +61,20 @@ object Day11 : Day<Long, String> {
         }
         .split(": ").last()
 
-    private fun String.toOperation(): (Long) -> Long {
+    private fun String.toOperation(): (Long, Long) -> Long {
         val term2String = this.split("old ").last().substring(2)
         val term2: Long = if (term2String == "old") 0L else term2String.toLong()
         return when {
             // (this == "old * old") -> { x: Long -> if (x.divBy(x)) x else (x * x) }
-            (this == "old * old") -> { x: Long ->
-                getNewNumber(x) // <==== here get prime factors of x and return that
+            (this == "old * old") -> { x: Long, c: Long ->
+                x % c // <==== here get prime factors of x and return that
             }
-
-            (this.startsWith("old + ")) -> { x: Long -> x + term2 }
-            (this.startsWith("old * ")) -> { x: Long -> if ((x % term2) == 0L) x else x * term2 }
+            (this.startsWith("old + ")) -> { x: Long, _:Long -> x + term2 }
+            (this.startsWith("old * ")) -> { x: Long, _:Long -> if ((x % term2) == 0L) x else x * term2 }
             else -> {
                 error("Oops!")
             }
         }
-    }
-
-    private fun getNewNumber(n: Long): Long =
-        primeFactorsLong(n).toSet()
-            .also { println(it)}
-            .reduce { acc, x -> acc * x }
-
-
-    private tailrec fun primeFactorsLong(n: Long, i: Long = 2, factors: List<Long> = listOf()): List<Long> = when {
-        (n <= 1) -> factors
-        n % i == 0L -> primeFactorsLong(n / i, i, factors + listOf(i))
-        else -> primeFactorsLong(n, i + 1, factors)
     }
 
     private fun extractMonkeys(input: String, worryDivisor: Int = 3): List<Monkey> =
@@ -94,20 +82,21 @@ object Day11 : Day<Long, String> {
 
     override fun part1(input: String): Long {
         val monkeys: List<Monkey> = extractMonkeys(input)
+        val magicClampNumber = monkeys.map { it.testValue }.reduce { acc, i -> i * acc }
         // monkeys.inspect()
         println("====== And Go!")
         repeat(20) { round ->
             //   println("Round $round")
-            monkeyRound(monkeys, true)
+            monkeyRound(monkeys, true, magicClampNumber)
             //   monkeys.inspect()
         }
         val topMonkeys = monkeys.map { it.inspectionCount }.sorted().takeLast(2)
         return topMonkeys.first().toLong() * topMonkeys.last().toLong()
     }
 
-    private fun monkeyRound(monkeys: List<Monkey>, doWorryDrop: Boolean) {
+    private fun monkeyRound(monkeys: List<Monkey>, doWorryDrop: Boolean, magicClampNumber: Long) {
         monkeys.forEachIndexed() { index, monkey ->
-            val swaps = monkey.round(doWorryDrop)
+            val swaps = monkey.round(doWorryDrop, magicClampNumber)
 //            println("----Before Throw----")
 //            monkey.inspect(index)
 //            swaps.inspect(index)
@@ -128,23 +117,24 @@ object Day11 : Day<Long, String> {
             6,
             19,
             20,
-            700,
-            999,
-            1999,
-            2999,
-            3999,
-            4999,
-            5999,
-            6999,
-            7999,
-            8999,
+//            700,
+//            999,
+//            1999,
+//            2999,
+//            3999,
+//            4999,
+//            5999,
+//            6999,
+//            7999,
+//            8999,
             9999
         )// 19, 20, 21, 1999, 2999, 3999)
         val monkeys: List<Monkey> = extractMonkeys(input, 1)
+        val magicClampNumber = monkeys.map { it.testValue }.reduce { acc, i -> i * acc }
         monkeys.inspect()
         repeat(10000) { round ->
             // println("==============Round $round")
-            monkeyRound(monkeys, false)
+            monkeyRound(monkeys, false, magicClampNumber)
             // monkeys.inspect()
             if (round in roundCheck) {
                 println("== After Round $round ==")
