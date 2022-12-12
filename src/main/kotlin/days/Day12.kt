@@ -3,7 +3,6 @@ package days
 import util.findAllInGrid
 import util.findInGrid
 import util.neighbours
-import java.util.PriorityQueue
 
 typealias Point = Pair<Int, Int>
 typealias Terrain = List<List<Int>>
@@ -26,12 +25,14 @@ object Day12 : Day<Long, List<String>> {
 
     private fun findPath(terrain: Terrain, start: Point, end: Point): PathMap {
         val pathMap = mutableMapOf<Point, Int>()
-        val spotsToCheck: PriorityQueue<PointPath> = PriorityQueue(compareBy(PointPath::path))
+        val spotsToCheck: MutableList<PointPath> = mutableListOf()
         spotsToCheck.add(PointPath(end, 0))
         val maxM = terrain.size
         val maxN = terrain.first().size
         checkSpots@ while (spotsToCheck.isNotEmpty()) {
-            val xSpot = spotsToCheck.poll().point
+            val xSpotN = spotsToCheck.first()
+            spotsToCheck.remove(xSpotN)
+            val xSpot = xSpotN.point
             if (xSpot == start) break@checkSpots
             val currentPathLength = pathMap[xSpot] ?: 0
             val currentHeight = terrain[xSpot.first][xSpot.second]
