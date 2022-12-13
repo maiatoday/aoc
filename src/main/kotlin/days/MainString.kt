@@ -2,17 +2,18 @@ package days
 import readInputString
 import kotlin.system.measureTimeMillis
 
+typealias MainStringReturnType = Int
 fun main() {
     val today = Day06
     println("***** Day${today.number} *****")
     val testInput = readInputString(today.number,"Day_test")
-    var part1Test = 0
+    var part1Test:MainStringReturnType
     val part1TestMillis = measureTimeMillis {
         part1Test = today.part1(testInput)
     }
     check(part1Test == today.expectedPart1Test)
     println("✅ one with ${today.expectedPart1Test} ✅ in $part1TestMillis ms")
-    var part2Test = 0
+    var part2Test:MainStringReturnType
     val part2TestMillis = measureTimeMillis {
         part2Test = today.part2(testInput)
     }
@@ -21,7 +22,7 @@ fun main() {
     println("*****************")
 
     val input = readInputString(today.number, "Day")
-    var part1 = 0
+    var part1:MainStringReturnType
     val part1Millis = measureTimeMillis {
         part1 = today.part1(input)
     }
