@@ -1,13 +1,13 @@
 package days
 
-import java.lang.Integer.min
+import kotlin.math.min
 
 typealias ReturnType = Int
 
 object Day13 : Day<ReturnType, List<String>> {
     override val number: ReturnType = 13
     override val expectedPart1Test: ReturnType = 13
-    override val expectedPart2Test: ReturnType = -1
+    override val expectedPart2Test: ReturnType = 140
 
     override fun part1(input: List<String>): ReturnType {
         val messagePairs = parseInput(input)
@@ -29,15 +29,38 @@ object Day13 : Day<ReturnType, List<String>> {
         return total
     }
 
+    override fun part2(input: List<String>): ReturnType {
+
+
+        val messages = input.filter { it.isNotEmpty() && !it.startsWith("#") }
+            .map { s -> s.toMessage() }
+        val divider1 = "[[2]]".toMessage()
+        val divider2 = "[[6]]".toMessage()
+        // try with a sorted list but there is something weird going on with hashcode and equals
+        // when I try to find the nodes by index in the sorted list if I add the dividers it is unhappy
+        // too late now to debug
+        val sortedMessages =
+            messages.sorted() //TODO either fix the == thing or remove sorted.
+        var index1 = 1
+        var index2 = 1
+        for (m in sortedMessages) {
+            // println()
+            //m.beep()
+            if (m < divider1) index1++
+            if (m < divider2) index2++
+
+        }
+        index2 += 1 // need to add 1 because the first divider isn't in the list
+
+        return index1 * index2
+    }
+
     private fun parseInput(input: List<String>) = input.filter { it.isNotEmpty() && !it.startsWith("#") }
         .map { s ->
             s.toMessage()
         }
         .chunked(2)
 
-    override fun part2(input: List<String>): ReturnType {
-        return expectedPart2Test
-    }
 
     private fun String.toMessage() = parse(this)//.also { println("\n  -- ") }
 
@@ -85,18 +108,18 @@ object Day13 : Day<ReturnType, List<String>> {
                 else -> error("Oops $c in $s")
             }
         }
-       // currentNode?.beep()
+        // currentNode?.beep()
         return currentNode ?: error("bad parse")
     }
 
-    sealed class Message {
+    sealed class Message : Comparable<Message> {
         abstract val parent: MList?
         val debug = true
-        abstract fun toList():Message
+        abstract fun toList(): Message
         abstract fun beep()
     }
 
-    class MList(
+    data class MList(
         override val parent: MList?, var list: MutableList<Message> = mutableListOf()
     ) : Message() {
         override fun toList(): Message = this
@@ -111,56 +134,51 @@ object Day13 : Day<ReturnType, List<String>> {
                 print("]")
             }
         }
+
+        override fun compareTo(other: Message): Int {
+            return when (other) {
+                is MNumber -> this.compareTo(other.toList())
+                is MList -> {
+//                    println("\n        MList CompareTo ..")
+//                    print("        this")
+                    //                   this.beep()
+//                    print(" other ")
+                    //                   other.beep()
+                    val thisSize = this.list.size
+                    val otherSize = other.list.size
+                    for (i in 0 until min(thisSize, otherSize))  {
+                        if (this.list[i] > other.list[i])  return 1
+                        else if (this.list[i] < other.list[i]) return  -1
+                    }
+                    if (thisSize > otherSize) return 1
+                    if (otherSize > thisSize) return -1
+                    return 0
+                }
+            }
+        }
     }
 
     data class MNumber(
         override val parent: MList?, var value: Int
     ) : Message() {
 
-        override fun toList():MList {
+        override fun toList(): MList {
             val m = MList(this.parent)
-            m.list.add(this.copy(parent= m))
+            m.list.add(this.copy(parent = m))
             return m
         }
+
         override fun beep() {
             if (debug) print(value)
         }
-    }
 
-    operator fun Message.compareTo(other: Message): Int =
-        when  {
-            (this is MList) && (other is MList) -> {
-                this.compareTo(other)
-            }
-            (this is MNumber) && (other is MNumber) -> {
-                this.compareTo(other)
-            }
-            else -> {
-                this.toList().compareTo(other.toList())
+        override fun compareTo(other: Message): Int {
+            return when (other) {
+                is MNumber -> this.value.compareTo(other.value)
+                is MList -> this.toList().compareTo(other)
             }
         }
-
-
-    @OptIn(ExperimentalStdlibApi::class)
-    operator fun MList.compareTo(other: MList): Int {
-        println("\n        MList CompareTo ..")
-        print("        this")
-        this.beep()
-        print(" other ")
-        other.beep()
-        val thisSize = this.list.size
-        val otherSize = other.list.size
-        for (i in 0..< min(thisSize, otherSize))  {
-            if (this.list[i] > other.list[i])  return 1
-            else if (this.list[i] < other.list[i]) return  -1
-        }
-        if (thisSize > otherSize) return 1
-        return -1
     }
-
-    operator fun MNumber.compareTo(other: MNumber): Int = this.value.compareTo(other.value)
-
-
 }
 
 
