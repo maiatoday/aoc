@@ -23,6 +23,17 @@ object Day12 : Day<Long, List<String>> {
         return pathMap[start]?.toLong() ?: -1L
     }
 
+    override fun part2(input: List<String>): Long {
+        val end = input.findInGrid("E")
+        val allStart = mutableListOf<Point>()
+        allStart.add(input.findInGrid("S"))
+        allStart.addAll(input.findAllInGrid("a"))
+        println(allStart.size)
+        val terrain = input.toTerrain()
+        val pathLengths = allStart.map { start -> findPath(terrain, start, end)[start] ?: Int.MAX_VALUE }
+        return pathLengths.min().toLong()
+    }
+
     private fun findPath(terrain: Terrain, start: Point, end: Point): PathMap {
         val pathMap = mutableMapOf<Point, Int>()
         val spotsToCheck: MutableList<PointPath> = mutableListOf()
@@ -37,9 +48,8 @@ object Day12 : Day<Long, List<String>> {
             val currentPathLength = pathMap[xSpot] ?: 0
             val currentHeight = terrain[xSpot.first][xSpot.second]
             val neighbours = xSpot.neighbours(maxM, maxN)
-            neighbours.filter {
-                (currentHeight - terrain[it.first][it.second]) <= 1
-            }
+            neighbours
+                .filter { (currentHeight - terrain[it.first][it.second]) <= 1 }
                 .forEach {
                     val newPathLength = currentPathLength + 1
                     val oldPathLength = pathMap[it] ?: -1
@@ -53,22 +63,9 @@ object Day12 : Day<Long, List<String>> {
                         spotsToCheck.add(PointPath(it, newPathLength))
                     }
                 }
-            // }
         }
         return pathMap
     }
-
-
-    override fun part2(input: List<String>): Long {
-        val end = input.findInGrid("E")
-        val allStart = mutableListOf<Point>()
-        allStart.add(input.findInGrid("S"))
-        allStart.addAll(input.findAllInGrid("a"))
-        val terrain = input.toTerrain()
-        val pathLengths = allStart.map { start -> findPath(terrain, start, end)[start] ?: Int.MAX_VALUE }
-        return pathLengths.min().toLong()
-    }
-
 
     private fun List<String>.toTerrain(): Terrain =
         this.map { m ->
@@ -80,7 +77,6 @@ object Day12 : Day<Long, List<String>> {
                 }
             }
         }
-
 
     private fun Char.toHeight() = this - 'a'
 
