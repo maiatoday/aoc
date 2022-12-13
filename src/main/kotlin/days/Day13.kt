@@ -39,11 +39,16 @@ object Day13 : Day<ReturnType, List<String>> {
         // try with a sorted list but there is something weird going on with hashcode and equals
         // when I try to find the nodes by index in the sorted list if I add the dividers it is unhappy
         // too late now to debug
-        val sortedMessages =
-            messages.sorted() //TODO either fix the == thing or remove sorted.
+        //  val allMessages = messages + listOf(divider1, divider2)
+        //  val sortedMessages =
+        //      allMessages.sorted()
+        //  val index1 = sortedMessages.indexOf(divider1)
+        //  val index2 = sortedMessages.indexOf(divider2)
+        //
+        //  return (index1+1) * (index2+1)
         var index1 = 1
         var index2 = 1
-        for (m in sortedMessages) {
+        for (m in messages) {
             // println()
             //m.beep()
             if (m < divider1) index1++
@@ -51,7 +56,6 @@ object Day13 : Day<ReturnType, List<String>> {
 
         }
         index2 += 1 // need to add 1 because the first divider isn't in the list
-
         return index1 * index2
     }
 
@@ -146,9 +150,9 @@ object Day13 : Day<ReturnType, List<String>> {
                     //                   other.beep()
                     val thisSize = this.list.size
                     val otherSize = other.list.size
-                    for (i in 0 until min(thisSize, otherSize))  {
-                        if (this.list[i] > other.list[i])  return 1
-                        else if (this.list[i] < other.list[i]) return  -1
+                    for (i in 0 until min(thisSize, otherSize)) {
+                        if (this.list[i] > other.list[i]) return 1
+                        else if (this.list[i] < other.list[i]) return -1
                     }
                     if (thisSize > otherSize) return 1
                     if (otherSize > thisSize) return -1
