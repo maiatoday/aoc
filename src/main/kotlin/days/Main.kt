@@ -3,10 +3,10 @@ package days
 import readInput
 import kotlin.system.measureTimeMillis
 
-typealias MainReturnType = Int
+typealias MainReturnType = Long
 fun main() {
 
-    val today = Day14
+    val today = Day15
 
     println("***** Day${today.number} *****")
     val testInput = readInput(today.number, "Day_test")
