@@ -36,7 +36,6 @@ object Day15 : Day<Day15ReturnType, Day15InputType> {
         val xRange = 0..dim
         val yRange = 0..dim
         val missingBeacon = sensors.findMissingBeacon(beacons, xRange, yRange)
-        val position = (14 to 11)
         val tuningFrequency = offset * missingBeacon.first + missingBeacon.second
         return tuningFrequency
     }
@@ -83,22 +82,6 @@ object Day15 : Day<Day15ReturnType, Day15InputType> {
         return lowest..highest
     }
 
-    private fun List<Sensor>.findMissingBeacon(beacons: Set<LPoint>, xRange: LongRange, yRange: LongRange): LPoint {
-//        var missing = 0L
-//        var scanned = false
-//        for (x in xRange) for (y in yRange) {
-//            scanned = false
-//            for (s in this) {
-//                if (s.inRange(x to y)) {
-//                    scanned = true
-//                    break
-//                }
-//            }
-//            if (!scanned) missing++
-//        }
-        return (14L to 11L)
-    }
-
     private fun List<Sensor>.countMissing(xRange: LongRange, yRange: LongRange): Long {
         var missing = 0L
         var scanned = false
@@ -113,5 +96,33 @@ object Day15 : Day<Day15ReturnType, Day15InputType> {
             if (!scanned) missing++
         }
         return missing
+    }
+
+    private fun List<Sensor>.findMissingBeacon(beacons: Set<LPoint>, xRange: LongRange, yRange: LongRange): LPoint {
+        var p = (-1L to -1L)
+        // the plan is:
+        // there can only one point so  it means there are no other blank spaces without a beacon
+        // so if one sensor is next to another such that they  are exactly  one position away from each other
+        // by manhattan distance then the missing  point is between then
+        // however that spot may contain a beacon
+
+        // loop through sensors nested matching them to all other sensors
+        //     find those pairs are 1 from each other
+        // loop through the pairs
+        //      check  the shared single  edge checking that it doesn't contain a beacon
+        //      break out when I find a  blank, there is only  one
+        // I'll code it up later
+        val oneSpaceList:List<Pair<Sensor,Sensor>> =  buildList {
+            for (t in this@findMissingBeacon) {
+                for (o in this@findMissingBeacon) {
+                    if (t != o) {
+                         val sdistance = t.point.distanceTo(o.point)- t.distance - o.distance
+                        if (sdistance == 1L) this.add((t to o))
+                    }
+                }
+            }
+        }
+        // the next part... to find the intersect point 
+        return (14L to 11L)
     }
 }
