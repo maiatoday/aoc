@@ -1,11 +1,11 @@
 package days
 
-import util.Point
+import util.PPoint
 
 typealias Day14ReturnType = Int
 typealias Day14InputType = List<String>
 
-typealias Cave = MutableMap<Point, Int>
+typealias Cave = MutableMap<PPoint, Int>
 
 object Day14 : Day<Day14ReturnType, Day14InputType> {
     override val number: Int = 14
@@ -62,7 +62,7 @@ object Day14 : Day<Day14ReturnType, Day14InputType> {
         return cave
     }
 
-    private fun String.toPoints(): List<Point> =
+    private fun String.toPoints(): List<PPoint> =
         this.split(" -> ")
             .flatMap { p ->
                 p.split(",")
@@ -71,12 +71,12 @@ object Day14 : Day<Day14ReturnType, Day14InputType> {
                     }
             }
 
-    private fun String.toRanges(): List<Pair<Point, Point>> {
+    private fun String.toRanges(): List<Pair<PPoint, PPoint>> {
         val points = this.toPoints()
         return points.zipWithNext()
     }
 
-    private fun Cave.addRockWall(range: Pair<Point, Point>) {
+    private fun Cave.addRockWall(range: Pair<PPoint, PPoint>) {
         if (range.first.first == range.second.first) {
             // vertical
             val x = range.first.first
@@ -102,7 +102,7 @@ object Day14 : Day<Day14ReturnType, Day14InputType> {
 
 
     private fun Cave.pourSand(
-        sandSource: Point,
+        sandSource: PPoint,
         caveWidth: IntRange,
         caveHeight: IntRange
     ): Int {
@@ -117,7 +117,7 @@ object Day14 : Day<Day14ReturnType, Day14InputType> {
     }
 
     private fun Cave.sandFall(
-        point: Point
+        point: PPoint
     ): Boolean {
         var position = point
         var overflow = false

@@ -1,14 +1,14 @@
 package days
 
+import util.PPoint
 import util.findAllInGrid
 import util.findInGrid
 import util.neighbours
 
-typealias Point = Pair<Int, Int>
 typealias Terrain = List<List<Int>>
-typealias PathMap = MutableMap<Point, Int>
+typealias PathMap = MutableMap<PPoint, Int>
 
-data class PointPath(val point: Point, val path: Int)
+data class PointPath(val point: PPoint, val path: Int)
 
 object Day12 : Day<Long, List<String>> {
     override val number: Int = 12
@@ -25,7 +25,7 @@ object Day12 : Day<Long, List<String>> {
 
     override fun part2(input: List<String>): Long {
         val end = input.findInGrid("E")
-        val allStart = mutableListOf<Point>()
+        val allStart = mutableListOf<PPoint>()
         allStart.add(input.findInGrid("S"))
         allStart.addAll(input.findAllInGrid("a"))
         println(allStart.size)
@@ -34,8 +34,8 @@ object Day12 : Day<Long, List<String>> {
         return pathLengths.min().toLong()
     }
 
-    private fun findPath(terrain: Terrain, start: Point, end: Point): PathMap {
-        val pathMap = mutableMapOf<Point, Int>()
+    private fun findPath(terrain: Terrain, start: PPoint, end: PPoint): PathMap {
+        val pathMap = mutableMapOf<PPoint, Int>()
         val spotsToCheck: MutableList<PointPath> = mutableListOf()
         spotsToCheck.add(PointPath(end, 0))
         val maxM = terrain.size
