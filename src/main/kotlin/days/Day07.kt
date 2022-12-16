@@ -4,6 +4,7 @@ object Day07 : Day<Long, List<String>> {
     override val number: Int = 7
     override val expectedPart1Test: Long = 95437L
     override val expectedPart2Test: Long = 24933642L
+    override var useTestData = true
 
     override fun part1(input: List<String>): Long {
         val root = parse(input)

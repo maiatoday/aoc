@@ -4,6 +4,7 @@ object Day08 : Day<Long, List<String>> {
     override val number: Int = 8
     override val expectedPart1Test: Long = 21L
     override val expectedPart2Test: Long = 8L
+    override var useTestData = true
 
     override fun part1(input: List<String>): Long {
         val visibleTrees: MutableMap<Pair<Int, Int>, Boolean> = mutableMapOf()

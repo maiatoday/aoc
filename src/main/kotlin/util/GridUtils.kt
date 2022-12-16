@@ -2,6 +2,7 @@ package util
 
 
 import kotlin.math.abs
+import kotlin.math.sign
 
 typealias PPoint = Pair<Int, Int>
 
@@ -41,7 +42,14 @@ fun List<String>.findAllInGrid(p: String): List<PPoint> {
 }
 
 data class Point(val x: Int, val y: Int) {
-    fun manhattanDistanceTo(other: Point) =
+    infix fun manhattanDistanceTo(other: Point) =
         abs(this.x - other.x) + abs(this.y - other.y)
+
+    fun lineTo(other: Point): List<Point> {
+        val dx = (other.x - x).sign
+        val dy = (other.y - y).sign
+        val steps = maxOf(abs(x - other.x), abs(y - other.y))
+        return (1..steps).scan(this) { last, _ -> Point(last.x + dx, last.y + dy) }
+    }
 
 }

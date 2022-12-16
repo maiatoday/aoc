@@ -11,10 +11,9 @@ object Day15 : Day<Day15ReturnType, Day15InputType> {
     override val number: Int = 15
     override val expectedPart1Test: Day15ReturnType = 26
     override val expectedPart2Test: Day15ReturnType = 56_000_011L
-
+    override var useTestData = true
     override fun part1(input: Day15InputType): Day15ReturnType {
-        val row = 10 //test
-//        val row = 2_000_000
+        val row = if (useTestData) 10 else 2_000_000
         val data = input.toData()
         val sensors: List<Sensor> = data.toSensors()
         val beacons: Set<Point> = data.map { it[1] }.toSet()
@@ -26,14 +25,12 @@ object Day15 : Day<Day15ReturnType, Day15InputType> {
     }
 
     override fun part2(input: Day15InputType): Day15ReturnType {
-        val dim = 20
-        // val dim = 4_000_000L
+        val dim = if (useTestData) 20 else 4_000_000
         val offset = 4_000_000L
         val data = input.toData()
         val sensors: List<Sensor> = data.toSensors()
-        val beacons: Set<Point> = data.map { it[1] }.toSet()
         val limitRange = 0..dim
-        val missingBeacon = sensors.findMissingBeacon(beacons, limitRange)
+        val missingBeacon = sensors.findMissingBeacon(limitRange)
         val tuningFrequency = offset * missingBeacon.x + missingBeacon.y
         return tuningFrequency
     }
@@ -52,17 +49,25 @@ object Day15 : Day<Day15ReturnType, Day15InputType> {
             .matchEntire(this)
             ?.destructured
             ?: throw IllegalArgumentException("Bad data $this")
-        return listOf(Point(sx.toInt() , sy.toInt()), Point(bx.toInt() , by.toInt()))
+        return listOf(Point(sx.toInt(), sy.toInt()), Point(bx.toInt(), by.toInt()))
     }
 
     data class Sensor(val point: Point, val beacon: Point) {
-        val distance = point.manhattanDistanceTo(beacon)
+        val distance = point manhattanDistanceTo beacon
 
-        fun inRange(p: Point): Boolean = point.manhattanDistanceTo(p) <= distance
+        fun inRange(p: Point): Boolean = point manhattanDistanceTo p <= distance
 
-        fun rangeAt(y: Int):IntRange? {
-            val width = distance - abs(point.y -y)
-            return  if (width == 0) null else (point.x-width)..(point.x+width)
+        fun rangeAt(y: Int): IntRange? {
+            val width = distance - abs(point.y - y)
+            return if (width == 0) null else (point.x - width)..(point.x + width)
+        }
+
+        fun getOutsideBoundary(): List<Point> {
+            val top = Point(point.x, point.y + distance + 1)
+            val bottom = Point(point.x, point.y - distance - 1)
+            val left = Point(point.x - distance - 1, point.y)
+            val right = Point(point.x + distance + 1, point.y)
+            return (top.lineTo(left) + top.lineTo(right) + left.lineTo(bottom) + right.lineTo(bottom))
         }
     }
 
@@ -83,7 +88,7 @@ object Day15 : Day<Day15ReturnType, Day15InputType> {
         for (x in xRange) for (y in yRange) {
             scanned = false
             for (s in this) {
-                if (s.inRange(Point(x,y))) {
+                if (s.inRange(Point(x, y))) {
                     scanned = true
                     break
                 }
@@ -94,10 +99,8 @@ object Day15 : Day<Day15ReturnType, Day15InputType> {
     }
 
     private fun List<Sensor>.findMissingBeacon(
-        beacons: Set<Point>,
         limitRange: IntRange
     ): Point {
-        var p = (-1 to -1)
         // the plan is:
         // there can only one point so  it means there are no other blank spaces without a beacon
         // so if one sensor is next to another such that they  are exactly  one position away from each other
@@ -109,19 +112,23 @@ object Day15 : Day<Day15ReturnType, Day15InputType> {
         // loop through the pairs
         //      check  the shared single  edge checking that it doesn't contain a beacon
         //      break out when I find a  blank, there is only  one
-        // I'll code it up later
-        val oneSpaceList: List<Pair<Sensor, Sensor>> = buildList {
-            for (t in this@findMissingBeacon) {
-                for (o in this@findMissingBeacon) {
-                    if (t != o) {
-                        val sdistance = t.point.manhattanDistanceTo(o.point) - t.distance - o.distance
-                        if (sdistance == 1) this.add((t to o))
-                    }
-                }
-            }
-        }
-        // the next part... to find the intersection point
+        // I'll code it up later or maybe this is wrong
+//        val oneSpaceList: List<Pair<Sensor, Sensor>> = buildList {
+//            for (t in this@findMissingBeacon) {
+//                for (o in this@findMissingBeacon) {
+//                    if (t != o) {
+//                        val sdistance = t.point.manhattanDistanceTo(o.point) - t.distance - o.distance
+//                        if (sdistance == 1) this.add((t to o))
+//                    }
+//                }
+//            }
+//        }
+        // sigh oh well brute force after-all, also won't run in main because my template is too limited
+        val validPoints = this.flatMap { it.getOutsideBoundary() }
+            .filter { p -> p.x in limitRange && p.y in limitRange }
 
-        return Point(14,11)
+        val point = validPoints.first { test -> this.none { s -> s.inRange(test) } }
+
+        return point
     }
 }

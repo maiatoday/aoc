@@ -4,6 +4,7 @@ object Day03 : Day<Long, List<String>> {
     override val number: Int = 3
     override val expectedPart1Test: Long = 157
     override val expectedPart2Test: Long = 70
+    override var useTestData = true
 
     override fun part1(input: List<String>): Long = input.map { rucksack ->
         rucksack.substring(0 until rucksack.length / 2).toCharArray() to rucksack.substring(rucksack.length / 2).toCharArray()

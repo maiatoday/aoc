@@ -6,6 +6,7 @@ object Day09 : Day<Long, List<String>> {
     override val number: Int = 9
     override val expectedPart1Test: Long = 88L//13L
     override val expectedPart2Test: Long = 36L
+    override var useTestData = true
 
     enum class Direction { U, D, L, R, }
 

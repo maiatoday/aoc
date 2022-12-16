@@ -26,6 +26,7 @@ fun main() {
 
     val input = readInput(today.number, "Day")
     var part1:MainReturnType
+    today.useTestData = false
     val part1Millis = measureTimeMillis {
         part1 = today.part1(input)
     }
