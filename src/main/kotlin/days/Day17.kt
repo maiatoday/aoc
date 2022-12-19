@@ -5,7 +5,6 @@ import kotlin.math.min
 
 typealias Day17ReturnType = Int
 typealias Day17InputType = String
-typealias RockColumn = MutableList<Boolean>
 
 object Day17 : Day<Day17ReturnType, Day17InputType> {
     override val number: Int = 17
@@ -24,15 +23,13 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
                 else -> error("oops $c")
             }
         }
-        val cave: List<RockColumn> = buildList {
-            repeat(CAVE_WIDTH) {
-                this.add(mutableListOf())
-            }
-        }
+        val cave: MutableList<String> = mutableListOf()
+
         var turn = 0
         var jetIndex = 0
-        repeat(10) {
-            if (debug) println("turn ***** $turn")
+        var fillCount = 0
+        repeat(22) {
+            print("turn ***** $turn")
             val height = cave.highestRock()
             val rock = when (turn % 5) {
                 0 -> Flat(height)
@@ -42,20 +39,27 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
                 4 -> Block(height)
                 else -> error("Oops missing block type")
             }
-            println("Starting rock ~~~~~${rock.name}")
+            println(" Starting rock ~~~~~${rock.name} ${rock.position}")
 
             while (rock.canMove) {
                 val jet = jets[jetIndex]
                 val jetstring = if (jet > 0) ">" else "<"
-                println("~~~~~~~$jet  $jetstring")
+                if (debug) println("~~~~~~~$jet  $jetstring")
                 rock.jet(jet, cave)
                 jetIndex = (jetIndex + 1) % jets.size
                 rock.down(cave)
                 if (debug) println("down ~~~~~$rock")
             }
+            fillCount += rock.fill
+            val actualFill = cave.sumOf {
+                it.count { c -> c == '#' }
+            }
+            println("Fill count actual $actualFill expected $fillCount")
             turn++
-            cave.debug()
+           cave.debug()
         }
+
+        cave.debug2()
         return cave.highestRock()
     }
 
@@ -65,188 +69,121 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
 
     //----------------------------------------------------------
 
-    private fun List<RockColumn>.debug() {
+    private fun List<String>.debug2() {
         val highest = this.highestRock()
         println("========== highest rock = $highest ======")
-        for (y in highest - 1 downTo 0) {
+        for (y in highest - 1 downTo 500) {
             print("|")
-            for (ci in this) {
-                if (ci.size > y) {
-                    if (ci[y]) print("#") else print(".")
-                } else {
-                    print("-")
-                }
-
-            }
+            print(this[y])
             println("|")
         }
     }
 
-    private fun List<RockColumn>.highestRock() =
-        this[0].size // can be re placed by a special case of highestRockInRange
+    private fun List<String>.debug() {
+        val highest = this.highestRock()
+        println("========== highest rock = $highest ======")
+        for (y in highest - 1 downTo 0) {
+            print("|")
+            print(this[y])
+            println("|")
+        }
+    }
 
+    private fun List<String>.highestRock() = this.size
 
-    enum class ShapesType { FLAT, PLUS, ELL, LINE, BLOCK }
+    sealed class Shape(height: Int, val name: String, private val shape: List<String>, val fill: Int) {
+        private val start = Point(2, 3 + height)
+        var canMove: Boolean = true
+        var position: Point = start
+        private val width = shape[0].length
+        private val height = shape.size
 
-    sealed class Shape(height: Int) {
-        abstract val name: String
-        abstract var canMove: Boolean
-        abstract var position: Point
-        abstract val shapePattern: Map<Point, Boolean>
-        abstract val width: Int
-        abstract val height: Int
-        val start = Point(2, 3 + height)
-
-        fun jet(direction: Int, cave: List<RockColumn>) {
+        fun jet(direction: Int, cave: List<String>) {
             val newX = position.x + direction
-            if (newX in 0..CAVE_WIDTH - width) {
-                val collision = if (direction > 0) {
-                    checkCollision(width - 1, cave, newX + width - 1)
-                } else {
-                    checkCollision(0, cave, newX)
-                }
-                if (!collision) position = position.copy(x = newX)
-            }
+            val collision = checkCollision(direction, cave, newX, position.y)
+            if (!collision) position = position.copy(x = newX)
+            if (debug) println("~~~~~~~~ $position because collision=$collision")
         }
 
-        private fun checkCollision(shapeEdge: Int, cave: List<RockColumn>, columnIndex: Int): Boolean {
+        private fun checkCollision(direction: Int, cave: List<String>, x: Int, y: Int): Boolean {
+            // boundary checks
+            if (direction == 1 && (x + width > CAVE_WIDTH)) return true //right edge
+            if (direction == -1 && x < 0) return true //left  edge
+            if (y >= cave.size) return false // still falling through space
 
-            if (position.y >= cave[columnIndex].size) return false
-            val shapePoints = (0..height).map { Point(shapeEdge, it) }
-            val shapeValues = shapePoints.map { shapePattern[it] }
-            val columnYIndices = position.y..min(position.y + height, cave[columnIndex].size - 1)
-            val columnYValues = columnYIndices.map { cave[columnIndex][it] }
-            val collision =
-                columnYValues.zip(shapeValues).none { it.first && it.second ?: false }
-            return collision
+            val shapeBlocks = shape.first()
+            val rowBlocks = cave[y].substring(x, x + width)
+            val combo = shapeBlocks.zip(rowBlocks)
+            return  combo.any { it.first == '#' && it.second == '#' }
         }
 
-        fun down(cave: List<RockColumn>) {
-            val columnRange = position.x until position.x + width
+        fun down(cave: MutableList<String>) {
             val newY = position.y - 1
-            var localCanMove = true
-            for (ci in columnRange) {
-                if (newY == -1) {
-                    localCanMove = false  //floor
-                } else if (newY <= cave[ci].size - 1) {
-                    if (shapePattern.isFilled(ci - columnRange.first, 0) && cave[ci][newY]) {
-                        // we are on the edge and we can't move
-                        localCanMove = false
-                    }
-                }
-
+            val canGoDown = if (newY >= cave.size) {
+                true
+            } else if (newY < 0) {
+                false
+            } else if (newY <= cave.size - 1) {
+                val shapeBlocks = shape.first()
+                val rowBlocks = cave[newY].substring(position.x, position.x + width)
+                val combo = shapeBlocks.zip(rowBlocks)
+                combo.none { it.first == '#' && it.second == '#' }
+            } else {
+                true
             }
-            if (localCanMove) {
+
+            if (canGoDown) {
                 position = position.copy(y = newY)
                 canMove = true
             } else {
                 canMove = false
-                // TODO update cave...
-                val numRowsToAdd: Int = height-(cave[0].size-position.y)
-                repeat(numRowsToAdd) {
-                    for (x in 0 until CAVE_WIDTH) {
-                        cave[x].add(false)
+                if (position.y <= cave.size - 1) {
+                    for ((yOffset, s) in shape.withIndex()) {
+                        val y = position.y + yOffset
+                        if (y < cave.size) {
+                            cave[y] = replaceLine(cave[y], buildLine(s, position.x))
+                        } else {
+                            cave.add(buildLine(s, position.x))
+                        }
                     }
-                }
-                for (y in 0 until height) {
-                    for (x in 0 until CAVE_WIDTH) {
-                        cave[x][position.y + y] = x >= position.x &&
-                                x < position.x + width &&
-                                shapePattern[Point(x - position.x, y)] == true
+                } else {
+                    for (s in shape) {
+                        cave.add(buildLine(s, position.x))
                     }
                 }
             }
         }
+
+        private fun replaceLine(l: String, s: String): String =
+            l.zip(s).map {
+                when {
+                    (it.first == '.' && it.second == '.') -> '.'
+                    (it.first == '.' && it.second == '#') -> '#'
+                    (it.first == '#' && it.second == '.') -> '#'
+                    else -> error("bad replace undetected collision")
+                }
+            }.joinToString("")
+
+        private fun concatLine(l: String, s: String, x: Int): String =
+            l.substring(0, x) + s + l.substring(x + s.length)
+
+        private fun buildLine(s: String, x: Int): String =
+            concatLine(".".repeat(CAVE_WIDTH), s, x)
+
 
         override fun toString(): String =
             "Shape $name - position $position canMove $canMove"
 
     }
 
-    private fun Map<Point, Boolean>.isFilled(x: Int, y: Int): Boolean = this[Point(x, y)] ?: false
+    class Flat(height: Int) : Shape(height, "Flat", listOf("####"), 4)
 
-    class Flat(height: Int) : Shape(height) {
-        override val name: String = "Flat"
-        override var canMove: Boolean = true
-        override var position: Point = start
-        override val shapePattern: Map<Point, Boolean> = mapOf(
-            Point(0, 0) to true,
-            Point(1, 0) to true,
-            Point(2, 0) to true,
-            Point(3, 0) to true,
-        )
-        override val width = 4
-        override val height = 1
+    class Plus(height: Int) : Shape(height, "Plus", listOf(".#.", "###", ".#."), 5)
 
-    }
+    class Ell(height: Int) : Shape(height, "Ell", listOf("###", "..#", "..#"), 5)
 
-    class Plus(height: Int) : Shape(height) {
-        override val name: String = "Plus"
-        override var canMove: Boolean = true
-        override var position: Point = start
-        override val shapePattern: Map<Point, Boolean> = mapOf(
-            Point(0, 0) to false,
-            Point(1, 0) to true,
-            Point(2, 0) to false,
-            Point(0, 1) to true,
-            Point(1, 1) to true,
-            Point(2, 1) to true,
-            Point(0, 2) to false,
-            Point(1, 2) to true,
-            Point(2, 2) to false,
-        )
-        override val width = 3
-        override val height = 3
+    class Line(height: Int) : Shape(height, "Line", listOf("#", "#", "#", "#"), 4)
 
-    }
-
-    class Ell(height: Int) : Shape(height) {
-        override val name: String = "Ell"
-        override var canMove: Boolean = true
-        override var position: Point = start
-        override val shapePattern: Map<Point, Boolean> = mapOf(
-            Point(0, 0) to true,
-            Point(1, 0) to true,
-            Point(2, 0) to true,
-            Point(0, 1) to false,
-            Point(1, 1) to false,
-            Point(2, 1) to true,
-            Point(0, 2) to false,
-            Point(1, 2) to false,
-            Point(2, 2) to true,
-        )
-        override val width = 3
-        override val height = 3
-
-    }
-
-    class Line(height: Int) : Shape(height) {
-        override val name: String = "Line"
-        override var canMove: Boolean = true
-        override var position: Point = start
-        override val shapePattern: Map<Point, Boolean> = mapOf(
-            Point(0, 0) to true,
-            Point(0, 1) to true,
-            Point(0, 2) to true,
-            Point(0, 3) to true,
-        )
-        override val width = 1
-        override val height = 4
-
-    }
-
-    class Block(height: Int) : Shape(height) {
-        override val name: String = "Block"
-        override var canMove: Boolean = true
-        override var position: Point = start
-        override val shapePattern: Map<Point, Boolean> = mapOf(
-            Point(0, 0) to true,
-            Point(1, 0) to true,
-            Point(0, 1) to true,
-            Point(1, 1) to true,
-        )
-        override val width = 2
-        override val height = 2
-    }
+    class Block(height: Int) : Shape(height, "Block", listOf("##", "##"), 4)
 
 }

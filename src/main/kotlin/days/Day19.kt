@@ -33,7 +33,7 @@ object Day19 : Day<Day19ReturnType, Day19InputType> {
     ) {
         var geodeCount = 0
         fun runSimulation(time: Int) {
-            
+
 
         }
 
