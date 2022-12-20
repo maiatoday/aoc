@@ -28,7 +28,7 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
         var turn = 0
         var jetIndex = 0
         var fillCount = 0
-        repeat(22) {
+        repeat(2022) {
             print("turn ***** $turn")
             val height = cave.highestRock()
             val rock = when (turn % 5) {
@@ -56,10 +56,10 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
             }
             println("Fill count actual $actualFill expected $fillCount")
             turn++
-           cave.debug()
+            // cave.debug()
         }
 
-        cave.debug2()
+        //   cave.debug2()
         return cave.highestRock()
     }
 
@@ -111,10 +111,20 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
             if (direction == -1 && x < 0) return true //left  edge
             if (y >= cave.size) return false // still falling through space
 
-            val shapeBlocks = shape.first()
-            val rowBlocks = cave[y].substring(x, x + width)
+            //  compare whole block because of +
+            val shapeBlocks = shape.map { if (direction == 1) it[width - 1] else it[0] }
+            val rowBlocks =
+                (y..y + height).mapNotNull {
+                    if (it < cave.size) {
+                        if (direction == 1) {
+                            cave[it].substring(x + width - 1, x + width - 1 + 1).first()
+                        } else {
+                            cave[it].substring(x, x + 1).first()
+                        }
+                    } else null
+                }
             val combo = shapeBlocks.zip(rowBlocks)
-            return  combo.any { it.first == '#' && it.second == '#' }
+            return combo.any { it.first == '#' && it.second == '#' }
         }
 
         fun down(cave: MutableList<String>) {
@@ -123,10 +133,17 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
                 true
             } else if (newY < 0) {
                 false
+            } else if (this is Plus && newY < cave.size - 1) {
+                // have to check the whole of the block for all the blocks not just only plus
+                val secondRow = shape[1]
+                val rowBlocks = cave[newY + 1].substring(position.x, position.x + width)
+                val combo = secondRow.zip(rowBlocks)
+                combo.none { it.first == '#' && it.second == '#' }
             } else if (newY <= cave.size - 1) {
                 val shapeBlocks = shape.first()
                 val rowBlocks = cave[newY].substring(position.x, position.x + width)
                 val combo = shapeBlocks.zip(rowBlocks)
+                /// the borkiness is here because of the godforsaken plus TODO check the  second line
                 combo.none { it.first == '#' && it.second == '#' }
             } else {
                 true
@@ -157,9 +174,9 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
         private fun replaceLine(l: String, s: String): String =
             l.zip(s).map {
                 when {
-                    (it.first == '.' && it.second == '.') -> '.'
-                    (it.first == '.' && it.second == '#') -> '#'
-                    (it.first == '#' && it.second == '.') -> '#'
+                    (it.first == '_' && it.second == '_') -> '_'
+                    (it.first == '_' && it.second == '#') -> '#'
+                    (it.first == '#' && it.second == '_') -> '#'
                     else -> error("bad replace undetected collision")
                 }
             }.joinToString("")
@@ -168,7 +185,7 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
             l.substring(0, x) + s + l.substring(x + s.length)
 
         private fun buildLine(s: String, x: Int): String =
-            concatLine(".".repeat(CAVE_WIDTH), s, x)
+            concatLine("_".repeat(CAVE_WIDTH), s, x)
 
 
         override fun toString(): String =
@@ -178,9 +195,9 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
 
     class Flat(height: Int) : Shape(height, "Flat", listOf("####"), 4)
 
-    class Plus(height: Int) : Shape(height, "Plus", listOf(".#.", "###", ".#."), 5)
+    class Plus(height: Int) : Shape(height, "Plus", listOf("_#_", "###", "_#_"), 5)
 
-    class Ell(height: Int) : Shape(height, "Ell", listOf("###", "..#", "..#"), 5)
+    class Ell(height: Int) : Shape(height, "Ell", listOf("###", "__#", "__#"), 5)
 
     class Line(height: Int) : Shape(height, "Line", listOf("#", "#", "#", "#"), 4)
 
