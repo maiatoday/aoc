@@ -6,7 +6,7 @@ typealias Day21InputType = List<String>
 object Day21 : Day<Day21ReturnType, Day21InputType> {
     override val number: Int = 21
     override val expectedPart1Test: Day21ReturnType = 152
-    override val expectedPart2Test: Day21ReturnType = -1
+    override val expectedPart2Test: Day21ReturnType = 301
     override var useTestData = true
 
     override fun part1(input: Day21InputType): Day21ReturnType {
@@ -19,6 +19,27 @@ object Day21 : Day<Day21ReturnType, Day21InputType> {
         val monkeyMap = input.filter { it.isNotEmpty() }.toMonkeys(true)
         val rootMonkey = monkeyMap["root"]
         val human = monkeyMap["humn"]
+        val first = (rootMonkey as RootMonkey).first
+        val second = (rootMonkey as RootMonkey).second
+        val firstMonkey = monkeyMap[first]
+        val secondMonkey = monkeyMap[second]
+        var branch = -1L
+
+        val zz:Long = 12643288286556544L/3927
+        println("try this $zz")
+
+        // calculate as many values ahead of time as possible
+        val branchMonkeys = monkeyMap.values.filterIsInstance<BranchMonkey>()
+        branchMonkeys.forEach {
+            try {
+                it.shout(monkeyMap)
+            } catch (e:IllegalStateException) {
+                print(".")
+            }
+        }
+        // print values
+        println(rootMonkey.whisper(monkeyMap))
+
         return expectedPart2Test
     }
     //<-------------------------------->
@@ -37,7 +58,16 @@ object Day21 : Day<Day21ReturnType, Day21InputType> {
                         .matchEntire(it)
                         ?.destructured
                         ?: throw IllegalArgumentException("Bad monkey $this")
-                    this[name] = BranchMonkey(name, first, second, operator.toOperation())
+                    this[name] = if (findHuman && name == "root")
+                        RootMonkey(name, first, second)
+                    else
+                        BranchMonkey(
+                            name = name,
+                            first = first,
+                            second = second,
+                            operation = operator.toOperation(),
+                            operator = operator
+                        )
                 }
             }
         }
@@ -45,10 +75,10 @@ object Day21 : Day<Day21ReturnType, Day21InputType> {
     }
 
     private val leafMonkeyRegex =
-        """([a-z][a-z][a-z][a-z]): (\d+)""".toRegex()
+        """(....): (\d+)""".toRegex()
 
     private val branchMonkeyRegex =
-        """([a-z][a-z][a-z][a-z]): ([a-z][a-z][a-z][a-z]) (.) ([a-z][a-z][a-z][a-z])""".toRegex()
+        """(....): (....) (.) (....)""".toRegex()
 
     private fun String.toOperation(): (Long, Long) -> (Long) =
         when (this) {
@@ -59,26 +89,72 @@ object Day21 : Day<Day21ReturnType, Day21InputType> {
             else -> error("oops")
         }
 
-    open class Monkey(val name: String) {
-        fun shout(monkeyMap: Map<String, Monkey>): Long = when (this) {
-            is LeafMonkey -> this.value
-            is BranchMonkey -> operation(
-                monkeyMap[first]?.shout(monkeyMap) ?: error("missing Monkey"),
-                monkeyMap[second]?.shout(monkeyMap) ?: error("missing Monkey")
-            )
+    abstract class Monkey(val name: String) {
+        abstract fun shout(monkeyMap: Map<String, Monkey>): Long
+//        = when (this) {
+//            is LeafMonkey -> this.value
+//            is BranchMonkey -> {
+//                val answer = operation(
+//                    monkeyMap[first]?.shout(monkeyMap) ?: error("missing Monkey"),
+//                    monkeyMap[second]?.shout(monkeyMap) ?: error("missing Monkey")
+//                )
+//                this.value = answer
+//                answer
+//            }
+//
+//            else -> throw IllegalStateException("Weird Monkey")
+//        }
 
-            else -> error("Weird Monkey")
-        }
+        abstract fun whisper(monkeyMap: Map<String, Monkey>): String
     }
 
-    class LeafMonkey(name: String, val value: Long) : Monkey(name)
+
+    class LeafMonkey(name: String, val value: Long) : Monkey(name) {
+        override fun shout(monkeyMap: Map<String, Monkey>): Long = value
+
+        override fun whisper(monkeyMap: Map<String, Monkey>): String = "${value}"
+    }
+
     class BranchMonkey(
         name: String,
         val first: String,
         val second: String,
-        val operation: (Long, Long) -> (Long)
-    ) : Monkey(name)
+        val operation: (Long, Long) -> (Long),
+        val operator: String,
+        var value: Long? = null
+    ) : Monkey(name) {
 
-    class Human(name: String, var missingNumber: Long = -1L) : Monkey(name)
+        override fun shout(monkeyMap: Map<String, Monkey>): Long {
+            return if (value == null) {
+                val answer:Long = operation(
+                    monkeyMap[first]?.shout(monkeyMap) ?: error("missing Monkey"),
+                    monkeyMap[second]?.shout(monkeyMap) ?: error("missing Monkey")
+                )
+                value = answer
+                answer
+            } else {
+                value ?: error("Ooops")
+            }
+        }
+        override fun whisper(monkeyMap: Map<String, Monkey>): String =
+            if (value != null) value.toString() else "(${monkeyMap[first]?.whisper(monkeyMap)})$operator(${
+                monkeyMap[second]?.whisper(monkeyMap)})"
+    }
+
+    class Human(name: String, var missingNumber: Long = -1L) : Monkey(name) {
+        override fun shout(monkeyMap: Map<String, Monkey>): Long = error("oops")
+        override fun whisper(monkeyMap: Map<String, Monkey>): String = "x"
+    }
+
+    class RootMonkey(
+        name: String,
+        val first: String,
+        val second: String,
+        val operation: (Long, Long) -> (Boolean) = { f, s -> f == s }
+    ) : Monkey(name) {
+        override fun shout(monkeyMap: Map<String, Monkey>): Long = -1L
+        override fun whisper(monkeyMap: Map<String, Monkey>): String =
+            "root: (${monkeyMap[first]?.whisper(monkeyMap)} = ${monkeyMap[second]?.whisper(monkeyMap)})"
+    }
 
 }
