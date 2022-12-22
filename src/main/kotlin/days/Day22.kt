@@ -6,15 +6,22 @@ typealias Day22InputType = List<String>
 
 typealias PasswordMap = List<String>
 
-var  iii = 0
+data class Side(val xRange: IntRange, val yRange: IntRange, val map: List<String>)
+typealias PasswordCube = List<Side>
+
+var iii = 0
+
 object Day22 : Day<Day22ReturnType, Day22InputType> {
     override val number: Int = 22
     override val expectedPart1Test: Day22ReturnType = 6032
-    override val expectedPart2Test: Day22ReturnType = -1
+    override val expectedPart2Test: Day22ReturnType = 5031
     const val debug = true
     override var useTestData = true
-    lateinit var map: List<String>
+    lateinit var map: PasswordMap
     lateinit var markedMap: MutableList<String>
+    lateinit var sides: PasswordCube
+    const val SIDE_LENGTH = 50
+    val SIDE_RANGE = 0 until SIDE_LENGTH
     override fun part1(input: Day22InputType): Day22ReturnType {
         val instructions = input.last().toInstructions()
         val last = instructions.last()
@@ -26,7 +33,7 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
             iii = index
 //            if (index >= 1253)
 //                i.debug(index)
-            state = state(i, map)
+            state = state(i, map, false)
 //            if (index >= 1253)
 //                debug(state)
         }
@@ -37,7 +44,29 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
     }
 
     override fun part2(input: Day22InputType): Day22ReturnType {
-        return expectedPart2Test
+
+        val instructions = input.last().toInstructions()
+        map = input.dropLast(2)
+        markedMap = map.toMutableList()
+        sides = map.toCube()
+
+        var state = State(x = 0, 0, Direction.RIGHT, side = 0)
+        println("Start state $state")
+        instructions.forEachIndexed { index, i ->
+            iii = index
+//            if (index >= 1253)
+            i.debug(index)
+            state = state(i, map, true, sides)
+            println("State $state")
+//            if (index >= 1253)
+//                debug(state)
+        }
+
+        println("Instruction completed $iii")
+        //debug(state)
+
+        return state.toAnswer3D()
+
     }
 
     //<-----------------------------------------------------------------
@@ -99,12 +128,104 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
             }
     }
 
-    data class State(val x: Int, val y: Int, val direction: Direction) {
-        operator fun invoke(i: Instruction, map: PasswordMap): State =
+    data class State(val x: Int, val y: Int, val direction: Direction, val side: Int = 0) {
+        operator fun invoke(
+            i: Instruction,
+            map: PasswordMap,
+            onCube: Boolean = false,
+            passwordCube: PasswordCube = listOf()
+        ): State =
             when (i) {
-                is Move -> this.move(i.number, map)
+                is Move -> if (!onCube) this.move(i.number, map) else this.move3D(i.number, passwordCube)
                 is Turn -> this.copy(direction = direction + i.clockwise)
             }
+
+        private fun move3D(i: Int, passwordCube: PasswordCube): State {
+            var newX = x
+            var newY = y
+            var xx = newX
+            var yy = newY
+            var newSideInfo = SideSwapInfo(direction, side, false)
+            var nsInfo = newSideInfo
+            repeat(i) {
+                when (nsInfo.direction) {
+                    Direction.RIGHT -> {
+                        newX += 1
+                        if (newX !in SIDE_RANGE) {
+                            newX = SIDE_RANGE.first
+                            // new side,  new direction, x y swamp?
+                            nsInfo = swapSides(newSideInfo.side, newSideInfo.direction)
+                            if (nsInfo.xySwap) {
+                                // how to set it to max or 0 :( TODO
+                                val temp = newY
+                                newY = newX
+                                newX = temp
+                            }
+
+                            // ?newValues for X
+                        }
+
+                    }
+
+                    Direction.DOWN -> {
+                        newY += 1
+                        if (newY !in SIDE_RANGE) {
+                            newY = SIDE_RANGE.first // ?newValue
+                            // new side,  new direction, x y swamp?
+                            nsInfo = swapSides(newSideInfo.side, newSideInfo.direction)
+                            if (nsInfo.xySwap) {
+                                // how to set it to max or 0 :( TODO
+                                val temp = newY
+                                newY = newX
+                                newX = temp
+                            }
+                        }
+                    }
+
+                    Direction.LEFT -> {
+                        newX -= 1
+                        if (newX !in SIDE_RANGE) {
+                            newX = SIDE_RANGE.last
+                            // new side,  new direction, x y swamp?
+                            nsInfo = swapSides(newSideInfo.side, newSideInfo.direction)
+                            if (nsInfo.xySwap) {
+                                // how to set it to max or 0 :( TODO
+                                val temp = newY
+                                newY = newX
+                                newX = temp
+                            }
+                        }
+                    }
+
+                    Direction.UP -> {
+                        newY -= 1
+                        if (newY !in SIDE_RANGE) {
+                            newY = SIDE_RANGE.last
+                            // new side,  new direction, x y swamp?
+                            nsInfo = swapSides(newSideInfo.side, newSideInfo.direction)
+                            if (nsInfo.xySwap) {
+                                // how to set it to max or 0 :( TODO
+                                val temp = newY
+                                newY = newX
+                                newX = temp
+                            }
+                        }
+                    }
+                }
+                if (passwordCube[newSideInfo.side].map[newY][newX] == '#') {
+                    newX = xx
+                    newY = yy
+                    newSideInfo = nsInfo
+                    // how to reverse swap
+                } else {
+                    xx = newX
+                    yy = newY
+                    nsInfo = newSideInfo
+                }
+            }
+            return this.copy(x = newX, y = newY, side = newSideInfo.side, direction = newSideInfo.direction)
+        }
+
 
         private fun move(i: Int, map: PasswordMap): State {
             var newX = x
@@ -165,6 +286,13 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
                 Direction.UP -> "^"
             }
 
+        fun toAnswer3D(): Day22ReturnType {
+            val yOffset = 100
+            1000 * (y + yOffset + 1) + 4 * (x + 1) + direction.score
+            println("State $this")
+            return 1000 * (y + 1) + 4 * (x + 1) + direction.score
+        }
+
     }
 
     private fun String.portToLeft(): Int {
@@ -195,11 +323,89 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
 
     private fun PasswordMap.portToBottom(x: Int): Int {
         var y = this.size - 1
-        while (y >= 0 && (x > this[y].length-1 || this[y][x] == ' ')) {
+        while (y >= 0 && (x > this[y].length - 1 || this[y][x] == ' ')) {
             y--
         }
         return y
     }
+
+    private fun PasswordMap.toCube(): List<Side> {
+        // hard code sigh!
+
+        val side1X = 50..99
+        val side1Y = 0..49
+        val side2X = 100..149
+        val side2Y = 0..49
+
+        val side3X = 50..99
+        val side3Y = 50..99
+
+        val side4X = 0..49
+        val side4Y = 100..149
+        val side5X = 50..99
+        val side5Y = 100..149
+
+        val side6X = 0..49
+        val side6Y = 150..199
+        val xRanges = listOf(side1X, side2X, side3X, side4X, side5X, side6X)
+        val yRanges = listOf(side1Y, side2Y, side3Y, side4Y, side5Y, side6Y)
+        val ranges = xRanges.zip(yRanges)
+
+        val sides: List<Side> = buildList {
+            ranges.forEach {
+                val sideMap = this@toCube.filterIndexed { i, _ -> i in it.second }.map { s -> s.substring(it.first) }
+                add(Side(it.first, it.second, sideMap))
+            }
+
+        }
+        return sides
+    }
+
+    data class SideSwapInfo(val direction: Direction, val side: Int, val xySwap: Boolean)
+
+    fun swapSides(side: Int, direction: Direction): SideSwapInfo =
+        when (direction) {
+            Direction.RIGHT -> when (side) {
+                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 1, false)
+                1 -> SideSwapInfo(direction = Direction.LEFT, side = 4, false)
+                2 -> SideSwapInfo(direction = Direction.UP, side = 1, true)
+                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 4, false)
+                4 -> SideSwapInfo(direction = Direction.LEFT, side = 1, false)
+                5 -> SideSwapInfo(direction = Direction.UP, side = 4, true)
+                else -> error("Oops")
+            }
+
+            Direction.DOWN -> when (side) {
+                0 -> SideSwapInfo(direction = Direction.DOWN, side = 2, false)
+                1 -> SideSwapInfo(direction = Direction.RIGHT, side = 2, true)
+                2 -> SideSwapInfo(direction = Direction.DOWN, side = 4, false)
+                3 -> SideSwapInfo(direction = Direction.DOWN, side = 5, false)
+                4 -> SideSwapInfo(direction = Direction.LEFT, side = 5, true)
+                5 -> SideSwapInfo(direction = Direction.DOWN, side = 1, false)
+                else -> error("Oops")
+            }
+
+            Direction.LEFT -> when (side) {
+                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 3, false)
+                1 -> SideSwapInfo(direction = Direction.LEFT, side = 0, false)
+                2 -> SideSwapInfo(direction = Direction.DOWN, side = 3, true)
+                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 0, false)
+                4 -> SideSwapInfo(direction = Direction.LEFT, side = 3, false)
+                5 -> SideSwapInfo(direction = Direction.DOWN, side = 0, true)
+                else -> error("Oops")
+            }
+
+            Direction.UP -> when (side) {
+                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 5, true)
+                1 -> SideSwapInfo(direction = Direction.UP, side = 5, false)
+                2 -> SideSwapInfo(direction = Direction.UP, side = 0, false)
+                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 2, true)
+                4 -> SideSwapInfo(direction = Direction.UP, side = 2, false)
+                5 -> SideSwapInfo(direction = Direction.UP, side = 3, false)
+                else -> error("Oops")
+            }
+        }
+    //<--------------------------
 
     private fun debug(s: State) {
         if (debug) {
