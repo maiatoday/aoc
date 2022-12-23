@@ -7,18 +7,20 @@ import kotlin.math.sign
 typealias PPoint = Pair<Int, Int>
 
 fun PPoint.neighbours(
-    maxM: Int,
-    maxN: Int,
+    maxM: Int = Int.MAX_VALUE,
+    maxN: Int = Int.MAX_VALUE,
     diagonal: Boolean = false,
-    includeSelf: Boolean = false
+    includeSelf: Boolean = false,
+    onlyPositive: Boolean = true,
+    stayBelowMax: Boolean = true
 ): List<PPoint> {
     val mRange = first - 1..first + 1
     val nRange = second - 1..second + 1
     val points = mutableListOf<PPoint>()
     for (m in mRange) for (n in nRange) {
-        if (!includeSelf && this == m to n) continue // jump  over self
-        if (m < 0 || n < 0) continue
-        if (m >= maxM || n >= maxN) continue
+        if (!includeSelf && this == m to n) continue // jump over self
+        if (onlyPositive && (m < 0 || n < 0)) continue
+        if (stayBelowMax && (m >= maxM || n >= maxN)) continue
         if (!diagonal && (m != first && n != second)) continue
         points.add(m to n)
     }
@@ -41,6 +43,7 @@ fun List<String>.findAllInGrid(p: String): List<PPoint> {
     return returnList
 }
 
+
 data class Point(val x: Int, val y: Int) {
     infix fun manhattanDistanceTo(other: Point) =
         abs(this.x - other.x) + abs(this.y - other.y)
@@ -50,6 +53,58 @@ data class Point(val x: Int, val y: Int) {
         val dy = (other.y - y).sign
         val steps = maxOf(abs(x - other.x), abs(y - other.y))
         return (1..steps).scan(this) { last, _ -> Point(last.x + dx, last.y + dy) }
+    }
+
+}
+
+fun Point.neighbours(
+    maxM: Int = Int.MAX_VALUE,
+    maxN: Int = Int.MAX_VALUE,
+    diagonal: Boolean = false,
+    includeSelf: Boolean = false,
+    onlyPositive: Boolean = true,
+    stayBelowMax: Boolean = true
+): List<Point> {
+    val xRange = x - 1..x + 1
+    val yRange = y - 1..y + 1
+    val points = mutableListOf<Point>()
+    for (yy in yRange) for (xx in xRange) {
+        if (!includeSelf && this == Point(xx, yy)) continue // jump over self
+        if (onlyPositive && (yy < 0 || xx < 0)) continue
+        if (stayBelowMax && (yy >= maxM || xx >= maxN)) continue
+        if (!diagonal && (yy != y && xx != y)) continue
+        points.add(Point(xx, yy))
+    }
+    return points
+}
+
+fun Point.roseNeighbours(): List<Point> = this.neighbours(diagonal = true, onlyPositive = false, stayBelowMax = false)
+
+fun List<String>.listFromGrid(p: String): List<Point> {
+    val returnList = buildList {
+        val c = p.first()
+        for (y in this@listFromGrid.indices) for (x in this@listFromGrid.first().indices) {
+            if (this@listFromGrid[y][x] == c) add(Point(x, y))
+        }
+    }
+    return returnList
+}
+
+fun List<Point>.boundaries(): Pair<IntRange, IntRange> {
+    val xMin = minOf { it.x }
+    val xMax = maxOf { it.x }
+    val yMin = minOf { it.y }
+    val yMax = maxOf { it.y }
+    return (xMin..xMax to yMin..yMax)
+}
+
+fun List<Point>.debug(filled:String = "#", empty:String = ".") {
+    val boundaries = boundaries()
+    for (y in boundaries.second) {
+        for (x in boundaries.first) {
+            if (Point(x,y) in this) print(filled) else print(empty)
+        }
+        println()
     }
 
 }
