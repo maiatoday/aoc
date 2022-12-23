@@ -18,9 +18,9 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
     const val debug = true
     override var useTestData = true
     lateinit var map: PasswordMap
-    lateinit var markedMap: MutableList<String>
-    lateinit var sides: PasswordCube
-    const val SIDE_LENGTH = 50
+    private lateinit var markedMap: MutableList<String>
+    private lateinit var sides: PasswordCube
+    private const val SIDE_LENGTH = 50
     val SIDE_RANGE = 0 until SIDE_LENGTH
     override fun part1(input: Day22InputType): Day22ReturnType {
         val instructions = input.last().toInstructions()
@@ -57,13 +57,13 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
 //            if (index >= 1253)
             i.debug(index)
             state = state(i, map, true, sides)
-            println("State $state")
+            println("$state")
 //            if (index >= 1253)
 //                debug(state)
         }
 
         println("Instruction completed $iii")
-        //debug(state)
+        debug(state)
 
         return state.toAnswer3D()
 
@@ -145,70 +145,47 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
             var newY = y
             var xx = newX
             var yy = newY
-            var newSideInfo = SideSwapInfo(direction, side, false)
+            var newSideInfo = SideSwapInfo(direction, side, xx, yy)
             var nsInfo = newSideInfo
             repeat(i) {
-                when (nsInfo.direction) {
+                when (newSideInfo.direction) {
                     Direction.RIGHT -> {
                         newX += 1
                         if (newX !in SIDE_RANGE) {
-                            newX = SIDE_RANGE.first
                             // new side,  new direction, x y swamp?
-                            nsInfo = swapSides(newSideInfo.side, newSideInfo.direction)
-                            if (nsInfo.xySwap) {
-                                // how to set it to max or 0 :( TODO
-                                val temp = newY
-                                newY = newX
-                                newX = temp
-                            }
-
-                            // ?newValues for X
+                            newSideInfo = swapSides(newSideInfo.side, newSideInfo.direction, newX, newY)
+                            newX = newSideInfo.x
+                            newY = newSideInfo.y
                         }
-
                     }
 
                     Direction.DOWN -> {
                         newY += 1
                         if (newY !in SIDE_RANGE) {
-                            newY = SIDE_RANGE.first // ?newValue
                             // new side,  new direction, x y swamp?
-                            nsInfo = swapSides(newSideInfo.side, newSideInfo.direction)
-                            if (nsInfo.xySwap) {
-                                // how to set it to max or 0 :( TODO
-                                val temp = newY
-                                newY = newX
-                                newX = temp
-                            }
+                            newSideInfo = swapSides(newSideInfo.side, newSideInfo.direction, newX, newY)
+                            newX = newSideInfo.x
+                            newY = newSideInfo.y
                         }
                     }
 
                     Direction.LEFT -> {
                         newX -= 1
                         if (newX !in SIDE_RANGE) {
-                            newX = SIDE_RANGE.last
                             // new side,  new direction, x y swamp?
-                            nsInfo = swapSides(newSideInfo.side, newSideInfo.direction)
-                            if (nsInfo.xySwap) {
-                                // how to set it to max or 0 :( TODO
-                                val temp = newY
-                                newY = newX
-                                newX = temp
-                            }
+                            newSideInfo = swapSides(newSideInfo.side, newSideInfo.direction, newX, newY)
+                            newX = newSideInfo.x
+                            newY = newSideInfo.y
                         }
                     }
 
                     Direction.UP -> {
                         newY -= 1
                         if (newY !in SIDE_RANGE) {
-                            newY = SIDE_RANGE.last
                             // new side,  new direction, x y swamp?
-                            nsInfo = swapSides(newSideInfo.side, newSideInfo.direction)
-                            if (nsInfo.xySwap) {
-                                // how to set it to max or 0 :( TODO
-                                val temp = newY
-                                newY = newX
-                                newX = temp
-                            }
+                            newSideInfo = swapSides(newSideInfo.side, newSideInfo.direction, newX, newY)
+                            newX = newSideInfo.x
+                            newY = newSideInfo.y
                         }
                     }
                 }
@@ -216,8 +193,8 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
                     newX = xx
                     newY = yy
                     newSideInfo = nsInfo
-                    // how to reverse swap
                 } else {
+                    //backup the good state in case we hit a wall in the next repeat
                     xx = newX
                     yy = newY
                     nsInfo = newSideInfo
@@ -287,10 +264,11 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
             }
 
         fun toAnswer3D(): Day22ReturnType {
-            val yOffset = 100
-            1000 * (y + yOffset + 1) + 4 * (x + 1) + direction.score
+            val yOffset = 50 // hardcoded for side 2
+            val xOffset = 50 // hardcoded for side 2
+           // 1000 * (y + yOffset + 1) + 4 * (x +xOffset+ 1) + direction.score
             println("State $this")
-            return 1000 * (y + 1) + 4 * (x + 1) + direction.score
+            return 1000 * (y +yOffset + 1) + 4 * (x +xOffset+ 1) + direction.score
         }
 
     }
@@ -305,7 +283,6 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
     }
 
     private fun String.portToRight(): Int {
-        // TODO check
         var x = this.length - 1
         while (x >= 0 && this[x] == ' ') {
             x--
@@ -361,47 +338,47 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
         return sides
     }
 
-    data class SideSwapInfo(val direction: Direction, val side: Int, val xySwap: Boolean)
+    data class SideSwapInfo(val direction: Direction, val side: Int, val x: Int, val y: Int)
 
-    fun swapSides(side: Int, direction: Direction): SideSwapInfo =
+    fun swapSides(side: Int, direction: Direction, x: Int, y: Int): SideSwapInfo =
         when (direction) {
             Direction.RIGHT -> when (side) {
-                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 1, false)
-                1 -> SideSwapInfo(direction = Direction.LEFT, side = 4, false)
-                2 -> SideSwapInfo(direction = Direction.UP, side = 1, true)
-                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 4, false)
-                4 -> SideSwapInfo(direction = Direction.LEFT, side = 1, false)
-                5 -> SideSwapInfo(direction = Direction.UP, side = 4, true)
+                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 1, 0, y)
+                1 -> SideSwapInfo(direction = Direction.LEFT, side = 4, SIDE_LENGTH - 1,SIDE_LENGTH -y)
+                2 -> SideSwapInfo(direction = Direction.UP, side = 1, y, SIDE_LENGTH - 1)
+                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 4, 0, y)
+                4 -> SideSwapInfo(direction = Direction.LEFT, side = 1, SIDE_LENGTH - 1,SIDE_LENGTH -y)
+                5 -> SideSwapInfo(direction = Direction.UP, side = 4, y, SIDE_LENGTH - 1)
                 else -> error("Oops")
             }
 
             Direction.DOWN -> when (side) {
-                0 -> SideSwapInfo(direction = Direction.DOWN, side = 2, false)
-                1 -> SideSwapInfo(direction = Direction.RIGHT, side = 2, true)
-                2 -> SideSwapInfo(direction = Direction.DOWN, side = 4, false)
-                3 -> SideSwapInfo(direction = Direction.DOWN, side = 5, false)
-                4 -> SideSwapInfo(direction = Direction.LEFT, side = 5, true)
-                5 -> SideSwapInfo(direction = Direction.DOWN, side = 1, false)
+                0 -> SideSwapInfo(direction = Direction.DOWN, side = 2, x, 0)
+                1 -> SideSwapInfo(direction = Direction.LEFT, side = 2, SIDE_LENGTH - 1, x)
+                2 -> SideSwapInfo(direction = Direction.DOWN, side = 4, x, 0)
+                3 -> SideSwapInfo(direction = Direction.DOWN, side = 5, x, 0)
+                4 -> SideSwapInfo(direction = Direction.LEFT, side = 5, SIDE_LENGTH - 1, x)
+                5 -> SideSwapInfo(direction = Direction.DOWN, side = 1, x, 0)
                 else -> error("Oops")
             }
 
             Direction.LEFT -> when (side) {
-                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 3, false)
-                1 -> SideSwapInfo(direction = Direction.LEFT, side = 0, false)
-                2 -> SideSwapInfo(direction = Direction.DOWN, side = 3, true)
-                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 0, false)
-                4 -> SideSwapInfo(direction = Direction.LEFT, side = 3, false)
-                5 -> SideSwapInfo(direction = Direction.DOWN, side = 0, true)
+                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 3, 0, SIDE_LENGTH-1-y)
+                1 -> SideSwapInfo(direction = Direction.RIGHT, side = 0, SIDE_LENGTH - 1, y)
+                2 -> SideSwapInfo(direction = Direction.DOWN, side = 3, y, 0)
+                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 0, 0, SIDE_LENGTH-1-y)
+                4 -> SideSwapInfo(direction = Direction.LEFT, side = 3, SIDE_LENGTH - 1, y)
+                5 -> SideSwapInfo(direction = Direction.DOWN, side = 0, y, 0)
                 else -> error("Oops")
             }
 
             Direction.UP -> when (side) {
-                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 5, true)
-                1 -> SideSwapInfo(direction = Direction.UP, side = 5, false)
-                2 -> SideSwapInfo(direction = Direction.UP, side = 0, false)
-                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 2, true)
-                4 -> SideSwapInfo(direction = Direction.UP, side = 2, false)
-                5 -> SideSwapInfo(direction = Direction.UP, side = 3, false)
+                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 5, 0, x)
+                1 -> SideSwapInfo(direction = Direction.UP, side = 5, x, SIDE_LENGTH - 1)
+                2 -> SideSwapInfo(direction = Direction.UP, side = 0, x, SIDE_LENGTH - 1)
+                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 2, 0, x)
+                4 -> SideSwapInfo(direction = Direction.UP, side = 2, x, SIDE_LENGTH - 1)
+                5 -> SideSwapInfo(direction = Direction.UP, side = 3, x, SIDE_LENGTH - 1)
                 else -> error("Oops")
             }
         }
