@@ -10,22 +10,16 @@ typealias ElfMap = Set<Point>
 object Day23 : Day<Day23ReturnType, Day23InputType> {
     override val number: Int = 23
     override val expectedPart1Test: Day23ReturnType = 110
-    override val expectedPart2Test: Day23ReturnType = -1
+    override val expectedPart2Test: Day23ReturnType = 20
     override var useTestData = true
     private const val debug = false
 
     override fun part1(input: Day23InputType): Day23ReturnType {
         var elfMap: ElfMap = input.listFromGrid("#").toSet()
-        val elves = elfMap.mapIndexed { i, it -> Elf(i, it.x, it.y) }.also { if (debug) println("$it ") }
-        elfMap.show()
+        val elves = elfMap.mapIndexed { i, it -> Elf(i, it.x, it.y) }
         var direction = RoughCompass.NORTH
         repeat(10) { round ->
-            if (debug) println("Direction $direction")
-            val allProposedList = elves.mapNotNull { e -> e.half1(direction, elfMap) }
-            val allProposed = allProposedList.groupingBy { it }.eachCount()
-            elves.forEach { e -> e.half2(allProposed) }
-            elfMap = elves.map { e -> e.toPoint() }.toSet()
-            elfMap.show((round + 1).toString())
+            elfMap = elfMap.doRound(elves, direction)
             direction = direction.next()
         }
         val dimensions = elfMap.smallestSpace()
@@ -33,14 +27,37 @@ object Day23 : Day<Day23ReturnType, Day23InputType> {
     }
 
     override fun part2(input: Day23InputType): Day23ReturnType {
-        return expectedPart2Test
+        var elfMap: ElfMap = input.listFromGrid("#").toSet()
+        val elves = elfMap.mapIndexed { i, it -> Elf(i, it.x, it.y) }
+        var direction = RoughCompass.NORTH
+        var round = 0
+        var moving = true
+        while (moving) {
+            round++
+            elfMap = elfMap.doRound(elves, direction)
+            direction = direction.next()
+            moving = elves.any { it.move }
+        }
+        println("Stopped at round $round")
+        return round
+    }
+
+    private fun ElfMap.doRound(
+        elves: List<Elf>,
+        direction: RoughCompass
+    ): ElfMap {
+        val allProposedList = elves.mapNotNull { e -> e.half1(direction, this) }
+        val allProposed = allProposedList.groupingBy { it }.eachCount()
+        elves.forEach { e -> e.half2(allProposed) }
+        return elves.map { e -> e.toPoint() }.toSet()
     }
 
     //<-----------------------------------------
-    data class Elf(val id: Int, var x: Int, var y: Int) {
+    data class Elf(val id: Int, var x: Int, var y: Int, var move: Boolean = false) {
         private var proposed: Point? = null
 
         fun half1(direction: RoughCompass, map: ElfMap): Point? {
+            move = false
             val spot = Point(x, y)
             val neighbours = spot.roseNeighbours().toSet()
             var d = direction
@@ -61,23 +78,19 @@ object Day23 : Day<Day23ReturnType, Day23InputType> {
                 } while (open == null)
                 open
             }
-            if (debug) println("$id - ($x, $y) Half1: final direction $d proposed $proposed  loopCount $loopCount")
             return proposed
         }
 
         fun half2(allProposed: Map<Point, Int>) {
-            if (debug) print("$id-($x, $y) Half2: ")
             proposed?.let {
                 val proposedCount = allProposed[proposed] ?: 0
                 if (proposedCount == 1) {
                     // we can move
-                    if (debug) println("can move to $proposed")
+                    move = true
                     x = it.x
                     y = it.y
-                } else {
-                    if (debug) println("can't move count $proposedCount")
                 }
-            } //?: println("$proposed no move")
+            }
         }
     }
 
@@ -96,10 +109,10 @@ object Day23 : Day<Day23ReturnType, Day23InputType> {
     }
 
     private fun ElfMap.show(title: String = "start") {
-        if (debug) {
-            println("== End of Round $title ==")
-            this.toList().debug()
-        }
+        // if (debug) {
+        println("== End of Round $title ==")
+        this.toList().debug()
+        //  }
     }
 
     fun Point.check(direction: RoughCompass): List<Point> = when (direction) {
