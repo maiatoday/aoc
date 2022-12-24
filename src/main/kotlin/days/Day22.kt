@@ -63,7 +63,7 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
         }
 
         println("Instruction completed $iii")
-        debug(state)
+      //  debug(state)
 
         return state.toAnswer3D()
 
