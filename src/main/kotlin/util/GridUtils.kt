@@ -58,20 +58,20 @@ data class Point(val x: Int, val y: Int) {
 }
 
 fun Point.neighbours(
-    maxM: Int = Int.MAX_VALUE,
-    maxN: Int = Int.MAX_VALUE,
+    maxY: Int = Int.MAX_VALUE,
+    maxX: Int = Int.MAX_VALUE,
     diagonal: Boolean = false,
     includeSelf: Boolean = false,
     onlyPositive: Boolean = true,
     stayBelowMax: Boolean = true
 ): List<Point> {
-    val xRange = x - 1..x + 1
-    val yRange = y - 1..y + 1
+    val xRange = x + 1  downTo  x- 1
+    val yRange = y + 1 downTo y - 1
     val points = mutableListOf<Point>()
     for (yy in yRange) for (xx in xRange) {
         if (!includeSelf && this == Point(xx, yy)) continue // jump over self
         if (onlyPositive && (yy < 0 || xx < 0)) continue
-        if (stayBelowMax && (yy >= maxM || xx >= maxN)) continue
+        if (stayBelowMax && (yy >= maxY || xx >= maxX)) continue
         if (!diagonal && (yy != y && xx != y)) continue
         points.add(Point(xx, yy))
     }
