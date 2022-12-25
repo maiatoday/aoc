@@ -4,28 +4,32 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert
 import org.junit.Test
 import readInput
+import readInputString
 
 class DayTest {
-    private val day = Day25
+    private val day = Day17
     private val testInput = readInput(day.number,"Day_test")
 //    private val testInput = readInput(day.number,"Day")
     private val puzzleInput = readInput(day.number,"Day")
+
+    private val testInputString = readInputString(day.number,"Day_test")
+    private val puzzleInputString = readInputString(day.number,"Day")
     @Test
     fun part1() {
         day.useTestData = true
-        MatcherAssert.assertThat(day.part1(testInput), `is`(day.expectedPart1Test))
+        MatcherAssert.assertThat(day.part1(testInputString), `is`(day.expectedPart1Test))
     }
 
     @Test
     fun part2() {
         day.useTestData = true
-        MatcherAssert.assertThat(day.part2(testInput), `is`(day.expectedPart2Test))
+        MatcherAssert.assertThat(day.part2(testInputString), `is`(day.expectedPart2Test))
     }
 
     @Test
     fun solve1() {
         day.useTestData = false
-        val solution1 = day.part1(puzzleInput)
+        val solution1 = day.part1(puzzleInputString)
         println("Day${day.number} Part 1 ⭐️")
 //        val wrongValue = 0
 //        MatcherAssert.assertThat(day.part2(testInput), not(wrongValue))
@@ -37,7 +41,7 @@ class DayTest {
     @Test
     fun solve2() {
         day.useTestData = false
-        val solution2 = day.part2(puzzleInput)
+        val solution2 = day.part2(puzzleInputString)
         println("Day${day.number} Part 2 ⭐️⭐️")
 //        val wrongValue = 0
 //        MatcherAssert.assertThat(day.part2(testInput), not(wrongValue))
