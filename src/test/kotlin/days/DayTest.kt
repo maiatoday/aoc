@@ -1,6 +1,7 @@
 package days
 
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert
 import org.junit.Test
 import readInput
@@ -45,9 +46,9 @@ class DayTest {
         day.useTestData = false
         val solution2 = day.part2(puzzleInputString)
         println("Day${day.number} Part 2 ⭐️⭐️")
-//        val wrongValue = 0
-//        MatcherAssert.assertThat(day.part2(testInput), not(wrongValue))
-//        MatcherAssert.assertThat(day.part2(testInput), `is`(solution2 < wrongValue))
+        val wrongValue = 1577077363921L
+        MatcherAssert.assertThat(day.part2(puzzleInputString), not(wrongValue))
+        MatcherAssert.assertThat(day.part2(puzzleInputString), `is`(solution2 < wrongValue))
 //        MatcherAssert.assertThat(day.part2(testInput), `is`(solution2 > wrongValue))
         println(solution2)
     }

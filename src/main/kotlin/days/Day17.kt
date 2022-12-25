@@ -18,34 +18,79 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
     override fun part1(input: Day17InputType): Day17ReturnType {
         val jets = input.toJets()
         val cave: MutableList<String> = mutableListOf()
-
-        var turn = 0
+        var turn = 0L
         var jetIndex = 0
         repeat(2022) {
-            val height = cave.highestRock()
-            val rock = makeRock(turn, height)
-            jetIndex = dropRock(rock, jets, jetIndex, cave)
+            jetIndex = dropOneRock(turn, jetIndex, jets, cave)
             turn++
         }
-
         return cave.highestRock().toLong()
     }
+
+    data class State(
+        val uniqueCaveState: List<Int>,
+        val blockIndex: Int, //blockIndex = turn % 5
+        val jetIndex: Int // jetIndex we get back from how many jets were used in the drop
+    )
 
     override fun part2(input: Day17InputType): Day17ReturnType {
 
         val jets = input.toJets()
         val cave: MutableList<String> = mutableListOf()
+        val allTheTurns: Long = 1000000000000
 
-        var turn = 0
+        val seenCaveState = mutableMapOf<State, Pair<Long, Int>>()
+        var repeatState: State? = null
+
+        var turn = 0L
         var jetIndex = 0
-        repeat(2022) {
-            val height = cave.highestRock()
-            val rock = makeRock(turn, height)
-            jetIndex = dropRock(rock, jets, jetIndex, cave)
+        while (repeatState == null) {
+            jetIndex = dropOneRock(turn, jetIndex, jets, cave)
+            val state = cave.getState(turn, jetIndex)
+            if (state in seenCaveState) {
+                repeatState = state
+            } else {
+                seenCaveState[state] = (turn to cave.highestRock())
+                turn++
+            }
+        }
+        // turn time forward
+        println("Before repeat cave.highest, ${cave.highestRock()}")
+        println("turn $turn  jetIndex $jetIndex")
+        println("repeat state $repeatState")
+        val (turnAtRepeatStart, heightAtRepeatStart) = seenCaveState.getValue(repeatState)
+        println("turn at repeatState $turnAtRepeatStart, height at repeatState $heightAtRepeatStart")
+        val loopHeight = cave.highestRock() - heightAtRepeatStart // height of rows added just for the repeat
+        val loopTurns = turn - turnAtRepeatStart
+        val remainingTurns = ((allTheTurns  - turnAtRepeatStart) % loopTurns).toInt()
+
+        turn = allTheTurns - remainingTurns
+        jetIndex = repeatState.jetIndex
+        repeat(remainingTurns) {
+            jetIndex = dropOneRock(turn, jetIndex, jets, cave)
             turn++
         }
 
-        return cave.highestRock().toLong()
+        println("=========== after last loops")
+        val repeatsSkipped =
+            (allTheTurns / loopTurns)-1 // minus one because we already did one loop to get the repeat pattern
+        println("cave.highest, ${cave.highestRock()}     repeatsSkipped:$repeatsSkipped     loopHeight:$loopHeight")
+        val calculatedSize = cave.highestRock() + (repeatsSkipped * loopHeight)
+
+        println("difference ${1514285714288L - calculatedSize}")
+
+        return calculatedSize
+    }
+
+    private fun dropOneRock(
+        turn: Long,
+        jetIndex: Int,
+        jets: List<Int>,
+        cave: MutableList<String>
+    ): Int {
+        val height = cave.highestRock()
+        val rock = makeRock(turn, height)
+        return dropRock(rock, jets, jetIndex, cave)
     }
 
     private fun dropRock(
@@ -65,13 +110,35 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
         return ji
     }
 
-    private fun makeRock(turn: Int, height: Int) = when (turn % 5) {
+    private fun makeRock(turn: Long, height: Int) = when ((turn % 5).toInt()) {
         0 -> Flat(height)
         1 -> Plus(height)
         2 -> Ell(height)
         3 -> Line(height)
         4 -> Block(height)
         else -> error("Oops missing block type")
+    }
+
+    private fun List<String>.getState(turn: Long, jetIndex: Int): State {
+        val listy: List<Int> = buildList {
+            for (i in 0 until CAVE_WIDTH) {
+                var count = 0
+                var stillEmpty = true
+                while (stillEmpty) {
+                    val cc = this@getState.size - 1 - count
+                    if (cc < 0) {
+                        stillEmpty = false
+                        add(count)
+                    } else if (this@getState[cc][i] == '#') {
+                        stillEmpty = false
+                        add(count)
+                    } else {
+                        count++
+                    }
+                }
+            }
+        }
+        return State(listy, (turn % 5).toInt(), jetIndex)
     }
 
     //----------------------------------------------------------
