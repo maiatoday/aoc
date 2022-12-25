@@ -2,7 +2,7 @@ package days
 import readInputString
 import kotlin.system.measureTimeMillis
 
-typealias MainStringReturnType = Int
+typealias MainStringReturnType = Long
 fun main() {
     val today = Day17
     println("***** Day${today.number} *****")
@@ -26,7 +26,7 @@ fun main() {
     val part1Millis = measureTimeMillis {
         part1 = today.part1(input)
     }
-    var part2 = 0
+    var part2:MainStringReturnType
     val part2Millis = measureTimeMillis {
         part2 = today.part2(input)
     }

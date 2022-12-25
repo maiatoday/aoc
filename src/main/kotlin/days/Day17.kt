@@ -3,74 +3,99 @@ package days
 import util.Point
 import kotlin.math.min
 
-typealias Day17ReturnType = Int
+typealias Day17ReturnType = Long
 typealias Day17InputType = String
 
 object Day17 : Day<Day17ReturnType, Day17InputType> {
     override val number: Int = 17
     override val expectedPart1Test: Day17ReturnType = 3068
-    override val expectedPart2Test: Day17ReturnType = -1 // 1514285714288
+    override val expectedPart2Test: Day17ReturnType = 1514285714288L
     override var useTestData = true
 
     const val CAVE_WIDTH = 7
     const val debug = false
 
     override fun part1(input: Day17InputType): Day17ReturnType {
-        val jets = input.map { c ->
-            when (c) {
-                '<' -> -1
-                '>' -> 1
-                else -> error("oops $c")
-            }
-        }
+        val jets = input.toJets()
         val cave: MutableList<String> = mutableListOf()
 
         var turn = 0
         var jetIndex = 0
-        var fillCount = 0
         repeat(2022) {
             val height = cave.highestRock()
-            val rock = when (turn % 5) {
-                0 -> Flat(height)
-                1 -> Plus(height)
-                2 -> Ell(height)
-                3 -> Line(height)
-                4 -> Block(height)
-                else -> error("Oops missing block type")
-            }
-
-            while (rock.canMove) {
-                val jet = jets[jetIndex]
-                val jetDirection = if (jet > 0) ">" else "<"
-                if (debug) println("~~~~~~~$jet  $jetDirection")
-                rock.jet(jet, cave)
-                jetIndex = (jetIndex + 1) % jets.size
-                rock.down(cave)
-                if (debug) println("down ~~~~~$rock")
-            }
-//            fillCount += rock.fill
-//            val actualFill = cave.sumOf {
-//                it.count { c -> c == '#' }
-//            }
+            val rock = makeRock(turn, height)
+            jetIndex = dropRock(rock, jets, jetIndex, cave)
             turn++
         }
 
-        return cave.highestRock()
+        return cave.highestRock().toLong()
     }
 
     override fun part2(input: Day17InputType): Day17ReturnType {
-        return expectedPart2Test
+
+        val jets = input.toJets()
+        val cave: MutableList<String> = mutableListOf()
+
+        var turn = 0
+        var jetIndex = 0
+        repeat(2022) {
+            val height = cave.highestRock()
+            val rock = makeRock(turn, height)
+            jetIndex = dropRock(rock, jets, jetIndex, cave)
+            turn++
+        }
+
+        return cave.highestRock().toLong()
+    }
+
+    private fun dropRock(
+        rock: Shape,
+        jets: List<Int>,
+        jetIndex: Int,
+        cave: MutableList<String>
+    ): Int {
+        var ji = jetIndex
+        while (rock.canMove) {
+            val jet = jets[ji]
+            rock.jet(jet, cave)
+            rock.down(cave)
+            ji = (ji + 1) % jets.size
+            if (debug) println("down ~~~~~$rock")
+        }
+        return ji
+    }
+
+    private fun makeRock(turn: Int, height: Int) = when (turn % 5) {
+        0 -> Flat(height)
+        1 -> Plus(height)
+        2 -> Ell(height)
+        3 -> Line(height)
+        4 -> Block(height)
+        else -> error("Oops missing block type")
     }
 
     //----------------------------------------------------------
+    private fun String.toJets() = this.map { c ->
+        when (c) {
+            '<' -> -1
+            '>' -> 1
+            else -> error("oops $c")
+        }
+    }
 
     private fun List<String>.highestRock() = this.size
 
-    sealed class Shape(height: Int, private val name: String, private val shape: List<String>, val fill: Int) {
+    private fun getCaveRanges(
+        caveYRange: IntRange,
+        caveXRange: IntRange
+    ) = caveYRange.flatMap { i -> caveXRange.map { j -> i to j } }
+
+    sealed class Shape(height: Int, private val name: String, private val shape: List<String>) {
         private val start = Point(2, 3 + height)
         var canMove: Boolean = true
         private var position: Point = start
         private val width = shape[0].length
+
         private val height = shape.size
 
         fun jet(direction: Int, cave: List<String>) {
@@ -149,29 +174,25 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
         private fun concatLine(l: String, s: String, x: Int): String =
             l.substring(0, x) + s + l.substring(x + s.length)
 
+
         private fun buildLine(s: String, x: Int): String =
             concatLine("~".repeat(CAVE_WIDTH), s, x)
 
-
         override fun toString(): String =
             "Shape $name - position $position canMove $canMove"
-
     }
 
-    private fun getCaveRanges(
-        caveYRange: IntRange,
-        caveXRange: IntRange
-    ) = caveYRange.flatMap { i -> caveXRange.map { j -> i to j } }
+    class Flat(height: Int) : Shape(height, "Flat", listOf("####"))
 
-    class Flat(height: Int) : Shape(height, "Flat", listOf("####"), 4)
+    class Plus(height: Int) : Shape(height, "Plus", listOf("~#~", "###", "~#~"))
 
-    class Plus(height: Int) : Shape(height, "Plus", listOf("~#~", "###", "~#~"), 5)
+    class Ell(height: Int) : Shape(height, "Ell", listOf("###", "~~#", "~~#"))
 
-    class Ell(height: Int) : Shape(height, "Ell", listOf("###", "~~#", "~~#"), 5)
+    class Line(height: Int) : Shape(height, "Line", listOf("#", "#", "#", "#"))
 
-    class Line(height: Int) : Shape(height, "Line", listOf("#", "#", "#", "#"), 4)
+    class Block(height: Int) : Shape(height, "Block", listOf("##", "##"))
 
-    class Block(height: Int) : Shape(height, "Block", listOf("##", "##"), 4)
+    //----------------------------------------------------------
 
     private fun List<String>.debug() {
         if (debug) {

@@ -32,10 +32,12 @@ class DayTest {
         val solution1 = day.part1(puzzleInputString)
         println("Day${day.number} Part 1 ⭐️")
 //        val wrongValue = 0
-//        MatcherAssert.assertThat(day.part2(testInput), not(wrongValue))
-//        MatcherAssert.assertThat(day.part2(testInput), `is`(solution1 < wrongValue))
-//        MatcherAssert.assertThat(day.part2(testInput), `is`(solution1 > wrongValue))
+//        MatcherAssert.assertThat(day.part1(testInput), not(wrongValue))
+//        MatcherAssert.assertThat(day.part1(testInput), `is`(solution1 < wrongValue))
+//        MatcherAssert.assertThat(day.part1(testInput), `is`(solution1 > wrongValue))3184
         println(solution1)
+
+        MatcherAssert.assertThat(solution1, `is`(3184))
     }
 
     @Test
