@@ -6,7 +6,7 @@ import org.junit.Test
 import readInput
 
 class DayTest {
-    private val day = Day24
+    private val day = Day25
     private val testInput = readInput(day.number,"Day_test")
 //    private val testInput = readInput(day.number,"Day")
     private val puzzleInput = readInput(day.number,"Day")
