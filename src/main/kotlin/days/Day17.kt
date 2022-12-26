@@ -45,26 +45,31 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
         var turn = 0L
         var jetIndex = 0
         while (repeatState == null) {
-            jetIndex = dropOneRock(turn, jetIndex, jets, cave)
             val state = cave.getState(turn, jetIndex)
             if (state in seenCaveState) {
                 repeatState = state
             } else {
-                seenCaveState[state] = (turn to cave.highestRock())
+                val height = cave.highestRock()
+                seenCaveState[state] = (turn to height)
+                jetIndex = dropOneRock(turn, jetIndex, jets, cave)
                 turn++
             }
         }
         // turn time forward
-        println("Before repeat cave.highest, ${cave.highestRock()}")
-        println("turn $turn  jetIndex $jetIndex")
-        println("repeat state $repeatState")
+        println("After begin and one loop - cave.highest, ${cave.highestRock()}")
+        println("After begin and one loop - turn $turn  jetIndex $jetIndex")
+        println("After begin and one loop - repeat state $repeatState")
         val (turnAtRepeatStart, heightAtRepeatStart) = seenCaveState.getValue(repeatState)
-        println("turn at repeatState $turnAtRepeatStart, height at repeatState $heightAtRepeatStart")
+        println("After begin (start of first loop) - turn  $turnAtRepeatStart, height  $heightAtRepeatStart")
+
         val loopHeight = cave.highestRock() - heightAtRepeatStart // height of rows added just for the repeat
         val loopTurns = turn - turnAtRepeatStart
-        val remainingTurns = ((allTheTurns  - turnAtRepeatStart) % loopTurns).toInt()
+        val numberOfLoops = ((allTheTurns - turnAtRepeatStart)) / loopTurns
+        val remainingTurns = ((allTheTurns - turnAtRepeatStart) % loopTurns).toInt()
 
-        turn = allTheTurns - remainingTurns
+        turn = allTheTurns - remainingTurns // or turnAtRepeatStart + numberOfLoops*loopTurns
+        check(turn == turnAtRepeatStart + numberOfLoops * loopTurns) { "turn to run incorrect" }
+        check(turn % 5 == repeatState.blockIndex.toLong()) { "block count from turn is incorrect" }
         jetIndex = repeatState.jetIndex
         repeat(remainingTurns) {
             jetIndex = dropOneRock(turn, jetIndex, jets, cave)
@@ -73,7 +78,7 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
 
         println("=========== after last loops")
         val repeatsSkipped =
-            (allTheTurns / loopTurns)-1 // minus one because we already did one loop to get the repeat pattern
+            ((allTheTurns-turnAtRepeatStart) / loopTurns)-1 // minus one because we already did one loop to get the repeat pattern -1 another because??
         println("cave.highest, ${cave.highestRock()}     repeatsSkipped:$repeatsSkipped     loopHeight:$loopHeight")
         val calculatedSize = cave.highestRock() + (repeatsSkipped * loopHeight)
 
@@ -81,6 +86,7 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
 
         return calculatedSize
     }
+    //----------------------------------------------------------
 
     private fun dropOneRock(
         turn: Long,
@@ -120,7 +126,7 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
     }
 
     private fun List<String>.getState(turn: Long, jetIndex: Int): State {
-        val listy: List<Int> = buildList {
+        val stateList: List<Int> = buildList {
             for (i in 0 until CAVE_WIDTH) {
                 var count = 0
                 var stillEmpty = true
@@ -138,7 +144,7 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
                 }
             }
         }
-        return State(listy, (turn % 5).toInt(), jetIndex)
+        return State(stateList, (turn % 5).toInt(), jetIndex)
     }
 
     //----------------------------------------------------------
@@ -157,8 +163,10 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
         caveXRange: IntRange
     ) = caveYRange.flatMap { i -> caveXRange.map { j -> i to j } }
 
-    sealed class Shape(height: Int, private val name: String, private val shape: List<String>) {
-        private val start = Point(2, 3 + height)
+    //----------------------------------------------------------
+
+    sealed class Shape(startHeight: Int, private val name: String, private val shape: List<String>) {
+        private val start = Point(2, 3 + startHeight)
         var canMove: Boolean = true
         private var position: Point = start
         private val width = shape[0].length
