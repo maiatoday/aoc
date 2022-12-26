@@ -6,16 +6,14 @@ typealias Day22InputType = List<String>
 
 typealias PasswordMap = List<String>
 
-data class Side(val xRange: IntRange, val yRange: IntRange, val map: List<String>)
+data class Side(val xRange: IntRange, val yRange: IntRange, val map: List<String>, val xOffset: Int, val yOffset: Int)
 typealias PasswordCube = List<Side>
-
-var iii = 0
 
 object Day22 : Day<Day22ReturnType, Day22InputType> {
     override val number: Int = 22
     override val expectedPart1Test: Day22ReturnType = 6032
-    override val expectedPart2Test: Day22ReturnType = 5031
-    const val debug = true
+    override val expectedPart2Test: Day22ReturnType = -1 // can't test with debug unless I recode and  make a general solution
+    const val debug = false
     override var useTestData = true
     lateinit var map: PasswordMap
     private lateinit var markedMap: MutableList<String>
@@ -29,13 +27,8 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
         map = input.dropLast(2)
         markedMap = map.toMutableList()
         var state = State(map[0].portToLeft(), 0, Direction.RIGHT)
-        instructions.forEachIndexed { index, i ->
-            iii = index
-//            if (index >= 1253)
-//                i.debug(index)
-            state = state(i, map, false)
-//            if (index >= 1253)
-//                debug(state)
+        instructions.forEach {
+            state = state(it, map, false)
         }
 
         debug(state)
@@ -51,22 +44,13 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
         sides = map.toCube()
 
         var state = State(x = 0, 0, Direction.RIGHT, side = 0)
-        println("Start state $state")
+        if (debug) println("Start state $state")
         instructions.forEachIndexed { index, i ->
-            iii = index
-//            if (index >= 1253)
             i.debug(index)
             state = state(i, map, true, sides)
-            println("$state")
-//            if (index >= 1253)
-//                debug(state)
+            if (debug) println("$state")
         }
-
-        println("Instruction completed $iii")
-      //  debug(state)
-
-        return state.toAnswer3D()
-
+        return state.toAnswer3D(sides)
     }
 
     //<-----------------------------------------------------------------
@@ -143,16 +127,15 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
         private fun move3D(i: Int, passwordCube: PasswordCube): State {
             var newX = x
             var newY = y
-            var xx = newX
-            var yy = newY
-            var newSideInfo = SideSwapInfo(direction, side, xx, yy)
-            var nsInfo = newSideInfo
+            var backupX = newX
+            var backupY = newY
+            var newSideInfo = SideSwapInfo(direction, side, backupX, backupY)
+            var backupSideInfo = newSideInfo
             repeat(i) {
                 when (newSideInfo.direction) {
                     Direction.RIGHT -> {
                         newX += 1
                         if (newX !in SIDE_RANGE) {
-                            // new side,  new direction, x y swamp?
                             newSideInfo = swapSides(newSideInfo.side, newSideInfo.direction, newX, newY)
                             newX = newSideInfo.x
                             newY = newSideInfo.y
@@ -162,7 +145,6 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
                     Direction.DOWN -> {
                         newY += 1
                         if (newY !in SIDE_RANGE) {
-                            // new side,  new direction, x y swamp?
                             newSideInfo = swapSides(newSideInfo.side, newSideInfo.direction, newX, newY)
                             newX = newSideInfo.x
                             newY = newSideInfo.y
@@ -172,7 +154,6 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
                     Direction.LEFT -> {
                         newX -= 1
                         if (newX !in SIDE_RANGE) {
-                            // new side,  new direction, x y swamp?
                             newSideInfo = swapSides(newSideInfo.side, newSideInfo.direction, newX, newY)
                             newX = newSideInfo.x
                             newY = newSideInfo.y
@@ -182,7 +163,6 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
                     Direction.UP -> {
                         newY -= 1
                         if (newY !in SIDE_RANGE) {
-                            // new side,  new direction, x y swamp?
                             newSideInfo = swapSides(newSideInfo.side, newSideInfo.direction, newX, newY)
                             newX = newSideInfo.x
                             newY = newSideInfo.y
@@ -190,14 +170,15 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
                     }
                 }
                 if (passwordCube[newSideInfo.side].map[newY][newX] == '#') {
-                    newX = xx
-                    newY = yy
-                    newSideInfo = nsInfo
+                    if (debug) print(".")
+                    newX = backupX
+                    newY = backupY
+                    newSideInfo = backupSideInfo
                 } else {
                     //backup the good state in case we hit a wall in the next repeat
-                    xx = newX
-                    yy = newY
-                    nsInfo = newSideInfo
+                    backupX = newX
+                    backupY = newY
+                    backupSideInfo = newSideInfo
                 }
             }
             return this.copy(x = newX, y = newY, side = newSideInfo.side, direction = newSideInfo.direction)
@@ -263,12 +244,11 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
                 Direction.UP -> "^"
             }
 
-        fun toAnswer3D(): Day22ReturnType {
-            val yOffset = 50 // hardcoded for side 2
-            val xOffset = 50 // hardcoded for side 2
-           // 1000 * (y + yOffset + 1) + 4 * (x +xOffset+ 1) + direction.score
-            println("State $this")
-            return 1000 * (y +yOffset + 1) + 4 * (x +xOffset+ 1) + direction.score
+        fun toAnswer3D(sides: List<Side>): Day22ReturnType {
+            val xOffset = sides[side].xOffset
+            val yOffset = sides[side].yOffset
+            if (debug) println("Answer x:$x offset:$xOffset y:$y offset:$yOffset side:$side  ${sides[side]}")
+            return 1000 * (y + yOffset+1) + 4 * (x + xOffset+1) + direction.score
         }
 
     }
@@ -307,7 +287,7 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
     }
 
     private fun PasswordMap.toCube(): List<Side> {
-        // hard code sigh!
+        // hard code sigh!  This is specific to my input data and won't work for the test data
 
         val side1X = 50..99
         val side1Y = 0..49
@@ -327,11 +307,19 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
         val xRanges = listOf(side1X, side2X, side3X, side4X, side5X, side6X)
         val yRanges = listOf(side1Y, side2Y, side3Y, side4Y, side5Y, side6Y)
         val ranges = xRanges.zip(yRanges)
+        val xOffsets = xRanges.map { it.first }
+        val yOffsets = yRanges.map { it.first }
 
         val sides: List<Side> = buildList {
-            ranges.forEach {
+            ranges.forEachIndexed { i, it ->
                 val sideMap = this@toCube.filterIndexed { i, _ -> i in it.second }.map { s -> s.substring(it.first) }
-                add(Side(it.first, it.second, sideMap))
+                add(Side(
+                    xRange = it.first,
+                    yRange = it.second,
+                    map = sideMap,
+                    xOffset = xOffsets[i],
+                    yOffset = yOffsets[i]
+                ))
             }
 
         }
@@ -340,14 +328,15 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
 
     data class SideSwapInfo(val direction: Direction, val side: Int, val x: Int, val y: Int)
 
-    fun swapSides(side: Int, direction: Direction, x: Int, y: Int): SideSwapInfo =
-        when (direction) {
+    fun swapSides(side: Int, direction: Direction, x: Int, y: Int): SideSwapInfo {
+        if (debug) println("Swap sides direction:$direction, side:$side x:$x, y:$y")
+        val sideSwap = when (direction) {
             Direction.RIGHT -> when (side) {
                 0 -> SideSwapInfo(direction = Direction.RIGHT, side = 1, 0, y)
-                1 -> SideSwapInfo(direction = Direction.LEFT, side = 4, SIDE_LENGTH - 1,SIDE_LENGTH -y)
+                1 -> SideSwapInfo(direction = Direction.LEFT, side = 4, SIDE_LENGTH - 1, SIDE_LENGTH - 1 - y)
                 2 -> SideSwapInfo(direction = Direction.UP, side = 1, y, SIDE_LENGTH - 1)
                 3 -> SideSwapInfo(direction = Direction.RIGHT, side = 4, 0, y)
-                4 -> SideSwapInfo(direction = Direction.LEFT, side = 1, SIDE_LENGTH - 1,SIDE_LENGTH -y)
+                4 -> SideSwapInfo(direction = Direction.LEFT, side = 1, SIDE_LENGTH - 1, SIDE_LENGTH - 1 - y)
                 5 -> SideSwapInfo(direction = Direction.UP, side = 4, y, SIDE_LENGTH - 1)
                 else -> error("Oops")
             }
@@ -363,10 +352,10 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
             }
 
             Direction.LEFT -> when (side) {
-                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 3, 0, SIDE_LENGTH-1-y)
-                1 -> SideSwapInfo(direction = Direction.RIGHT, side = 0, SIDE_LENGTH - 1, y)
+                0 -> SideSwapInfo(direction = Direction.RIGHT, side = 3, 0, SIDE_LENGTH - 1 - y)
+                1 -> SideSwapInfo(direction = Direction.LEFT, side = 0, SIDE_LENGTH - 1, y)
                 2 -> SideSwapInfo(direction = Direction.DOWN, side = 3, y, 0)
-                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 0, 0, SIDE_LENGTH-1-y)
+                3 -> SideSwapInfo(direction = Direction.RIGHT, side = 0, 0, SIDE_LENGTH - 1 - y)
                 4 -> SideSwapInfo(direction = Direction.LEFT, side = 3, SIDE_LENGTH - 1, y)
                 5 -> SideSwapInfo(direction = Direction.DOWN, side = 0, y, 0)
                 else -> error("Oops")
@@ -382,6 +371,13 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
                 else -> error("Oops")
             }
         }
+        if (debug) {
+            println("New Side $sideSwap ")
+
+        }
+        return sideSwap
+    }
+
     //<--------------------------
 
     private fun debug(s: State) {
@@ -401,6 +397,4 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
             if (i == s.y) markedMap[i] = r.replaceRange(s.x..s.x, sc)
         }
     }
-
-
 }
