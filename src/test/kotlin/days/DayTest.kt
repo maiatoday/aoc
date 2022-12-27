@@ -7,6 +7,7 @@ import org.junit.Test
 import readInput
 import readInputString
 
+@OptIn(ExperimentalStdlibApi::class)
 class DayTest {
     private val day = Day24
     private val testInput = readInput(day.number, "Day_test")
@@ -38,8 +39,6 @@ class DayTest {
 //        MatcherAssert.assertThat(day.part1(testInput), `is`(solution1 < wrongValue))
 //        MatcherAssert.assertThat(day.part1(testInput), `is`(solution1 > wrongValue))3184
         println(solution1)
-
-        MatcherAssert.assertThat(solution1, `is`(3184))
     }
 
     @Test

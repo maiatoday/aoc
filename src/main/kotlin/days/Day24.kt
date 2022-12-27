@@ -1,62 +1,143 @@
 package days
 
 import util.Point
-import util.boundaries
 import util.neighbours
-import java.util.*
-import kotlin.math.abs
 
 typealias Day24ReturnType = Int
 typealias Day24InputType = List<String>
 
+@ExperimentalStdlibApi
 object Day24 : Day<Day24ReturnType, Day24InputType> {
     override val number: Int = 24
     override val expectedPart1Test: Day24ReturnType = 18
-    override val expectedPart2Test: Day24ReturnType = -1
+    override val expectedPart2Test: Day24ReturnType = 54
     override var useTestData = true
     override val debug = false
 
     private var mapWidth: Int = -1
     private var mapHeight: Int = -1
     private val blizzardTypes = setOf('v', '^', '>', '<')
+    private var xMarksSpot: Point = Point(-1, -1)
+    private var debugWalls: Set<Point> = emptySet()
     override fun part1(input: Day24InputType): Day24ReturnType {
-        mapWidth = input[0].length - 2 // -2 to cut off walls
-        mapHeight = input.size - 2 // -2 to cut off walls
+        mapWidth = input[0].length
+        mapHeight = input.size
         val blizzardList = input.toBlizzardList()
-        blizzardList.tick()  //one minute so that we can   start at 0,0 and the gap opens
-        val minutes = findShortestPath(Point(0, 0), Point(mapWidth - 1, mapHeight - 1), blizzardList, 1)
+        val startPoint = Point(input.first().indexOfFirst { it == '.' }, 0)
+        val endPoint = Point(input.last().indexOfFirst { it == '.' }, input.lastIndex)
+        val walls = input.toWalls()
+        debugWalls = walls
+        xMarksSpot = startPoint
+        val blizzardState = BlizzardState(blizzardList)
+        val minutes = findShortestPath(startPoint, endPoint, blizzardState, 0, walls)
         return minutes
     }
 
     override fun part2(input: Day24InputType): Day24ReturnType {
-        return expectedPart2Test
+        mapWidth = input[0].length
+        mapHeight = input.size
+        val blizzardList = input.toBlizzardList()
+        val startPoint = Point(input.first().indexOfFirst { it == '.' }, 0)
+        val endPoint = Point(input.last().indexOfFirst { it == '.' }, input.lastIndex)
+        val walls = input.toWalls()
+        val blizzardState = BlizzardState(blizzardList)
+        val aToB = findShortestPath(startPoint, endPoint, blizzardState, 0, walls)
+        val bToA = findShortestPath(endPoint, startPoint, blizzardState, aToB, walls)
+        val andBackAgain = findShortestPath(startPoint, endPoint, blizzardState, bToA, walls)
+        return andBackAgain
     }
     //>--------------------------------------------------
 
-    private fun List<String>.toBlizzardList(): List<Blizzard> =
-        this.flatMapIndexed { y, s -> s.mapIndexed { x, c -> c.toBlizzard(x - 1, y - 1) } }
-            .filterNotNull() //  -1 because not counting walls
+    private fun findShortestPath(
+        start: Point,
+        end: Point,
+        blizzardState: BlizzardState,
+        startTime: Int,
+        walls: Set<Point>
+    ): Day24ReturnType {
+        val visited: MutableSet<TryPath> = mutableSetOf()
+        val frontier: MutableList<TryPath> = mutableListOf()
+        frontier.add(TryPath(startTime, start))
 
-    private fun Char.toBlizzard(x: Int, y: Int): Blizzard? = if (this in blizzardTypes) Blizzard(this, Point(x, y)) else null
+        while (frontier.isNotEmpty()) {
+            val currentPath = frontier.removeFirst()
+            xMarksSpot = currentPath.position
+            if (currentPath !in visited) {
+                visited += currentPath
+                val nextStep = currentPath.steps + 1
+                log {
+                    println("step count  $nextStep position: ${currentPath.position} ")
+                }
+                val occupiedAtNextStep = blizzardState.occupiedAt(nextStep)
 
-    data class Blizzard(val direction: Char, val start: Point) {
-        var position: Point = start
+                // if (currentPath.position !in occupiedAtNextStep) frontier.add(TryPath(nextStep, currentPath.position))
 
-        fun tick() {
-            position = position.blow(direction)
+                val neighbours = currentPath.position.validNeighbours(occupiedAtNextStep)
+                if (end in neighbours) return nextStep
+                for (n in neighbours) {
+                    if (n !in walls)
+                        frontier.add(TryPath(nextStep, n))
+                }
+            } else {
+                log {
+                    print(".")
+                }
+            }
+
         }
+        return error("I am wandering around in a snowstorm")
+    }
+
+
+    private fun List<String>.toBlizzardList(): List<Blizzard> =
+        this.flatMapIndexed { y, s -> s.mapIndexed { x, c -> c.toBlizzard(x, y) } }
+            .filterNotNull()
+
+    private fun List<String>.toWalls(): Set<Point> =
+        this.flatMapIndexed { y, s -> s.mapIndexed { x, c -> if (c == '#') Point(x, y) else null } }
+            .filterNotNull()
+            .toSet()
+
+    private fun Char.toBlizzard(x: Int, y: Int): Blizzard? =
+        if (this in blizzardTypes) Blizzard(this, Point(x, y)) else null
+
+    data class Blizzard(val direction: Char, val position: Point) {
+        val orig: Point = position
+
+        fun blow(): Blizzard {
+            return this.copy(position = position.blow(direction))
+        }
+
     }
 
     private fun Point.blow(direction: Char): Point =
         when (direction) {
-            '>' -> Point((x + 1).mod(mapWidth), y)
-            '<' -> Point((x - 1).mod(mapWidth), y)
-            'v' -> Point(x, (y + 1).mod(mapHeight))
-            '^' -> Point(x, (y - 1).mod(mapHeight))
+            '>' -> {
+                val xx = if (x + 1 == mapWidth - 1) 1 else x + 1
+                Point(xx, y)
+            }
+
+            '<' -> {
+                val xx = if (x - 1 == 0) mapWidth - 2 else x - 1
+                Point(xx, y)
+            }
+
+            'v' -> {
+                val yy = if (y + 1 == mapHeight - 1) 1 else y + 1
+                Point(x, yy)
+            }
+
+            '^' -> {
+                val yy = if (y - 1 == 0) mapHeight - 2 else y - 1
+                Point(x, yy)
+            }
+
             else -> error("oops $direction")
         }
 
-    private fun List<Blizzard>.tick(): Unit = this.forEach { it.tick() }
+    private fun List<Blizzard>.tick(): List<Blizzard> {
+        return this.map { it.blow() }
+    }
 
     private fun List<Blizzard>.occupiedSet(): Set<Point> = this.map { b -> b.position }.toSet()
 
@@ -67,17 +148,22 @@ object Day24 : Day<Day24ReturnType, Day24InputType> {
     }
 
     class BlizzardState(private val blizzards: List<Blizzard>) {
-        private val cache = mutableMapOf<Int, Set<Point>>()
-        private var lastTick = 1
-        fun occupiedAt(tick: Int): Set<Point> {
-            if (tick !in cache) {
-                for (t in lastTick..tick) {
-                    blizzards.tick()
-                    cache[t] = blizzards.occupiedSet()
-                }
-                lastTick = tick
+        private val cachedBlizzardsPerTick = mutableMapOf(0 to blizzards)
+        init {
+            log {
+                println("BlizzardState init")
+               // blizzards.debug()
             }
-            return cache[tick] ?: error("Missing blizzard")
+        }
+        fun occupiedAt(tick: Int): Set<Point> {
+            val blizzardsForTick = cachedBlizzardsPerTick.computeIfAbsent(tick) { key ->
+                cachedBlizzardsPerTick[key - 1]?.tick() ?: error("missing map state for tick $key")
+            }
+            log {
+               // println("Tick $tick")
+              //  blizzardsForTick.debug()
+            }
+            return blizzardsForTick.occupiedSet()
         }
     }
 
@@ -92,63 +178,26 @@ object Day24 : Day<Day24ReturnType, Day24InputType> {
         return neighbours.filter { it !in occupied }
     }
 
-    // the recursive  version but it is tricky to debug
-    private fun search(tick: Int, position: Point, blizzardState: BlizzardState, end: Point): Int {
-        var t = tick
-        if (position == end) return t
-        t++
-        val nt = mutableListOf<Int>()
-        val neighbours = position.validNeighbours(blizzardState.occupiedAt(t))
-        for (n in neighbours) {
-            val tt = search(t, n, blizzardState, end)
-            if (tt != -1) nt.add(tt)
-        }
-        if (nt.isEmpty()) return -1
-        return nt.min()
-    }
+    private data class TryPath(val steps: Int, val position: Point)
 
-    private fun findShortestPath(
-        start: Point,
-        end: Point,
-        blizzardList: List<Blizzard>,
-        startTime: Int
-    ): Day24ReturnType {
-        val blizzardState = BlizzardState(blizzardList)
-        val visited: MutableSet<IndexedValue<Point>> = mutableSetOf()
-        visited.add(IndexedValue(startTime, start))
-        val frontier: ArrayDeque<IndexedValue<Point>> = ArrayDeque()
-//        val frontier =  PriorityQueue(compareBy(IndexedValue<IndexedValue<Point>>::index))
-//        frontier.add(IndexedValue(0, IndexedValue(startTime, start)))
-        frontier.add(IndexedValue(startTime, start))
-
-        while (frontier.isNotEmpty()) {
-//            println("Frontier $frontier")
-//            val (time, current) = frontier.remove().value
-            val (time, current) = frontier.removeLast()
-            if (current == end) return time
-            val neighbours = current.validNeighbours(blizzardState.occupiedAt(time+1))
-            for (n in neighbours) {
-                // TIL the add method on a set will return true if it adds it. I can use this instead of checking if the set contains the value
-                if (visited.add(IndexedValue(time+1, n)))
-//                    frontier.add(IndexedValue(time+1,IndexedValue(time+1, n)))
-                    frontier.add(IndexedValue(time+1, n))
-            }
-
-        }
-        return error ("I am wandering around in a snowstorm")
-    }
 //>--------------------------------------------------
 
     fun List<Blizzard>.debug() {
         val points = this.occupiedSet().toList()
-        val boundaries = points.boundaries()
+        val boundaries = (0 ..< mapWidth to (0 ..< mapHeight))
         val map = this.toMap()
         log {
             for (y in boundaries.second) {
                 for (x in boundaries.first) {
-                    if (Point(x, y) in points) {
+                    val p = Point(x, y)
+                    if (p in points) {
                         print(map[Point(x, y)]?.direction)
-                    } else print('.')
+                    } else if (p == xMarksSpot) {
+                        print('O')
+                    } else if (p in debugWalls) {
+                        print("#")
+                    }
+                    else print(".")
                 }
                 println()
             }

@@ -72,7 +72,7 @@ fun Point.neighbours(
         if (!includeSelf && this == Point(xx, yy)) continue // jump over self
         if (onlyPositive && (yy < 0 || xx < 0)) continue
         if (stayBelowMax && (yy >= maxY || xx >= maxX)) continue
-        if (!diagonal && (yy != y && xx != y)) continue
+        if (!diagonal && (yy != y && xx != x)) continue
         points.add(Point(xx, yy))
     }
     return points
