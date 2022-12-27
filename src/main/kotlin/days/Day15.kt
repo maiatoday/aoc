@@ -12,6 +12,8 @@ object Day15 : Day<Day15ReturnType, Day15InputType> {
     override val expectedPart1Test: Day15ReturnType = 26
     override val expectedPart2Test: Day15ReturnType = 56_000_011L
     override var useTestData = true
+    override val debug = false
+
     override fun part1(input: Day15InputType): Day15ReturnType {
         val row = if (useTestData) 10 else 2_000_000
         val data = input.toData()

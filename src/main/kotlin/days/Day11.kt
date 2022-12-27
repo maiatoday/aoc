@@ -7,6 +7,7 @@ object Day11 : Day<Long, String> {
     override val expectedPart1Test: Long = 10605L
     override val expectedPart2Test: Long = 2713310158L
     override var useTestData = true
+    override val debug = false
 
     data class Monkey(
         val items: MutableList<Long>,

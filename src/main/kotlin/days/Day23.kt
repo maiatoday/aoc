@@ -12,7 +12,7 @@ object Day23 : Day<Day23ReturnType, Day23InputType> {
     override val expectedPart1Test: Day23ReturnType = 110
     override val expectedPart2Test: Day23ReturnType = 20
     override var useTestData = true
-    private const val debug = false
+    override val debug = false
 
     override fun part1(input: Day23InputType): Day23ReturnType {
         var elfMap: ElfMap = input.listFromGrid("#").toSet()

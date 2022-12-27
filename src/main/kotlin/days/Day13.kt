@@ -9,6 +9,7 @@ object Day13 : Day<ReturnType, List<String>> {
     override val expectedPart1Test: ReturnType = 13
     override val expectedPart2Test: ReturnType = 140
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: List<String>): ReturnType {
         val messagePairs = parseInput(input)

@@ -5,6 +5,7 @@ object Day07 : Day<Long, List<String>> {
     override val expectedPart1Test: Long = 95437L
     override val expectedPart2Test: Long = 24933642L
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: List<String>): Long {
         val root = parse(input)

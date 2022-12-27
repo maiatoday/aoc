@@ -5,6 +5,7 @@ object Day04 : Day<Long, List<String>> {
     override val expectedPart1Test: Long = 2
     override val expectedPart2Test: Long = 4
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: List<String>): Long = input
         .map { line -> line.extractAreas() }

@@ -8,6 +8,7 @@ object Day21 : Day<Day21ReturnType, Day21InputType> {
     override val expectedPart1Test: Day21ReturnType = 152
     override val expectedPart2Test: Day21ReturnType = 301
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: Day21InputType): Day21ReturnType {
         val monkeyMap = input.filter { it.isNotEmpty() }.toMonkeys()

@@ -8,6 +8,7 @@ object Day19 : Day<Day19ReturnType, Day19InputType> {
     override val expectedPart1Test: Day19ReturnType = -1
     override val expectedPart2Test: Day19ReturnType = -1
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: Day19InputType): Day19ReturnType {
         val blueprints = input.map { it.toBlueprint() }

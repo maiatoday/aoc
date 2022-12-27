@@ -10,6 +10,7 @@ object Day25 : Day<Day25ReturnType, Day25InputType> {
     override val expectedPart1Test: Day25ReturnType = "2=-1=0"
     override val expectedPart2Test: Day25ReturnType = "-1"
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: Day25InputType): Day25ReturnType {
         val bleargh = input.map {

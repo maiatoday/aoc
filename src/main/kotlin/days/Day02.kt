@@ -5,6 +5,7 @@ object Day02 : Day<Long, List<String>> {
     override val expectedPart1Test: Long = 15L
     override val expectedPart2Test: Long = 12L
     override var useTestData = true
+    override val debug = false
 
     enum class Move(val score: Int) { ROCK(1), PAPER(2), SCISSORS(3) }
 

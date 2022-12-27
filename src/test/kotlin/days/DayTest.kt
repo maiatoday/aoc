@@ -8,7 +8,7 @@ import readInput
 import readInputString
 
 class DayTest {
-    private val day = Day22
+    private val day = Day24
     private val testInput = readInput(day.number, "Day_test")
 
     //    private val testInput = readInput(day.number,"Day")

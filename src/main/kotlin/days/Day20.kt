@@ -8,6 +8,7 @@ object Day20 : Day<Day20ReturnType, Day20InputType> {
     override val expectedPart1Test: Day20ReturnType = 3
     override val expectedPart2Test: Day20ReturnType = 1623178306
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: Day20InputType): Day20ReturnType {
         val itemsOG = input.mapIndexed { index, s -> s.toInt().toItem(index) }

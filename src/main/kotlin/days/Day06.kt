@@ -5,6 +5,7 @@ object Day06 : Day<Int, String> {
     override val expectedPart1Test: Int = 11
     override val expectedPart2Test: Int = 26
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: String): Int = signalCheck(input, 4)
 

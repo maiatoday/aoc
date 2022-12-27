@@ -6,6 +6,7 @@ object Day01 :Day<Long, List<String>> {
     override val expectedPart1Test: Long = 24000L
     override val expectedPart2Test: Long = 45000L
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: List<String>): Long {
         var maxCalories = Int.MIN_VALUE

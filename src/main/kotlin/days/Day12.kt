@@ -15,6 +15,7 @@ object Day12 : Day<Long, List<String>> {
     override val expectedPart1Test: Long = 31L
     override val expectedPart2Test: Long = 29L
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: List<String>): Long {
         val terrain = input.toTerrain()

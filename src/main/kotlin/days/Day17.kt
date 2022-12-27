@@ -11,9 +11,9 @@ object Day17 : Day<Day17ReturnType, Day17InputType> {
     override val expectedPart1Test: Day17ReturnType = 3068
     override val expectedPart2Test: Day17ReturnType = 1514285714288L
     override var useTestData = true
+    override val debug = false
 
     const val CAVE_WIDTH = 7
-    const val debug = false
 
     override fun part1(input: Day17InputType): Day17ReturnType {
         val jets = input.toJets()

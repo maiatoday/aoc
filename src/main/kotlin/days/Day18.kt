@@ -8,6 +8,7 @@ object Day18 : Day<Day18ReturnType, Day18InputType> {
     override val expectedPart1Test: Day18ReturnType = -1
     override val expectedPart2Test: Day18ReturnType = -1
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: Day18InputType): Day18ReturnType {
         return expectedPart1Test

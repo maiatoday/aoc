@@ -12,8 +12,8 @@ object Day14 : Day<Day14ReturnType, Day14InputType> {
     override val expectedPart1Test: Day14ReturnType = 24
     override val expectedPart2Test: Day14ReturnType = 93
     override var useTestData = true
+    override val debug = false
 
-    private const val debug = false
     private val sandSource = (500 to 0)
 
     override fun part1(input: Day14InputType): Day14ReturnType {

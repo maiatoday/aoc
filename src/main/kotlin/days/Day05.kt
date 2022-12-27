@@ -5,6 +5,7 @@ object Day05 : Day<String, String> {
     override val expectedPart1Test: String = "CMZ"
     override val expectedPart2Test: String = "MCD"
     override var useTestData = true
+    override val debug = false
     private fun String.parseInput(): Pair<Stacks, CraneMoves> {
         val (stacksString, movesString) = this.split("\n\n")
         val columnCount = stacksString.lines().single { it.startsWith(" 1") }.columnCount() ?: 0

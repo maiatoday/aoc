@@ -5,6 +5,7 @@ object Day10 : Day<Long, List<String>> {
     override val expectedPart1Test: Long = 13140L
     override val expectedPart2Test: Long = -1L
     override var useTestData = true
+    override val debug = false
 
     enum class OpCode(val ticks: Int) {
         NOOP(1), ADDX(2)

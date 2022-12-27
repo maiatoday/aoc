@@ -10,6 +10,7 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
     override val expectedPart1Test: Day16ReturnType = 1651
     override val expectedPart2Test: Day16ReturnType = -1
     override var useTestData = true
+    override val debug = false
 
     override fun part1(input: Day16InputType): Day16ReturnType {
         val tunnelMap = input.toTunnelMap()

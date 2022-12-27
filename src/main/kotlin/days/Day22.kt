@@ -13,8 +13,8 @@ object Day22 : Day<Day22ReturnType, Day22InputType> {
     override val number: Int = 22
     override val expectedPart1Test: Day22ReturnType = 6032
     override val expectedPart2Test: Day22ReturnType = -1 // can't test with debug unless I recode and  make a general solution
-    const val debug = false
     override var useTestData = true
+    override val debug = false
     lateinit var map: PasswordMap
     private lateinit var markedMap: MutableList<String>
     private lateinit var sides: PasswordCube

@@ -14,6 +14,8 @@ object Day24 : Day<Day24ReturnType, Day24InputType> {
     override val expectedPart1Test: Day24ReturnType = 18
     override val expectedPart2Test: Day24ReturnType = -1
     override var useTestData = true
+    override val debug = false
+
     private var mapWidth: Int = -1
     private var mapHeight: Int = -1
     private val blizzardTypes = setOf('v', '^', '>', '<')
@@ -141,13 +143,15 @@ object Day24 : Day<Day24ReturnType, Day24InputType> {
         val points = this.occupiedSet().toList()
         val boundaries = points.boundaries()
         val map = this.toMap()
-        for (y in boundaries.second) {
-            for (x in boundaries.first) {
-                if (Point(x, y) in points) {
-                    print(map[Point(x, y)]?.direction)
-                } else print('.')
+        log {
+            for (y in boundaries.second) {
+                for (x in boundaries.first) {
+                    if (Point(x, y) in points) {
+                        print(map[Point(x, y)]?.direction)
+                    } else print('.')
+                }
+                println()
             }
-            println()
         }
     }
 }
