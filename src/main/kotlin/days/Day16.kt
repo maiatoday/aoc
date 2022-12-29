@@ -5,23 +5,17 @@ import kotlin.math.max
 typealias Day16ReturnType = Int
 typealias Day16InputType = List<String>
 
-/******* WARNING WARNING WARNING *********/
-/***** This code has a bug do not use ****/
-/*****************************************/
-
 object Day16 : Day<Day16ReturnType, Day16InputType> {
     override val number: Int = 16
     override val expectedPart1Test: Day16ReturnType = 1651
-    override val expectedPart2Test: Day16ReturnType = -1
+    override val expectedPart2Test: Day16ReturnType = 1707
     override var useTestData = true
-    override val debug = true
+    override val debug = false
 
     override fun part1(input: Day16InputType): Day16ReturnType {
         val tunnelMap = input.toTunnelMap()
-       input.toMermaid().forEach {
-           println(it)
-       }
-        val answer = maxFlow("AA", 30, listOf(), tunnelMap)
+        val sortedTunnelMap = tunnelMap.sortConnectionByFlow()
+        val answer = maxFlow("AA", 30, listOf(), sortedTunnelMap)
         return answer
     }
 
@@ -49,17 +43,16 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
         } else {
             val (_, currentFlow, connections) = tunnels[currentValve]
                 ?: error("oops elephants don't forget $currentValve")
-            if (currentValve in openedValves || currentFlow == 0) {
-                // we either opened this one already or the flow is 0 so follow a tunnel
-                connections.forEach {
-                    answer = max(answer, maxFlow(it, time - 1, openedValves, tunnels))
-                }
-            } else {
+            if (currentValve !in openedValves && currentFlow != 0) {
                 // open the valve!
                 answer = max(
                     answer,
                     (time - 1) * currentFlow + maxFlow(currentValve, time - 1, openedValves + currentValve, tunnels)
                 )
+            }
+            // if possible walk somewhere else from here
+            connections.forEach {
+                answer = max(answer, maxFlow(it, time - 1, openedValves, tunnels))
             }
             memoizedStates[state] = answer
         }
@@ -88,6 +81,18 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
         }.forEach {
             this[it.id] = it
         }
+    }
+
+    private fun Map<String, Tunnel>.sortConnectionByFlow(): Map<String, Tunnel> {
+        val flowList = this.values.map { it.id to it.flow }.sortedByDescending { it.second }
+        return this.values.map { t -> (t.id to t.sortConnection(flowList)) }.toMap()
+    }
+
+    private fun Tunnel.sortConnection(flowList: List<Pair<String, Int>>): Tunnel {
+        val sortedConnections = flowList.filter {
+            it.first in this.connections
+        }
+        return this.copy(connections = sortedConnections.map { it.first })
     }
 
     private fun List<String>.toMermaid(): List<String> {
