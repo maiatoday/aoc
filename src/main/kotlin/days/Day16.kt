@@ -18,6 +18,9 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
 
     override fun part1(input: Day16InputType): Day16ReturnType {
         val tunnelMap = input.toTunnelMap()
+       input.toMermaid().forEach {
+           println(it)
+       }
         val answer = maxFlow("AA", 30, listOf(), tunnelMap)
         return answer
     }
@@ -85,5 +88,14 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
         }.forEach {
             this[it.id] = it
         }
+    }
+
+    private fun List<String>.toMermaid(): List<String> {
+        val connections = this.map { s ->
+            s.toTunnel()
+        }.flatMap { t ->
+            t.connections.map { "    ${t.id}-->$it" }
+        }
+        return listOf("stateDiagram-v2") + connections
     }
 }
