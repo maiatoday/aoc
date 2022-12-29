@@ -9,7 +9,7 @@ import readInputString
 
 @OptIn(ExperimentalStdlibApi::class)
 class DayTest {
-    private val day = Day24
+    private val day = Day16
     private val testInput = readInput(day.number, "Day_test")
 
     //    private val testInput = readInput(day.number,"Day")
