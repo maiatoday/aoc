@@ -1,6 +1,5 @@
 package util
 
-
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -43,7 +42,6 @@ fun List<String>.findAllInGrid(p: String): List<PPoint> {
     return returnList
 }
 
-
 data class Point(val x: Int, val y: Int) {
     infix fun manhattanDistanceTo(other: Point) =
         abs(this.x - other.x) + abs(this.y - other.y)
@@ -65,7 +63,7 @@ fun Point.neighbours(
     onlyPositive: Boolean = true,
     stayBelowMax: Boolean = true
 ): List<Point> {
-    val xRange = x + 1  downTo  x- 1
+    val xRange = x + 1 downTo x - 1
     val yRange = y + 1 downTo y - 1
     val points = mutableListOf<Point>()
     for (yy in yRange) for (xx in xRange) {
@@ -98,13 +96,45 @@ fun List<Point>.boundaries(): Pair<IntRange, IntRange> {
     return (xMin..xMax to yMin..yMax)
 }
 
-fun List<Point>.debug(filled:String = "#", empty:String = ".") {
+fun List<Point>.debug(filled: String = "#", empty: String = ".") {
     val boundaries = boundaries()
     for (y in boundaries.second) {
         for (x in boundaries.first) {
-            if (Point(x,y) in this) print(filled) else print(empty)
+            if (Point(x, y) in this) print(filled) else print(empty)
         }
         println()
     }
 
 }
+
+data class Point3(val x: Int, val y: Int, val z: Int)
+
+fun Point3.neighbours(
+    observeBounds: Boolean = false,
+    xBoundary: IntRange = 0..Int.MAX_VALUE,
+    yBoundary: IntRange = 0..Int.MAX_VALUE,
+    zBoundary: IntRange = 0..Int.MAX_VALUE,
+    diagonal: Boolean = false,
+    includeSelf: Boolean = false,
+): List<Point3> =
+    buildList {
+        for (zz in z + 1 downTo z - 1) for (yy in y + 1 downTo y - 1) for (xx in x + 1 downTo x - 1) {
+            if (!includeSelf && this@neighbours == Point3(xx, yy, zz)) continue // jump over self
+            if (observeBounds && (xx !in xBoundary || yy !in yBoundary || zz !in zBoundary)) continue
+            if (!diagonal && (yy != y && xx != x && zz != z)) continue
+            add(Point3(xx, yy, zz))
+        }
+    }
+
+fun String.toPoint3(): Point3 {
+    val (x, y, z) = this.split(",").map { it.toInt() }
+    return Point3(x, y, z)
+}
+
+fun Point3.toList(): List<Int> = listOf(x, y, z)
+
+fun List<Point3>.boundaries(): List<IntRange> = listOf(
+    minOf { it.x }..maxOf { it.x },
+    minOf { it.y }..maxOf { it.y },
+    minOf { it.z }..maxOf { it.z }
+)
