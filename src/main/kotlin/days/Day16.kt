@@ -1,5 +1,6 @@
 package days
 
+import readInput
 import kotlin.math.max
 
 typealias Day16ReturnType = Int
@@ -20,7 +21,10 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
     }
 
     override fun part2(input: Day16InputType): Day16ReturnType {
-        return expectedPart2Test
+        val tunnelMap = input.toTunnelMap()
+        val sortedTunnelMap = tunnelMap.sortConnectionByFlow()
+        val answer = maxFlow("AA", 10, listOf(), true, sortedTunnelMap)
+        return answer
     }
 
     //--------------------------------------------------
@@ -47,8 +51,8 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
 
     data class State(val valve: String, val time: Int, val openedValves: List<String>, val elephantHelp: Boolean)
 
-    private val memoizedStates =
-        HashMap<State, Int>(87000000) // super rough ballpark of capacity to  stop hashmap growing all the time
+    private val memoizedStates =HashMap<State, Int>()
+        //HashMap<State, Int>(87000000) // super rough ballpark of capacity to  stop hashmap growing all the time
 
     private fun maxFlow(
         currentValve: String,
@@ -58,7 +62,7 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
         tunnels: Map<String, Tunnel>
     ): Int {
         // counting down from max time to 0, i.e. time left
-        if (time == 0) return if (elephantHelp) maxFlow("AA", 26, openedValves, false, tunnels) else 0
+        if (time == 0) return if (elephantHelp) maxFlow("AA", 10, openedValves, false, tunnels) else 0
         oneState.set(currentValve, time, openedValves, elephantHelp)
         val state = State(currentValve, time, openedValves, elephantHelp)
         log {
@@ -139,4 +143,10 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
         }
         return listOf("stateDiagram-v2") + connections
     }
+}
+
+fun main() {
+    val testInput = readInput(16, "Day")
+    val answer = Day16.part2(testInput)
+    println("Part 2 $answer")
 }
