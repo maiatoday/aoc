@@ -15,7 +15,7 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
     override fun part1(input: Day16InputType): Day16ReturnType {
         val tunnelMap = input.toTunnelMap()
         val sortedTunnelMap = tunnelMap.sortConnectionByFlow()
-        val answer = maxFlow("AA", 30, listOf(), sortedTunnelMap)
+        val answer = maxFlow("AA", 30, listOf(), false, sortedTunnelMap)
         return answer
     }
 
@@ -24,19 +24,21 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
     }
 
     //--------------------------------------------------
-    data class State(val valve: String, val time: Int, val openedValves: List<String>)
+    data class State(val valve: String, val time: Int, val openedValves: List<String>, val elephantHelp: Boolean)
 
-    private val memoizedStates = HashMap<State, Int>()
+    private val memoizedStates =
+        HashMap<Int, Int>(87000000) // super rough ballpark of capacity to  stop hashmap growing all the time
 
     private fun maxFlow(
         currentValve: String,
         time: Int,
         openedValves: List<String>,
+        elephantHelp: Boolean,
         tunnels: Map<String, Tunnel>
     ): Int {
         // counting down from max time to 0, i.e. time left
-        if (time == 0) return 0
-        val state = State(currentValve, time, openedValves)
+        if (time == 0) return if (elephantHelp) maxFlow("AA", 26, openedValves, false, tunnels) else 0
+        val state = State(currentValve, time, openedValves, elephantHelp)
         var answer = 0
         if (state in memoizedStates) {
             answer = memoizedStates[state] ?: error("oops I thought I remembered something $state")
@@ -47,12 +49,18 @@ object Day16 : Day<Day16ReturnType, Day16InputType> {
                 // open the valve!
                 answer = max(
                     answer,
-                    (time - 1) * currentFlow + maxFlow(currentValve, time - 1, openedValves + currentValve, tunnels)
+                    (time - 1) * currentFlow + maxFlow(
+                        currentValve,
+                        time - 1,
+                        openedValves + currentValve,
+                        elephantHelp,
+                        tunnels
+                    )
                 )
             }
             // if possible walk somewhere else from here
             connections.forEach {
-                answer = max(answer, maxFlow(it, time - 1, openedValves, tunnels))
+                answer = max(answer, maxFlow(it, time - 1, openedValves, elephantHelp, tunnels))
             }
             memoizedStates[state] = answer
         }
