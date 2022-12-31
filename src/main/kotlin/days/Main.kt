@@ -6,7 +6,7 @@ import kotlin.system.measureTimeMillis
 typealias MainReturnType = Int
 fun main() {
 
-    val today = Day23
+    val today = Day18
 
     println("***** Day${today.number} *****")
     val testInput = readInput(today.number, "Day_test")
