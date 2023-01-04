@@ -8,7 +8,7 @@ import java.security.MessageDigest
 fun readInput(dayNumber:Int, name: String) = File("src/main/resources/$dayNumber", "$name.txt").readLines()
 fun readInputString(dayNumber:Int, name: String) = File("src/main/resources/$dayNumber", "$name.txt").readText()
 fun readInputStringRepeat(dayNumber:Int, name: String, n:Int) = File("src/main/resources/$dayNumber", "$name.txt").readText().repeat(n)
-
+fun List<String>.filterComments():List<String> = this.filter { it[0] != '#'}
 /**
  * Converts string to md5 hash.
  */

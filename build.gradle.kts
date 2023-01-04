@@ -1,7 +1,7 @@
 //import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.8.0-RC2"
+    kotlin("jvm") version "1.8.0"
     id("org.jetbrains.kotlinx.benchmark") version "0.4.4"
 }
 
@@ -12,6 +12,7 @@ repositories {
 dependencies {
     implementation("junit:junit:4.13.2")
     implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 }
 
 benchmark {
@@ -40,7 +41,3 @@ tasks {
         gradleVersion = "7.6"
     }
 }
-//val compileKotlin: KotlinCompile by tasks
-//compileKotlin.kotlinOptions {
-//    languageVersion = "1.8"
-//}
