@@ -1,25 +1,23 @@
 package days
 
-import Day99
-import org.hamcrest.CoreMatchers
-import org.hamcrest.MatcherAssert
-import org.junit.Test
-
-import readInput
+import util.readInput
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class Day99Test {
     private val dayNumber = 99
     private val day = Day99
     private val dayTestAnswer1 = -1L
     private val dayTestAnswer2 = -1L
-    private val testInput = readInput(dayNumber,"Day_test")
+    private val testInput = readInput(dayNumber, "Day_test")
+
     @Test
     fun part1() {
-        MatcherAssert.assertThat(day.part1(testInput), CoreMatchers.`is`(dayTestAnswer1))
+        assertEquals(dayTestAnswer1, day.part1(testInput))
     }
 
     @Test
     fun part2() {
-        MatcherAssert.assertThat(day.part2(testInput), CoreMatchers.`is`(dayTestAnswer2))
+        assertEquals(dayTestAnswer2, day.part2(testInput))
     }
 }

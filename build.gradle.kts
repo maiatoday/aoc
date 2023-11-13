@@ -1,22 +1,37 @@
 plugins {
-    kotlin("jvm") version "1.7.21"
+    kotlin("jvm") version "1.9.20"
+    application
+    id("org.jetbrains.kotlinx.benchmark") version "0.4.9"
 }
 
 repositories {
     mavenCentral()
 }
 dependencies {
-    implementation("junit:junit:4.13.2")
-}
+    implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    testImplementation(kotlin("test"))
 
-tasks {
-    sourceSets {
-        main {
-            java.srcDirs("src")
+}
+benchmark {
+    configurations {
+        named("main") {
+            iterationTime = 5
+            iterationTimeUnit = "sec"
         }
     }
-
-    wrapper {
-        gradleVersion = "7.3"
+    targets {
+        register("main") {
+            this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
+            jmhVersion = "1.21"
+        }
     }
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+application {
+    mainClass.set("days/MainKt") // The main class of the application
 }

@@ -1,4 +1,4 @@
-#!/usr/local/bin/zsh
+#!/bin/zsh
 
 #echo $ADVENT_SESSION
 if [ -z "$1" ]
@@ -16,5 +16,5 @@ mkdir "$dayResourceFolder"
 cd "$dayResourceFolder" || exit
 pwd
 touch Day_test.txt
-curl -fsSL --cookie session="$ADVENT_SESSION" "$url"  > Day.txt
+curl -fsSL -A "$ADVENT_USER_AGENT" --cookie session="$ADVENT_SESSION" "$url"  > Day.txt
 ls -l
