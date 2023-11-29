@@ -7,10 +7,14 @@ import java.security.MessageDigest
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(dayNumber:Int, name: String) = File("src/main/resources/$dayNumber", "$name.txt").readLines()
-fun readInputString(dayNumber:Int, name: String) = File("src/main/resources/$dayNumber", "$name.txt").readText()
-fun readInputStringRepeat(dayNumber:Int, name: String, n:Int) = File("src/main/resources/$dayNumber", "$name.txt").readText().repeat(n)
-fun List<String>.filterComments():List<String> = this.filter { it[0] != '#'}
+// const val resourceFolder = "src/main/resources/"
+const val resourceFolder = "resources/"
+
+fun readInput(dayNumber: Int, name: String) = File("$resourceFolder$dayNumber", "$name.txt").readLines()
+fun readInputString(dayNumber: Int, name: String) = File("$resourceFolder$dayNumber", "$name.txt").readText()
+fun readInputStringRepeat(dayNumber: Int, name: String, n: Int) = File("$resourceFolder$dayNumber", "$name.txt").readText().repeat(n)
+fun List<String>.filterComments(): List<String> = this.filter { it[0] != '#' }
+
 /**
  * Converts string to md5 hash.
  */
@@ -39,14 +43,14 @@ fun Int.reverseBits(): Int {
 
 fun String.decodeHex(): LongArray {
     return chunked(8)
-        .map {
-            it
-                // .toInt(16)
-                .toLong(16)
-            //.reverseBits()
-            // .toByte()
-        }
-        .toLongArray()
+            .map {
+                it
+                        // .toInt(16)
+                        .toLong(16)
+                //.reverseBits()
+                // .toByte()
+            }
+            .toLongArray()
     // .toIntArray()
     // .toByteArray()
 }
