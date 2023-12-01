@@ -3,8 +3,8 @@ package days
 // Day object template
 object Day01 : Day<Long, List<String>> {
     override val number: Int = 1
-    override val expectedPart1Test: Long = -1L
-    override val expectedPart2Test: Long = -1L
+    override val expectedPart1Test: Long = 209L //142L
+    override val expectedPart2Test: Long = 281L
     override var useTestData = true
     override val debug = false
 
