@@ -9,17 +9,17 @@ object Day01 : Day<Long, List<String>> {
     override val debug = false
 
     override fun part1(input: List<String>): Long =
-            input.sumOf { it.transform1().extractNumber() }.toLong()
+            input.sumOf {
+                it.onlyDigits().extractNumber()
+            }.toLong()
 
 
-    override fun part2(input: List<String>): Long = input.sumOf {
-        it.transform2().transform1().extractNumber()
-    }.toLong()
+    override fun part2(input: List<String>): Long =
+            input.sumOf {
+                it.transform(mashup).transform(numberDigits).onlyDigits().extractNumber()
+            }.toLong()
 
-//    fun part1Alt(input: List<String>): Long = -1L
-//    fun part2Alt(input: List<String>): Long = -1L
-
-    private fun String.transform1() = this.filter { it.isDigit() }
+    private fun String.onlyDigits() = this.filter { it.isDigit() }
 
     private fun String.extractNumber(): Int = "${(this.firstOrNull() ?: "")}${this.lastOrNull() ?: "0"}".toInt()
 
@@ -35,7 +35,9 @@ object Day01 : Day<Long, List<String>> {
             "nine",
     )
 
-    private val mashup = mapOf(
+    private val numberDigits = numberWords.mapIndexed { i, w -> w to (i + 1).toString() }
+
+    private val mashup = listOf(
             "oneight" to "18",
             "twone" to "21",
             "threeight" to "38",
@@ -45,20 +47,11 @@ object Day01 : Day<Long, List<String>> {
             "nineight" to "98",
     )
 
-    private fun String.transform2(): String {
-        var ss = this
-        mashup.forEach { e ->
-            //println("replacing ${e.key}, with ${e.value}")
-            ss = ss.replace(e.key, e.value)
-        }
-        numberWords.forEachIndexed { i, w ->
-            // println("replacing $w with ${i + 1}")
-            ss = ss.replace(w, (i + 1).toString())
-            //println(ss)
-        }
-        println("transform $this to $ss")
-        return ss
-    }
+    private fun String.transform(transformMap: List<Pair<String, String>>): String =
+            transformMap
+                    .fold(this) { r, tt ->
+                        r.replace(tt.first, tt.second)
+                    }
 
 }
 
