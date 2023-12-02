@@ -5,7 +5,11 @@ product:
 
 dependencies: 
 #    -   org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.6
-    -   org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
+    - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
+    - $compose.desktop.currentOs
 
+settings:
+  compose: enabled
+    
 module: 
     layout: default

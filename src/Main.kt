@@ -1,5 +1,8 @@
 package days
 
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+import days.ui.App
 import util.readInput
 import kotlin.system.measureTimeMillis
 
@@ -7,7 +10,7 @@ const val dayNumber = 2
 val day = Day02
 val dayTestAnswer1 = day.expectedPart1Test
 val dayTestAnswer2 = day.expectedPart2Test
-fun main() {
+fun mainCLI() {
 
     println("***** Day$dayNumber *****")
     val testInput = readInput(dayNumber, "Day_test")
@@ -37,4 +40,11 @@ fun main() {
     println("🌟 one : $part1 in $part1Millis ms")
     println("🌟 two : $part2 in $part2Millis ms")
     println("*****************")
+}
+
+fun main() = application {
+    mainCLI()
+    Window(onCloseRequest = ::exitApplication) {
+        App()
+    }
 }
