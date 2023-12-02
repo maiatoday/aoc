@@ -15,20 +15,23 @@ import androidx.compose.ui.unit.dp
 data class DayWindow(val id: Int, val title: String, val enabled: Boolean)
 
 fun getTitle(id: Int): String =
-    when(id) {
-        1-> "Trebuchet?!"
-        2 -> "Cube Conundrum"
-        else -> "?"
-    }
-fun isEnabled(id: Int): Boolean =
-    when(id) {
-        1,2 -> true
-        else -> false
-    }
+        when (id) {
+            1 -> "Trebuchet?!"
+            2 -> "Cube Conundrum"
+            else -> "?"
+        }
 
-val dayList = buildList { repeat(25) {
-    add(DayWindow(it+1, getTitle(it+1), isEnabled(it+1)))
-} }
+fun isEnabled(id: Int): Boolean =
+        when (id) {
+            1, 2 -> true
+            else -> false
+        }
+
+val dayList = buildList {
+    repeat(25) {
+        add(DayWindow(it + 1, getTitle(it + 1), isEnabled(it + 1)))
+    }
+}
 
 @Composable
 fun Calendar(modifier: Modifier = Modifier) {
@@ -71,15 +74,14 @@ fun Home(changeState: (Int) -> Unit, modifier: Modifier = Modifier) {
 @Composable
 fun BrightBox(dayWindow: DayWindow, modifier: Modifier = Modifier) {
     val boxColor = if (dayWindow.id % 2 == 0) Color.Red else Color.Green
-    Box(modifier.aspectRatio(1.0f).background(boxColor)) {
+    Box(modifier.aspectRatio(1.0f).background(boxColor), contentAlignment = Alignment.Center) {
         Text(dayWindow.id.toString())
     }
-
 }
 
 @Composable
 fun GreyBox(dayWindow: DayWindow, modifier: Modifier = Modifier) {
-    Box(modifier.aspectRatio(1.0f).background(Color.Gray)) {
+    Box(modifier.aspectRatio(1.0f).background(Color.Gray), contentAlignment = Alignment.Center) {
         Text(dayWindow.id.toString())
     }
 }
