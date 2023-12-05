@@ -4,21 +4,25 @@ package days
 object Day05 : Day<Long, String> {
     override val number: Int = 5
     override val expectedPart1Test: Long = 35L
-    override val expectedPart2Test: Long = -1L
+    override val expectedPart2Test: Long = 46L
     override var useTestData = true
     override val debug = false
 
     override fun part1(input: String): Long {
         val (seeds, categories) = readAlmanac(input)
-        val positions = seeds.map { seed ->
-            categories.fold(seed) { l, c -> c.convert(l) }
+        val locations = seeds.map { seed ->
+            categories.lookup(seed)
         }
-        println(positions)
-        return positions.min()
+        return locations.min()
     }
 
     override fun part2(input: String): Long {
-        return -1L
+        val (seedNumbers, categories) = readAlmanac(input)
+        val seedRanges = seedNumbers.chunked(2).map { LongRange(it[0], it[0] + it[1] - 1) }
+        val locations = seedRanges.flatMap { ss ->
+            ss.map { categories.lookup(it) }
+        }
+        return locations.min()
     }
 
     private fun readAlmanac(input: String): Pair<List<Long>, List<Category>> {
@@ -29,6 +33,9 @@ object Day05 : Day<Long, String> {
         }
         return seeds to categories
     }
+
+    fun List<Category>.lookup(seed: Long) =
+            fold(seed) { l, c -> c.convert(l) }
 
     data class Category(val name: String, val tables: List<Table>) {
         fun convert(source: Long): Long {
