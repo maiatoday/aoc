@@ -54,3 +54,13 @@ fun String.decodeHex(): LongArray {
     // .toIntArray()
     // .toByteArray()
 }
+
+fun String.readLongs() = Regex("""\d+""").findAll(this)
+        .map(MatchResult::value)
+        .map(String::toLong)
+        .toList()
+
+fun String.readInts() = Regex("""\d+""").findAll(this)
+        .map(MatchResult::value)
+        .map(String::toInt)
+        .toList()
