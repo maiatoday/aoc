@@ -18,7 +18,7 @@ fun List<String>.filterComments(): List<String> = this.filter { it[0] != '#' }
 /**
  * Converts string to md5 hash.
  */
-fun String.md5(): String = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray())).toString(16)
+//fun String.md5(): String = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray())).toString(16)
 
 //val input: String = File("src/Day.txt").readText()
 //val input2: List<String> = Path("src/Day.txt").readLines()
@@ -53,4 +53,24 @@ fun String.decodeHex(): LongArray {
             .toLongArray()
     // .toIntArray()
     // .toByteArray()
+}
+
+fun String.readLongs() = Regex("""\d+""").findAll(this)
+        .map(MatchResult::value)
+        .map(String::toLong)
+        .toList()
+
+fun String.readInts() = Regex("""\d+""").findAll(this)
+        .map(MatchResult::value)
+        .map(String::toInt)
+        .toList()
+
+fun List<String>.splitByBlankLine(): List<List<String>> = this.fold(mutableListOf(mutableListOf<String>())) { acc, s ->
+    if (s.isBlank())
+        acc.add(mutableListOf())
+    else
+        acc.last().add(s)
+    acc
+}.filter {
+    it.isNotEmpty()
 }
