@@ -1,6 +1,9 @@
 package util
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class Point3Test {
     @Test
@@ -16,12 +19,7 @@ class Point3Test {
             Point3(0, 1, 1),
             Point3(2, 1, 1),
         )
-        assert(neighbours.size == expected.size) { "too many neighbours" }
-        neighbours.forEach {
-            assert(it in expected) {
-                "bad neighbour"
-            }
-        }
+        assertEquals(expected, neighbours)
     }
 
     @Test
@@ -35,26 +33,21 @@ class Point3Test {
             Point3(1, 0, 1),
             Point3(0, 1, 1)
         )
-        assert(neighbours.size == expected.size) { "too many neighbours" }
-        neighbours.forEach {
-            assert(it in expected) {
-                "bad neighbour"
-            }
-        }
+        assertEquals(expected, neighbours)
     }
 
     @Test
     fun `3D point neighbours include self`() {
         val current = Point3(1, 1, 1)
         val neighbours = current.neighbours(includeSelf = true)
-        assert(current in neighbours) { "missing self" }
+        assertTrue(current in neighbours)
     }
 
     @Test
     fun `3D point neighbours exclude self`() {
         val current = Point3(1, 1, 1)
         val neighbours = current.neighbours(includeSelf = false)
-        assert(current !in neighbours) { "shouldn't include self" }
+        assertTrue(current !in neighbours)
     }
 
     @Test
@@ -62,19 +55,19 @@ class Point3Test {
         val current = Point3(1, 1, 1)
         val neighbours = current.neighbours(includeDiagonal = true)
         val expectedSize = 9 + 9 + 8
-        assert(neighbours.size == expectedSize) { "too many neighbours" }
+        assertEquals(expectedSize, neighbours.size)
     }
 
     @Test
     fun `3D point shares sides`() {
-        assert(Point3(1, 1, 1).shareSides(Point3(0, 1, 1)))
-        assert(Point3(1, 1, 1).shareSides(Point3(1, 0, 1)))
-        assert(Point3(1, 1, 1).shareSides(Point3(1, 1, 0)))
+        assertTrue(Point3(1, 1, 1).shareSides(Point3(0, 1, 1)))
+        assertTrue(Point3(1, 1, 1).shareSides(Point3(1, 0, 1)))
+        assertTrue(Point3(1, 1, 1).shareSides(Point3(1, 1, 0)))
     }
 
     @Test
     fun `3D point doesn't share sides`() {
-        assert(!Point3(1, 1, 1).shareSides(Point3(1, 1, 1))) { "Point3 shouldn't share sides with self" }
-        assert(!Point3(1, 1, 1).shareSides(Point3(0, 0, 0))) { "Point3 shouldn't share sides with diagonal" }
+        assertFalse(Point3(1, 1, 1).shareSides(Point3(1, 1, 1)))
+        assertFalse(Point3(1, 1, 1).shareSides(Point3(0, 0, 0)))
     }
 }
