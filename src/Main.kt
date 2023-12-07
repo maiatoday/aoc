@@ -2,6 +2,7 @@ package days
 
 import util.readInput
 import kotlin.system.measureTimeMillis
+
 //245633448
 const val dayNumber = 7
 val day = Day07

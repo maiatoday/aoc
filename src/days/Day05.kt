@@ -1,5 +1,8 @@
 package days
 
+import util.readLongs
+import kotlin.math.min
+
 
 object Day05 : Day<Long, String> {
     override val number: Int = 5
@@ -19,10 +22,13 @@ object Day05 : Day<Long, String> {
     override fun part2(input: String): Long {
         val (seedNumbers, categories) = readAlmanac(input)
         val seedRanges = seedNumbers.chunked(2).map { LongRange(it[0], it[0] + it[1] - 1) }
-        val locations = seedRanges.flatMap { ss ->
-            ss.map { categories.lookup(it) }
+        val locationsMin = seedRanges.map { seedRange ->
+            seedRange.reduce { prev, seed ->
+                val new = categories.lookup(seed)
+                min(prev, new)
+            }
         }
-        return locations.min()
+        return locationsMin.min()
     }
 
     private fun readAlmanac(input: String): Pair<List<Long>, List<Category>> {
@@ -59,8 +65,4 @@ object Day05 : Day<Long, String> {
         return Table(sourceStart..<sourceStart + sourceLength, destinationOffset)
     }
 
-    private fun String.readLongs() = Regex("""\d+""").findAll(this)
-            .map(MatchResult::value)
-            .map(String::toLong)
-            .toList()
 }
