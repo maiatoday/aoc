@@ -13,7 +13,7 @@ const val resourceFolder = "resources/"
 fun readInput(dayNumber: Int, name: String) = File("$resourceFolder$dayNumber", "$name.txt").readLines()
 fun readInputString(dayNumber: Int, name: String) = File("$resourceFolder$dayNumber", "$name.txt").readText()
 fun readInputStringRepeat(dayNumber: Int, name: String, n: Int) = File("$resourceFolder$dayNumber", "$name.txt").readText().repeat(n)
-fun List<String>.filterComments(): List<String> = this.filter { it[0] != '#' }
+fun List<String>.filterComments(): List<String> = this.filter { (it.isNotEmpty() && it[0] != '#') || it.isEmpty() }
 
 /**
  * Converts string to md5 hash.

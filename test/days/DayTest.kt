@@ -6,9 +6,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DayTest {
-    private val dayNumber = 6
-    private val day = Day06
-   // private val testInput = readInput(dayNumber, "Day_test")
+    private val dayNumber = 8
+    private val day = Day08
+    // private val testInput = readInput(dayNumber, "Day_test")
 
     private val testInput = readInput(day.number, "Day_test")
 //        private val puzzleInput = readInput(day.number, "Day")
