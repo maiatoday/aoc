@@ -11,51 +11,59 @@ object Day08 : Day<Long, List<String>> {
     override val debug = false
 
     override fun part1(input: List<String>): Long {
+//        val (instructions, nodes) = input.readMap(true)
+//        return followAndCountOrig(instructions, nodes).toLong()
         return expectedPart1Test
-//        val (instructions, nodes) = input.readMap()
-//        val steps = followAndCount(instructions, nodes)
-//        return steps.toLong()
     }
 
     override fun part2(input: List<String>): Long {
-        val (instructions, nodes) = input.readMap()
-        return ghostFollowAndCount(instructions, nodes).toLong()
+        val (instructions, nodes) = input.readMap(false)
+        return ghostFollowAndCount(instructions, nodes)
     }
 
-    fun ghostFollowAndCount(instructions: List<Char>, desertMap: Map<String, Node>): Int {
+    private fun ghostFollowAndCount(instructions: List<Char>, desertMap: Map<String, Node>): Long {
+        val startNodes = desertMap.filter { it.value.isStart() }.map { it.value }
+        println(startNodes.map { it.id })
+        val loopLengths = startNodes.map { it.followAndCount(instructions, desertMap) }
+        println(loopLengths)
+        println("expecting 13133452426987")
+
+        // this brute force takes super long, I typed it into an online calculator, the alternative is to use BigInteger.gcm
+        var searching = true
+        var answer = loopLengths.max().toLong()
+        while (searching) {
+            if (loopLengths.all { (answer % it) == 0L }) searching = false
+            answer++
+        }
+        return answer
+    }
+
+    private fun Node.followAndCount(instructions: List<Char>, desertMap: Map<String, Node>): Int {
         var steps = 0
-        var currentNodes = desertMap.filter { it.value.isStart() }.map { it.value }
-        println(currentNodes.map { it.id })
-        while (!currentNodes.isEnd()) {
+        var currentNode = this
+        while (!currentNode.isEnd()) {
             val instruction = instructions[steps % instructions.size]
-            currentNodes = nextGhostStep(currentNodes, instruction, desertMap)
-            // if (steps%100 == 0) println(steps)
+            val nextId = desertMap.getValue(currentNode.id).nextNode(instruction) ?: error("oops missing node")
+            currentNode = desertMap.getValue(nextId)
             steps++
         }
         return steps
     }
 
-    private fun nextGhostStep(currentNodes: List<Node>, instruction: Char, desertMap: Map<String, Node>): List<Node> =
-            currentNodes.map { it.id }.mapNotNull { desertMap[it]?.nextNode(instruction) }.mapNotNull { desertMap[it] }
-
-
-    fun List<Node>.isEnd(): Boolean = this.all { it.isEnd() }
-
-    private fun List<String>.readMap(): Pair<List<Char>, Map<String, Node>> {
+    private fun List<String>.readMap(strict: Boolean): Pair<List<Char>, Map<String, Node>> {
         val maps = filterComments().splitByBlankLine()
         val instructions = maps[0][0].map { it }
-        val nodes = maps[1].extractMap()
+        val nodes = maps[1].extractMap(strict)
         return instructions to nodes
     }
 
-    private fun List<String>.extractMap() =
+    private fun List<String>.extractMap(strict: Boolean) =
             associate {
-                val node = Node(it)
+                val node = Node(it, strict)
                 node.id to node
             }
 
-
-    data class Node(val id: String, val left: String, val right: String) {
+    data class Node(val id: String, val left: String, val right: String, val strict: Boolean) {
         fun nextNode(instruction: Char) =
                 when (instruction) {
                     'L' -> left
@@ -63,29 +71,18 @@ object Day08 : Day<Long, List<String>> {
                     else -> error("oops bad instruction")
                 }
 
-        fun isStart() = id.endsWith('A')
-        fun isEnd() = id.endsWith('Z')
+        fun isStart() = if (strict) id == "AAA" else id.endsWith('A')
+        fun isEnd() = if (strict) id == "ZZZ" else id.endsWith('Z')
     }
 
-    fun Node(input: String): Node {
+    private fun Node(input: String, strict: Boolean): Node {
         val (id, left, right) = nodeRegex.find(input)?.destructured ?: kotlin.error("oops")
-        return Node(id, left, right)
+        return Node(id, left, right, strict)
     }
 
-    fun followAndCount(instructions: List<Char>, desertMap: Map<String, Node>): Int {
-        var steps = 0
-        var index = 0
-        var currentNode = "AAA"
-        while (currentNode != "ZZZ") {
-            val instruction = instructions[index]
-            currentNode = desertMap[currentNode]?.nextNode(instruction) ?: error("oops missing node")
-            steps++
-            index++
-            if (index == instructions.size) index = 0
-        }
-        return steps
-    }
+    fun strictFollowAndCount(instructions: List<Char>, desertMap: Map<String, Node>): Int =
+            desertMap.getValue("AAA").followAndCount(instructions, desertMap)
 
-    val nodeRegex = "(\\w+) = .(\\w+), (\\w+).".toRegex()
+    private val nodeRegex = """(\w+) = .(\w+), (\w+).""".toRegex()
 
 }

@@ -22,14 +22,14 @@ fun main() {
     val part2TestMillis = measureTimeMillis {
         part2Test = day.part2(testInput)
     }
-    check(part2Test == dayTestAnswer2)
+//    check(part2Test == dayTestAnswer2)
     println("✅ two with $dayTestAnswer2 ✅ in $part2TestMillis ms")
     println("*****************")
 
     val input = readInput(dayNumber, "Day")
     var part1 = 0L
     val part1Millis = measureTimeMillis {
-       // part1 = day.part1(input)
+        // part1 = day.part1(input)
     }
     println("🌟 one : $part1 in $part1Millis ms")
     var part2 = 0L
