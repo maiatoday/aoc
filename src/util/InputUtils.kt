@@ -55,12 +55,14 @@ fun String.decodeHex(): LongArray {
     // .toByteArray()
 }
 
-fun String.readLongs() = Regex("""\d+""").findAll(this)
+val wholeNumberRegex = """-?\d+""".toRegex()
+val decimalRegex = """-?\d+\.\d+""".toRegex()
+fun String.readLongs() = wholeNumberRegex.findAll(this)
         .map(MatchResult::value)
         .map(String::toLong)
         .toList()
 
-fun String.readInts() = Regex("""\d+""").findAll(this)
+fun String.readInts() = wholeNumberRegex.findAll(this)
         .map(MatchResult::value)
         .map(String::toInt)
         .toList()
