@@ -1,6 +1,5 @@
 package days
 
-import util.filterComments
 import util.readLongs
 
 object Day09 : Day<Long, List<String>> {
@@ -10,15 +9,11 @@ object Day09 : Day<Long, List<String>> {
     override var useTestData = true
     override val debug = false
 
-    override fun part1(input: List<String>): Long {
-        val readings = input.filterComments().map { it.readLongs() }
-        return readings.sumOf { predictNext(it) }
-    }
+    override fun part1(input: List<String>): Long =
+            input.map { it.readLongs() }.sumOf { buildSieve(it).predict() }
 
-    override fun part2(input: List<String>): Long {
-        val readings = input.filterComments().map { it.readLongs() }
-        return readings.sumOf { inferFirst(it) }
-    }
+    override fun part2(input: List<String>): Long =
+            input.map { it.readLongs() }.sumOf { buildSieve(it).infer() }
 
     private fun List<Long>.deltas() = windowed(2).map { it[1] - it[0] }
 
@@ -29,12 +24,8 @@ object Day09 : Day<Long, List<String>> {
         }
     }
 
-    private fun predictNext(sequence: List<Long>): Long = buildSieve(sequence).predict()
-
     private fun List<List<Long>>.predict(): Long = this.asReversed()
             .fold(0L) { a, row -> a + row.last() }
-
-    private fun inferFirst(sequence: List<Long>): Long = buildSieve(sequence).infer()
 
     private fun List<List<Long>>.infer(): Long = this.asReversed()
             .fold(0L) { a, row -> row.first() - a }
