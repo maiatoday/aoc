@@ -18,25 +18,21 @@ object Day11 : Day<Long, List<String>> {
     private fun findGalaxies(input: List<String>, rate: Int): List<Galaxy> = buildList {
         val blankColumns = input.findEmptyColumns()
         val blankRows = input.findEmptyRows()
-        var count = 1
-        var expandedRow = 0L
-        input.mapIndexed { r, s ->
-            var expandedColumn = 0L
-            s.mapIndexed { c, b ->
+        input.foldIndexed(0L) { r, er, s ->
+            s.foldIndexed(0L) { c, ec, b ->
                 if (b == '#') {
-                    add(Galaxy(count, expandedRow, expandedColumn))
-                    count++
+                    add(Galaxy(er, ec))
                 }
-                if (c in blankColumns) expandedColumn += rate else expandedColumn++
+                if (c in blankColumns) ec + rate else ec + 1
             }
-            if (r in blankRows) expandedRow += rate else expandedRow++
+            if (r in blankRows) er + rate else er + 1
         }
     }
 
     private fun List<String>.findEmptyColumns() = this[0].indices.filter { c -> this.all { r -> r[c] == '.' } }
     private fun List<String>.findEmptyRows() = this.mapIndexed { i, r -> (i to r) }.filter { "#" !in it.second }.map { it.first }
 
-    data class Galaxy(val id: Int, val row: Long, val column: Long) {
+    data class Galaxy(val row: Long, val column: Long) {
         fun shortestPath(other: Galaxy) = abs(row - other.row) + abs(column - other.column)
     }
 
