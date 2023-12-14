@@ -15,7 +15,7 @@ object Day12 : Day<Long, List<String>> {
     data class Record(val row: String, val workingOrder: List<Int>)
 
     private fun Record.guessArrangements(): Int {
-
+        return 0
     }
 
     fun Record(input: String): Record {
