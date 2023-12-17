@@ -44,10 +44,11 @@ object Day16 : Day<Long, List<String>> {
     ): List<Pair<Point, Point>> {
         // follow beam, and add points to visited
         val currentComponent = contraption[beam.second]
-        val next
+        //val next
         // the beam stops if it goes out of bounds or
         // if it hits a splitter or 
         // if it loops
+        return emptyList()
     }
 
     private fun List<String>.parse(): Map<Point, Component> {
