@@ -1,0 +1,47 @@
+broadcaster -> a, b, c
+%a -> b
+%b -> c
+%c -> inv
+&inv -> a
+
+broadcaster -> a
+%a -> inv, con
+&inv -> b
+%b -> con
+&con -> output
+Pulses are always processed in the order they are sent. So, if a pulse is sent to modules a, b, and c, and then module a processes its pulse and sends more pulses, the pulses sent to modules b and c would have to be handled first.
+**** Button press 1 ****
+button -low-> broadcaster
+broadcaster -low-> a
+a -high-> inv
+a -high-> con
+inv -low-> b
+con -high-> output
+b -high-> con
+con -low-> output
+
+**** Button press 2 ****
+button -low-> broadcaster
+broadcaster -low-> a
+a -low-> inv
+a -low-> con
+inv -high-> b
+con -high-> output
+
+**** Button press 3 ****
+button -low-> broadcaster
+broadcaster -low-> a
+a -high-> inv
+a -high-> con
+inv -low-> b
+con -low-> output
+b -low-> con
+con -high-> output
+
+**** Button press 4 ****
+button -low-> broadcaster
+broadcaster -low-> a
+a -low-> inv
+a -low-> con
+inv -high-> b
+con -high-> output
