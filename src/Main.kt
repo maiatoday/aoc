@@ -4,8 +4,8 @@ import util.readInput
 import kotlin.system.measureTimeMillis
 
 //245633448
-const val dayNumber = 18
-val day = Day18
+const val dayNumber = 19
+val day = Day19
 val dayTestAnswer1 = day.expectedPart1Test
 val dayTestAnswer2 = day.expectedPart2Test
 fun main() {
