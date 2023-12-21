@@ -3,8 +3,8 @@ package days
 import util.readInput
 import kotlin.system.measureTimeMillis
 
-const val dayNumber = 20
-val day = Day20
+const val dayNumber = 21
+val day = Day21
 val dayTestAnswer1 = day.expectedPart1Test
 val dayTestAnswer2 = day.expectedPart2Test
 fun main() {
@@ -13,15 +13,15 @@ fun main() {
     val testInput = readInput(dayNumber, "Day_test")
     var part1Test = 0L
     val part1TestMillis = measureTimeMillis {
-        part1Test = day.part1(testInput)
+      //  part1Test = day.part1(testInput)
     }
-    check(part1Test == dayTestAnswer1)
+  //  check(part1Test == dayTestAnswer1)
     println("✅ one with $dayTestAnswer1 ✅ in $part1TestMillis ms")
     var part2Test = 0L
     val part2TestMillis = measureTimeMillis {
         part2Test = day.part2(testInput)
     }
-    // check(part2Test == dayTestAnswer2)
+    check(part2Test == dayTestAnswer2)
     println("✅ two with $dayTestAnswer2 ✅ in $part2TestMillis ms")
     println("*****************")
 

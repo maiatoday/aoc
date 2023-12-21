@@ -6,23 +6,23 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DayTest {
-    private val dayNumber = 20
-    private val day = Day20
+    private val dayNumber = 21
+    private val day = Day21
     // private val testInput = readInput(dayNumber, "Day_test")
 
-    private val testInput = readInput(day.number, "Day_test")
-//        private val puzzleInput = readInput(day.number, "Day")
+    private val fileString = if (day.useTestData) "Day_test" else "Day"
+    private val input = readInput(day.number, fileString)
 
     //private val testInput = readInputString(day.number, "Day_test")
     //    private val puzzleInput = readInputString(day.number,"Day")
 
     @Test
     fun part1() {
-        assertEquals(day.expectedPart1Test, day.part1(testInput))
+        assertEquals(day.expectedPart1Test, day.part1(input))
     }
 
     @Test
     fun part2() {
-        assertEquals(day.expectedPart2Test, day.part2(testInput))
+        assertEquals(day.expectedPart2Test, day.part2(input))
     }
 }
