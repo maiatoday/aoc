@@ -11,7 +11,7 @@ object Day10 : Day<Long, List<String>> {
     override val debug = false
 
     override fun part1(input: List<String>): Long {
-        val (field, _) = inputToField(input)
+        val field = inputToField(input)
         val loop = findLoop(field)
         return loop.size / 2.toLong()
     }
@@ -22,7 +22,6 @@ object Day10 : Day<Long, List<String>> {
         val loop: Map<PPoint, Pipe> = buildMap {
             put(start.position, start)
             var currentPipe = findConnections(field, start).first()
-            // this is where I count steps if I need to
             while (currentPipe != start) {
                 put(currentPipe.position, currentPipe)
                 val possibleConnections = findConnections(field, currentPipe).filter { !containsKey(it.position) }
@@ -34,6 +33,8 @@ object Day10 : Day<Long, List<String>> {
         return loop
     }
 
+    // find connections checks both directions, this filters out the case where start connections is a junk pipe
+    // I could have figured out the shape of the start pipe here too
     private fun findConnections(field: Map<PPoint, Char>, from: Pipe): List<Pipe> =
             from.connected().map { Pipe(it, field.getValue(it)) }.filter { from.position in it.connected() }
 
@@ -53,63 +54,62 @@ object Day10 : Day<Long, List<String>> {
     }
 
     // Pair Point PPoint is row to column - first=row secon=column
-    private fun inputToField(input: List<String>): Pair<Map<PPoint, Char>, Pair<Int, Int>> {
+    private fun inputToField(input: List<String>): Map<PPoint, Char> {
         val field = buildMap<PPoint, Char> {
             for (r in input.withIndex())
                 for (c in r.value.withIndex())
                     this[r.index to c.index] = c.value
         }
-        val fieldSize = input.size to input.first().length
-        return field to fieldSize
+        return field
     }
 
     override fun part2(input: List<String>): Long {
-        val (field, fieldSize) = inputToField(input)
-        val loop = findLoop(field)
-        val nest = findNest(field, fieldSize, loop)
+        val dirtyField = inputToField(input)
+        val loop = findLoop(dirtyField)
+        val field = cleanupField(dirtyField, loop)
+        val nest = findNest(field)
         return nest.size.toLong()
     }
 
-    private fun findNest(field: Map<PPoint, Char>, fieldSize: Pair<Int, Int>, loop: Map<PPoint, Pipe>): Set<PPoint> {
-        val loopPoints = loop.keys
-        val outside = mutableSetOf<PPoint>().apply { addAll(getEdges(fieldSize).filter { it !in loopPoints }) }
-        val inside = mutableSetOf<PPoint>()
-        val checked = mutableSetOf<PPoint>()
-
-        // add any unchecked neighbours 
-        val queue = mutableSetOf(outside.first())
-        while (queue.isNotEmpty()) {
-            val currentSpot = queue.first()
-            queue.remove(currentSpot)
-            checked.add(currentSpot)
-            val neighbours = currentSpot.neighbours(maxM = fieldSize.first, maxN = fieldSize.second, onlyPositive = true, stayBelowMax = true)
-            // a spot is either loop, inside or outside or unchecked
-            if (currentSpot in loopPoints) {
-                // if loop and x neighbour is ouside then other x  neighbour is inside
-                // if loop and y neighbour is outside then other y  neighbour is inside
+    private fun cleanupField(dirtyField: Map<Pair<Int, Int>, Char>, loop: Map<Pair<Int, Int>, Pipe>): Map<Pair<Int, Int>, Char> = buildMap {
+        // remove scrap pipes
+        for ((k, v) in dirtyField) {
+            if (k in loop) {
+                this[k] = v
             } else {
-                if (neighbours.any { it in outside }) outside.add(currentSpot)
-            }
-            neighbours.forEach {
-                if (it !in checked) queue.add(it)
+                this[k] = '.'
             }
         }
-        return inside
+        //fix start
+        val start = loop.values.first { it.type == 'S' }
+        this[start.position] = loop.findMissingPipe(start)
     }
 
-    private fun getEdges(size: Pair<Int, Int>): Set<PPoint> = buildSet {
-        // vertical edges
-        for (r in 0..size.first) {
-            add(r to 0)
-            add(r to size.second - 1)
+    private fun Map<Pair<Int, Int>, Pipe>.findMissingPipe(missing: Pipe): Char {
+        val reallyConnected = missing.connected().filter { this.getValue(it).connected().contains(missing.position) }
+        val pipes = reallyConnected.map { this.getValue(it).type }.sorted().joinToString("")
+        // TODO this when is totally not exhaustive and also has an error, it won't work for all inputs so you need add the case for the specific input
+        return when (pipes) {
+            "F|" -> '7'
+            "--" -> '-'
+            "||" -> '|'
+            "7J" -> 'F'
+            else -> error("oops unknown combo $pipes investigate input and figure out the when case")
         }
-        // horizontal edges
-        for (c in 0..size.second) {
-            add(c to 0)
-            add(c to size.first - 1)
-        }
-
-
     }
 
+    private fun findNest(field: Map<PPoint, Char>): Set<PPoint> {
+        // we can get the real maybe nest points because we removed the rubble pipes
+        val maybeNest = field.filter { (_, v) -> v == '.' }.map { (k, _) -> k }
+        // we can use the isInside method because we replaced the start  with the actual pipe
+        return maybeNest.filter { it.isInside(field) }.toSet()
+    }
+
+    private fun PPoint.isInside(field: Map<PPoint, Char>): Boolean {
+        val (r, c) = this
+        // ray goes left to 0 and count crossings
+        // only JL| pipes are crossings
+        val crossings = (0..c).map { field.getValue(r to it) }.count { it in "JL|" }
+        return (crossings % 2) != 0
+    }
 }
