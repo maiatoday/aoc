@@ -23,9 +23,9 @@ object Day24 : Day<Long, List<String>> {
 
     data class Line(val one: Pair<Long, Long>, val two: Pair<Long, Long>)
     data class HailStone(val position: List<Long>, val velocity: List<Int>) {
-        fun lineInTestSpace(space: LongRange): Line {
-
-        }
+//        fun lineInTestSpace(space: LongRange): Line {
+//
+//        }
     }
 
     //{\displaystyle {\begin{aligned}P_{x}&={\frac {(x_{1}y_{2}-y_{1}x_{2})(x_{3}-x_{4})-(x_{1}-x_{2})(x_{3}y_{4}-y_{3}x_{4})}{(x_{1}-x_{2})(y_{3}-y_{4})-(y_{1}-y_{2})(x_{3}-x_{4})}}\\[4px]P_{y}&={\frac {(x_{1}y_{2}-y_{1}x_{2})(y_{3}-y_{4})-(y_{1}-y_{2})(x_{3}y_{4}-y_{3}x_{4})}{(x_{1}-x_{2})(y_{3}-y_{4})-(y_{1}-y_{2})(x_{3}-x_{4})}}\end{aligned}}}
