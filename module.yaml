@@ -5,7 +5,8 @@ product:
 
 dependencies: 
 #    -   org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.6
-    -   org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
+    - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4
+    - io.github.rchowell:dotlin:1.0.2
 
 module: 
     layout: default
