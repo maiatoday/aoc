@@ -1,6 +1,7 @@
 package days
 
 import util.splitByBlankLine
+import kotlin.math.max
 
 object Day13 : Day<Long, List<String>> {
     override val number: Int = 13
@@ -16,25 +17,35 @@ object Day13 : Day<Long, List<String>> {
         return (horizontal + (100 * vertical)).toLong()
     }
 
-    data class IndexString(val i: Int, val s: String)
-
-    private fun findMirror(input: List<String>, transpose: Boolean): Int {
+    private fun findMirror(input: List<String>, transpose: Boolean, smudgeCount: Int = 0): Int {
         val field = if (transpose) transpose(input) else input
-        val possible = field
-                .findDoubleLine()
-                .filter { it.isMirror(field) }
+        val possible = (1..<field.size)
+                .filter { it.isMirror(field, smudgeCount) }
                 .toList()
-        return if (possible.isEmpty()) 0 else possible.first()
+        return if (possible.isEmpty()) 0 else possible.last()
     }
 
     private fun Int.isMirror(
             field: List<String>,
-            compare: (String, String) -> Boolean = compareEquals): Boolean {
+            smudgeCount: Int): Boolean {
         val l = (this - 1) downTo 0
         val r = this..<field.size
         val zippy = l zip r
-        val isMirror = zippy.all { compare(field[it.first], field[it.second]) }
-        return isMirror
+        var maxSmudge = smudgeCount
+        val isMirror = zippy.map { (first, second) ->
+            if (compareEquals(field[first], field[second])) {
+                true
+            } else {
+                if (maxSmudge > 0 && compareWithSmudge(field[first], field[second], maxSmudge)) {
+                    maxSmudge = max(0, maxSmudge - 1)
+                    true
+                } else {
+                    false
+                }
+            }
+        }.all { it }
+        // we have to fix smudgeCount smudges otherwise for part two we get duplicate mirrors
+        return isMirror && maxSmudge == 0
     }
 
     private fun transpose(input: List<String>): List<String> = buildList {
@@ -43,76 +54,13 @@ object Day13 : Day<Long, List<String>> {
         }
     }
 
-    private fun List<String>.findDoubleLine(compare: (String, String) -> Boolean = compareEquals) =
-            this.asSequence()
-                    .mapIndexed { i, l -> IndexString(i, l) }
-                    .zipWithNext()
-                    .filter {
-                        compare(it.first.s, it.second.s)
-                    }
-                    .map { it.second.i }
-
     override fun part2(input: List<String>): Long {
-
         val notes = input.splitByBlankLine()
-        val both = notes.map {
-            fixSmudge(it, transpose = false) to fixSmudge(it, transpose = true)
-        }
-        val horizontal = both.sumOf {
-            if (it.second == 0) it.first else 0
-        }
-
-        val vertical = both.sumOf {
-            if (it.first == 0) it.second else 0
-        }
-
+        val vertical = notes.sumOf { findMirror(it, false, 1) }
+        val horizontal = notes.sumOf { findMirror(it, true, 1) }
         return (horizontal + (100 * vertical)).toLong()
     }
 
-    private fun fixSmudge(input: List<String>, transpose: Boolean): Int {
-        println("transpose = $transpose")
-        val field = if (transpose) transpose(input) else input
-
-        val possible = field.fd(compare = compareWithSmudge).ifEmpty {
-            field.fd()
-        }
-        val temp = possible.filter { it.isSmudgedMirror(field) }
-        println(temp)
-        return if (possible.isEmpty()) 0 else possible.first()
-    }
-
-    private fun Int.isSmudgedMirror(
-            field: List<String>
-    ): Boolean {
-        var smudgeCount = 0
-        val l = (this - 1) downTo 0
-        val r = this..<field.size
-        val zippy = l zip r
-        val isMirror = zippy.all {
-            val first = field[it.first]
-            val second = field[it.second]
-            if (smudgeCount == 0) {
-                if (compareWithSmudge(first, second)) {
-                    smudgeCount++
-                    true
-                } else compareEquals(first, second)
-            } else {
-                compareEquals(first, second)
-            }
-        }
-        //val isMirror = zippy.all { compare(field[it.first], field[it.second]) }
-        return isMirror
-    }
-
-    val compareWithSmudge: (String, String) -> Boolean = { a, b -> ((a zip b).filter { it.first != it.second }.size == 1) }
+    val compareWithSmudge: (String, String, Int) -> Boolean = { a, b, smudgeCount -> ((a zip b).filter { it.first != it.second }.size == smudgeCount) }
     val compareEquals: (String, String) -> Boolean = { a, b -> a == b }
-
-    private fun List<String>.fd(compare: (String, String) -> Boolean = { a, b -> a == b }) =
-            this
-                    .mapIndexed { i, l -> IndexString(i, l) }
-                    .zipWithNext()
-                    .filter {
-                        compare(it.first.s, it.second.s)
-                    }
-                    .map { it.second.i }
 }
