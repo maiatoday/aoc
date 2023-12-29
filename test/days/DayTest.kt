@@ -6,8 +6,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DayTest {
-    private val dayNumber = 13
-    private val day = Day13
+    private val dayNumber = 14
+    private val day = Day14
     // private val testInput = readInput(dayNumber, "Day_test")
 
     private val fileString = if (day.useTestData) "Day_test" else "Day"
