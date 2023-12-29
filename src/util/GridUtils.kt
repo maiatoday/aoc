@@ -6,12 +6,12 @@ import kotlin.math.sign
 typealias PPoint = Pair<Int, Int>
 
 fun PPoint.neighbours(
-    maxM: Int = Int.MAX_VALUE,
-    maxN: Int = Int.MAX_VALUE,
-    diagonal: Boolean = false,
-    includeSelf: Boolean = false,
-    onlyPositive: Boolean = true,
-    stayBelowMax: Boolean = true
+        maxM: Int = Int.MAX_VALUE,
+        maxN: Int = Int.MAX_VALUE,
+        diagonal: Boolean = false,
+        includeSelf: Boolean = false,
+        onlyPositive: Boolean = true,
+        stayBelowMax: Boolean = true
 ): List<PPoint> {
     val mRange = first - 1..first + 1
     val nRange = second - 1..second + 1
@@ -47,7 +47,7 @@ fun Point.toPPoint() = Pair(y, x)
 
 data class Point(val x: Int, val y: Int) {
     infix fun manhattanDistanceTo(other: Point) =
-        abs(this.x - other.x) + abs(this.y - other.y)
+            abs(this.x - other.x) + abs(this.y - other.y)
 
     fun lineTo(other: Point): List<Point> {
         val dx = (other.x - x).sign
@@ -59,12 +59,12 @@ data class Point(val x: Int, val y: Int) {
 }
 
 fun Point.neighbours(
-    maxY: Int = Int.MAX_VALUE,
-    maxX: Int = Int.MAX_VALUE,
-    diagonal: Boolean = false,
-    includeSelf: Boolean = false,
-    onlyPositive: Boolean = true,
-    stayBelowMax: Boolean = true
+        maxY: Int = Int.MAX_VALUE,
+        maxX: Int = Int.MAX_VALUE,
+        diagonal: Boolean = false,
+        includeSelf: Boolean = false,
+        onlyPositive: Boolean = true,
+        stayBelowMax: Boolean = true
 ): List<Point> {
     val xRange = x + 1 downTo x - 1
     val yRange = y + 1 downTo y - 1
@@ -113,23 +113,23 @@ fun List<Point>.debug(filled: String = "#", empty: String = ".") {
 data class Point3(val x: Int, val y: Int, val z: Int)
 
 fun Point3.neighbours(
-    observeBounds: Boolean = false,
-    xBoundary: IntRange = 0..Int.MAX_VALUE,
-    yBoundary: IntRange = 0..Int.MAX_VALUE,
-    zBoundary: IntRange = 0..Int.MAX_VALUE,
-    includeDiagonal: Boolean = false,
-    includeSelf: Boolean = false,
-    extraFilter: (Point3) -> Boolean = { true }
+        observeBounds: Boolean = false,
+        xBoundary: IntRange = 0..Int.MAX_VALUE,
+        yBoundary: IntRange = 0..Int.MAX_VALUE,
+        zBoundary: IntRange = 0..Int.MAX_VALUE,
+        includeDiagonal: Boolean = false,
+        includeSelf: Boolean = false,
+        extraFilter: (Point3) -> Boolean = { true }
 ): Set<Point3> =
-    buildSet {
-        for (zz in z + 1 downTo z - 1) for (yy in y + 1 downTo y - 1) for (xx in x + 1 downTo x - 1) {
-            if (!includeSelf && Point3(x,y,z) == Point3(xx, yy, zz)) continue // jump over self
-            if (observeBounds && (xx !in xBoundary || yy !in yBoundary || zz !in zBoundary)) continue
-            if (!includeDiagonal && ((yy != y && xx != x) || (zz != z && xx != x) || (zz != z && yy != y))) continue
-            if (!extraFilter(Point3(xx, yy, zz))) continue
-            add(Point3(xx, yy, zz))
+        buildSet {
+            for (zz in z + 1 downTo z - 1) for (yy in y + 1 downTo y - 1) for (xx in x + 1 downTo x - 1) {
+                if (!includeSelf && Point3(x, y, z) == Point3(xx, yy, zz)) continue // jump over self
+                if (observeBounds && (xx !in xBoundary || yy !in yBoundary || zz !in zBoundary)) continue
+                if (!includeDiagonal && ((yy != y && xx != x) || (zz != z && xx != x) || (zz != z && yy != y))) continue
+                if (!extraFilter(Point3(xx, yy, zz))) continue
+                add(Point3(xx, yy, zz))
+            }
         }
-    }
 
 fun String.toPoint3(): Point3 {
     val (x, y, z) = this.split(",").map { it.toInt() }
@@ -139,9 +139,9 @@ fun String.toPoint3(): Point3 {
 fun Point3.toList(): List<Int> = listOf(x, y, z)
 
 fun List<Point3>.boundaries(offset: Int = 0): Triple<IntRange, IntRange, IntRange> = Triple(
-    (minOf { it.x } - offset)..(maxOf { it.x } + offset),
-    (minOf { it.y } - offset)..(maxOf { it.y } + offset),
-    (minOf { it.z } - offset)..(maxOf { it.z } + offset)
+        (minOf { it.x } - offset)..(maxOf { it.x } + offset),
+        (minOf { it.y } - offset)..(maxOf { it.y } + offset),
+        (minOf { it.z } - offset)..(maxOf { it.z } + offset)
 )
 
 fun Point3.shareSides(other: Point3): Boolean {
@@ -150,3 +150,12 @@ fun Point3.shareSides(other: Point3): Boolean {
     val sameCount = pairs.count { it.first == it.second }
     return (diffCount == 1) && (sameCount == 2)
 }
+
+private fun List<String>.findSpots(spot: Char): List<PPoint> = this.foldIndexed(mutableListOf<PPoint>()) { row, a, s ->
+    s.mapIndexed { col, c ->
+        if (c == spot) a.add(row to col)
+    }
+    a
+}
+
+fun List<String>.toCharGrid() = Array(size) { get(it).toCharArray() }
