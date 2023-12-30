@@ -1,7 +1,7 @@
 package days
 
+import util.Direction
 import util.Point
-import util.debug
 import util.plus
 
 object Day16 : Day<Long, List<String>> {
@@ -18,8 +18,8 @@ object Day16 : Day<Long, List<String>> {
     }
 
     private fun energise(
-        contraption: Map<Point, Component>,
-        start: Beam = Beam(Point(-1, 0), Direction.Right)
+            contraption: Map<Point, Component>,
+            start: Beam = Beam(Point(-1, 0), Direction.Right)
     ): Set<Point> {
         val visited = mutableSetOf<Beam>()
         val deque = ArrayDeque<Beam>()
@@ -66,64 +66,61 @@ object Day16 : Day<Long, List<String>> {
 
     data class Component(val type: ComponentType, val position: Point) {
         fun next(incoming: Beam): List<Beam> =
-            when (type) {
-                ComponentType.MirrorLeft -> {
-                    when (incoming.direction) {
-                        Direction.Left -> listOf(Beam(position, Direction.Up))
-                        Direction.Right -> listOf(Beam(position, Direction.Down))
-                        Direction.Up -> listOf(Beam(position, Direction.Left))
-                        Direction.Down -> listOf(Beam(position, Direction.Right))
-                    }
-                }
-
-                ComponentType.MirrorRight -> {
-                    when (incoming.direction) {
-                        Direction.Left -> listOf(Beam(position, Direction.Down))
-                        Direction.Right -> listOf(Beam(position, Direction.Up))
-                        Direction.Up -> listOf(Beam(position, Direction.Right))
-                        Direction.Down -> listOf(Beam(position, Direction.Left))
-                    }
-                }
-
-                ComponentType.SplitV -> {
-                    when (incoming.direction) {
-                        Direction.Left,
-                        Direction.Right -> {
-                            listOf(Beam(position, Direction.Up), Beam(position, Direction.Down))
+                when (type) {
+                    ComponentType.MirrorLeft -> {
+                        when (incoming.direction) {
+                            Direction.Left -> listOf(Beam(position, Direction.Up))
+                            Direction.Right -> listOf(Beam(position, Direction.Down))
+                            Direction.Up -> listOf(Beam(position, Direction.Left))
+                            Direction.Down -> listOf(Beam(position, Direction.Right))
+                            else -> error("oops going nowhere $incoming")
                         }
-
-                        // | looks like space if the beam is traveling up or down
-                        Direction.Up,
-                        Direction.Down -> listOf(Beam(position, incoming.direction))
                     }
-                }
 
-                ComponentType.SplitH -> {
-                    when (incoming.direction) {
-                        // - looks like space if the beam is traveling left or right
-                        Direction.Left,
-                        Direction.Right -> listOf(Beam(position, incoming.direction))
-
-                        Direction.Up,
-                        Direction.Down -> listOf(Beam(position, Direction.Left), Beam(position, Direction.Right))
+                    ComponentType.MirrorRight -> {
+                        when (incoming.direction) {
+                            Direction.Left -> listOf(Beam(position, Direction.Down))
+                            Direction.Right -> listOf(Beam(position, Direction.Up))
+                            Direction.Up -> listOf(Beam(position, Direction.Right))
+                            Direction.Down -> listOf(Beam(position, Direction.Left))
+                            else -> error("oops going nowhere $incoming")
+                        }
                     }
-                }
 
-                ComponentType.Space -> listOf(Beam(position, incoming.direction))
-            }
+                    ComponentType.SplitV -> {
+                        when (incoming.direction) {
+                            Direction.Left,
+                            Direction.Right -> {
+                                listOf(Beam(position, Direction.Up), Beam(position, Direction.Down))
+                            }
+
+                            // | looks like space if the beam is traveling up or down
+                            Direction.Up,
+                            Direction.Down -> listOf(Beam(position, incoming.direction))
+
+                            else -> error("oops going nowhere $incoming")
+                        }
+                    }
+
+                    ComponentType.SplitH -> {
+                        when (incoming.direction) {
+                            // - looks like space if the beam is traveling left or right
+                            Direction.Left,
+                            Direction.Right -> listOf(Beam(position, incoming.direction))
+
+                            Direction.Up,
+                            Direction.Down -> listOf(Beam(position, Direction.Left), Beam(position, Direction.Right))
+
+                            else -> error("oops going nowhere $incoming")
+                        }
+                    }
+
+                    ComponentType.Space -> listOf(Beam(position, incoming.direction))
+                }
 
     }
 
     private fun Component(c: Char, position: Point): Component = Component(ComponentType.from(c), position)
-
-    enum class Direction(val p: Point) {
-        Left(Point(-1, 0)), Right(Point(1, 0)), Up(Point(0, -1)), Down(Point(0, 1));
-
-        companion object {
-            private val map = entries.associateBy { it.p }
-            infix fun from(p: Point) = map[p] ?: error("bad direction $p")
-        }
-    }
 
     override fun part2(input: List<String>): Long {
         val contraption = input.parse()
