@@ -2,6 +2,7 @@ package days
 
 import util.Point
 import util.debug
+import util.plus
 
 object Day16 : Day<Long, List<String>> {
     override val number: Int = 16
@@ -124,9 +125,6 @@ object Day16 : Day<Long, List<String>> {
     }
 
     private fun Component(c: Char, position: Point): Component = Component(ComponentType.from(c), position)
-
-    private infix operator fun Point.plus(other: Point): Point =
-        Point(this.x + other.x, this.y + other.y)
 
 
     enum class Direction(val p: Point) {

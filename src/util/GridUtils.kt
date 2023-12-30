@@ -45,6 +45,9 @@ fun List<String>.findAllInGrid(p: String): List<PPoint> {
 fun PPoint.toPoint() = Point(second, first)
 fun Point.toPPoint() = Pair(y, x)
 
+infix operator fun Point.plus(other: Point): Point =
+     Point(this.x + other.x, this.y + other.y)
+
 data class Point(val x: Int, val y: Int) {
     infix fun manhattanDistanceTo(other: Point) =
             abs(this.x - other.x) + abs(this.y - other.y)
