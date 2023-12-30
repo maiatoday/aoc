@@ -113,6 +113,15 @@ fun List<Point>.debug(filled: String = "#", empty: String = ".") {
 
 }
 
+enum class Direction(val p: Point) {
+    Left(Point(-1, 0)), Right(Point(1, 0)), Up(Point(0, -1)), Down(Point(0, 1)), Still(Point(0,0));
+
+    companion object {
+        private val map = entries.associateBy { it.p }
+        infix fun from(p: Point) = map[p] ?: error("bad direction $p")
+    }
+}
+
 data class Point3(val x: Int, val y: Int, val z: Int)
 
 fun Point3.neighbours(
