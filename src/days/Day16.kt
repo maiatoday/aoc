@@ -34,9 +34,6 @@ object Day16 : Day<Long, List<String>> {
                 }
             }
         }
-        log {
-            visited.map { it.position }.toSet().toList().debug()
-        }
         // filter out points not in the contraption e.g. the start which starts outside
         return visited.map { it.position }.filter { it in contraption }.toSet()
     }
@@ -68,9 +65,8 @@ object Day16 : Day<Long, List<String>> {
     }
 
     data class Component(val type: ComponentType, val position: Point) {
-        fun next(incoming: Beam): List<Beam> {
-
-            val outgoing = when (type) {
+        fun next(incoming: Beam): List<Beam> =
+            when (type) {
                 ComponentType.MirrorLeft -> {
                     when (incoming.direction) {
                         Direction.Left -> listOf(Beam(position, Direction.Up))
@@ -115,17 +111,10 @@ object Day16 : Day<Long, List<String>> {
 
                 ComponentType.Space -> listOf(Beam(position, incoming.direction))
             }
-            log {
-                println("\n $this")
-                println("    incoming $incoming ... outgoing $outgoing")
-            }
-            return outgoing
-        }
 
     }
 
     private fun Component(c: Char, position: Point): Component = Component(ComponentType.from(c), position)
-
 
     enum class Direction(val p: Point) {
         Left(Point(-1, 0)), Right(Point(1, 0)), Up(Point(0, -1)), Down(Point(0, 1));
