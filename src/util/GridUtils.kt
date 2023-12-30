@@ -46,7 +46,7 @@ fun PPoint.toPoint() = Point(second, first)
 fun Point.toPPoint() = Pair(y, x)
 
 infix operator fun Point.plus(other: Point): Point =
-     Point(this.x + other.x, this.y + other.y)
+        Point(this.x + other.x, this.y + other.y)
 
 data class Point(val x: Int, val y: Int) {
     infix fun manhattanDistanceTo(other: Point) =
@@ -114,11 +114,21 @@ fun List<Point>.debug(filled: String = "#", empty: String = ".") {
 }
 
 enum class Direction(val p: Point) {
-    Left(Point(-1, 0)), Right(Point(1, 0)), Up(Point(0, -1)), Down(Point(0, 1)), Still(Point(0,0));
+    Left(Point(-1, 0)), Right(Point(1, 0)), Up(Point(0, -1)), Down(Point(0, 1)), Still(Point(0, 0));
+
+    fun isBackWards(other: Direction): Boolean =
+            when (other) {
+                Left -> this == Right
+                Right -> this == Left
+                Up -> this == Down
+                Down -> this == Up
+                Still -> false
+            }
 
     companion object {
         private val map = entries.associateBy { it.p }
         infix fun from(p: Point) = map[p] ?: error("bad direction $p")
+        fun compass() = listOf(Up, Right, Down, Left)
     }
 }
 
