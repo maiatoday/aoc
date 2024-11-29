@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-echo $ADVENT_SESSION
+echo "$ADVENT_SESSION"
 if [ -z "$1" ]
 then
     echo "Enter a day number between 1 and 25"
@@ -8,7 +8,7 @@ then
 else
     day=$1
 fi
-year=2023
+year=2024
 url=https://adventofcode.com/$year/day/$day/input
 echo "Fetching $year AoC data for day" "$day"
 # echo "from" "$url"
