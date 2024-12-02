@@ -10,18 +10,15 @@ object Day02 : Day<Long, List<String>> {
     override var useTestData = true
     override val debug = false
 
-    override fun part1(input: List<String>): Long {
-        val reports = input.parse()
-        val safe = reports.count {
-            it.isSafe().first
-        }
-        return safe.toLong()
-    }
+    override fun part1(input: List<String>): Long =
+        input.parse().count {
+            it.isSafe()
+        }.toLong()
 
     override fun part2(input: List<String>): Long {
         val reports = input.parse()
         val safe = reports.count {
-            it.isSafeWithDamp()
+            it.isSafeWithDampBrute()
         }
         return safe.toLong()
     }
@@ -30,40 +27,35 @@ object Day02 : Day<Long, List<String>> {
     fun part2Alt(input: List<String>): Long = -1L
 
     private fun List<String>.parse() = this.map { s -> s.readInts() }
-    private fun List<Int>.isSafeWithDamp(problemDampLevel: Int = 1): Boolean {
-        val (isSafe, errorIndex) = isSafe()
-        return if (!isSafe) {
-            val newList = toMutableList()
-            newList.removeAt(errorIndex)
-            newList.isSafe().first
-        } else {
-            true
-        }
+
+    private fun List<Int>.isSafeWithDampBrute(): Boolean {
+        val isSafe = isSafe()
+        val allSafeList = List(size) { i ->
+            val newList = this.toMutableList()
+            newList.removeAt(i)
+            newList.isSafe()
+        } + isSafe
+        return allSafeList.any { it }
     }
 
-    private fun List<Int>.isSafe(): Pair<Boolean, Int> {
+    private fun List<Int>.isSafe(): Boolean {
         var isSafe = true
         val increasing = (this[1] > this[0])
-        var errorIndex = size
         for (i in 1..<size) {
             if (increasing) {
                 if (this[i] <= this[i - 1]) {
                     isSafe = false
-                    errorIndex = i
                     break
                 }
             } else if (this[i] >= this[i - 1]) {
                 isSafe = false
-                errorIndex = i
                 break
             }
             if (abs(this[i] - this[i - 1]) !in 1..3) {
                 isSafe = false
-                errorIndex = i
                 break
             }
-
         }
-        return isSafe to errorIndex
+        return isSafe
     }
 }
