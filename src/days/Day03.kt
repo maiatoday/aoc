@@ -28,7 +28,7 @@ object Day03 : Day<Long, List<String>> {
 
     private fun extractMulNumbers(input: List<String>) =
         input.flatMap {
-            Regex(mulRegex)
+            mulRegex.toRegex()
                 .findAll(it)
                 .map(MatchResult::value)
                 .toList()
@@ -36,9 +36,9 @@ object Day03 : Day<Long, List<String>> {
         }
 
 
-    val mulRegex = """mul\(\d+,\d+\)"""
-    val doRegex = Regex("""do\(\)""")
-    val dontRegex = Regex("""don\'t\(\)""")
+    val mulRegex = """mul\(\d{1,3},\d{1,3}\)"""
+    val doRegex = """do\(\)""".toRegex()
+    val dontRegex = """don't\(\)""".toRegex()
 
     /* This way round does not work
     private fun extractEnabledCommandsBork(input: List<String>) =
