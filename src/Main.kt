@@ -4,10 +4,8 @@ package days
 import util.readInput
 import kotlin.system.measureTimeMillis
 
-const val dayNumber = 2
-val day = Day02
-const val dayTestAnswer1 = 2L
-const val dayTestAnswer2 = 4L
+const val dayNumber = 3
+val day = Day03
 fun main() {
 
     println("***** Day$dayNumber *****")
@@ -16,14 +14,14 @@ fun main() {
     val part1TestMillis = measureTimeMillis {
         part1Test = day.part1(testInput)
     }
-    check(part1Test == dayTestAnswer1)
-    println("✅ one with $dayTestAnswer1 ✅ in $part1TestMillis ms")
+    check(part1Test == day.expectedPart1Test)
+    println("✅ one with ${day.expectedPart1Test} ✅ in $part1TestMillis ms")
     var part2Test = 0L
     val part2TestMillis = measureTimeMillis {
         part2Test = day.part2(testInput)
     }
-    check(part2Test == dayTestAnswer2)
-    println("✅ two with $dayTestAnswer2 ✅ in $part2TestMillis ms")
+    check(part2Test == day.expectedPart2Test)
+    println("✅ two with ${day.expectedPart2Test} ✅ in $part2TestMillis ms")
     println("*****************")
 
     val input = readInput(dayNumber, "Day")
