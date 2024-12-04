@@ -123,7 +123,7 @@ fun Point3.neighbours(
 ): Set<Point3> =
     buildSet {
         for (zz in z + 1 downTo z - 1) for (yy in y + 1 downTo y - 1) for (xx in x + 1 downTo x - 1) {
-            if (!includeSelf && Point3(x,y,z) == Point3(xx, yy, zz)) continue // jump over self
+            if (!includeSelf && Point3(x, y, z) == Point3(xx, yy, zz)) continue // jump over self
             if (observeBounds && (xx !in xBoundary || yy !in yBoundary || zz !in zBoundary)) continue
             if (!includeDiagonal && ((yy != y && xx != x) || (zz != z && xx != x) || (zz != z && yy != y))) continue
             if (!extraFilter(Point3(xx, yy, zz))) continue
@@ -149,4 +149,39 @@ fun Point3.shareSides(other: Point3): Boolean {
     val diffCount = pairs.count { abs(it.first - it.second) == 1 }
     val sameCount = pairs.count { it.first == it.second }
     return (diffCount == 1) && (sameCount == 2)
+}
+
+fun List<String>.extractString(coordinates: List<Point>): String = buildString {
+    for ((x, y) in coordinates) {
+        if ((x in this@extractString[0].indices) && (y in this@extractString.indices)) {
+            append(this@extractString[y][x])
+        }
+    }
+}
+
+fun rowPoints(x: Int, y: Int, length: Int): List<Point> = buildList {
+    for (i in 0..<length) {
+        add(Point(x + i, y))
+    }
+}
+
+fun columnPoints(x: Int, y: Int, length: Int): List<Point> = buildList {
+    for (i in 0..<length) {
+        add(Point(x, y + i))
+    }
+}
+
+fun diagonalPoints(x: Int, y: Int, length: Int, forward: Boolean): List<Point> = buildList {
+    // forward means looks like  a forward slash back means looks like a backslash
+    // always starts at x and y
+    if (forward) { // /
+        for (i in 0..<length) {
+            add(Point(x - i, y + i))
+        }
+    } else { // \
+        for (i in 0..<length) {
+            add(Point(x + i, y + i))
+        }
+    }
+
 }
