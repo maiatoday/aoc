@@ -11,48 +11,47 @@ object Day05 : Day<Long, List<String>> {
     override val debug = false
 
     override fun part1(input: List<String>): Long {
-        val (rulesList, pageLists) = input.splitByBlankLine()
-        val rules = rulesList.map {
-            it.readInts()
-        }
-        val answer = pageLists
-            .map { pageList ->
-                applyRulesAndGetMiddle(pageList, rules) // give me a list of indices and the middle index as a pair
-            }
-            .mapNotNull { (middle, result) ->
-                if (resultOk(result)) middle else null
-            }
-            .sum()
+        val (rules, pagesList) = input.splitByBlankLine().map { l -> l.map { it.readInts() } }
+        val answer = pagesList
+            .map { pages -> applyRulesPages(pages, rules) }// give me the list of indices and the pages
+            .filter { (_, result) -> resultOk(result) }
+            .sumOf { (pages, _) -> pages.middleElement() }
         return answer.toLong()
     }
 
     private fun resultOk(result: List<List<Int>>): Boolean = result.all { it[0] < it[1] }
 
-    private fun applyRulesAndGetMiddle(pageList: String, rules: List<List<Int>>): Pair<Int, List<List<Int>>> {
-        val (pages, results) = applyRulesPages(pageList, rules)
-        return pages.middleElement() to results
-    }
-
-    override fun part2(input: List<String>): Long {
-        val (rulesList, pageLists) = input.splitByBlankLine()
-        val rules = rulesList.map { it.readInts() }
-        val answer = pageLists
-            .map { pageList ->
-                applyRulesPages(pageList, rules) // give me the list of indices and the pages
-            }.filter { (_, result) -> !resultOk(result) }
-            .map { (pages, result) -> fixPages(pages, result) }
-            .sumOf { it.middleElement() }
-        return answer.toLong()
-    }
-
-    private fun applyRulesPages(pageList: String, rules: List<List<Int>>): Pair<List<Int>, List<List<Int>>> {
-        val pages = pageList.readInts()
+    private fun applyRulesPages(pages: List<Int>, rules: List<List<Int>>): Pair<List<Int>, List<List<Int>>> {
         val indices = rules
             .mapNotNull { rule ->
                 val ii = listOf(pages.indexOf(rule[0]), pages.indexOf(rule[1]))
                 if (ii[0] == -1 || ii[1] == -1) null else ii
             }
         return pages to indices
+    }
+
+    private fun List<Int>.middleElement() = this[size / 2]
+
+    override fun part2(input: List<String>): Long {
+        val (rules, pagesList) = input.splitByBlankLine().map { l -> l.map { it.readInts() } }
+        val brokenPages = pagesList
+            .map { pages -> applyRulesPages(pages, rules) } // give me the list of indices and the pages
+            .filter { (_, result) -> !resultOk(result) } // only get the broken pages
+            .map { (pages, _) -> pages }
+        val answer = brokenPages
+            .map { pages -> applyRulesAndFixPages(pages, rules) }
+            .sumOf { it.middleElement() }
+        return answer.toLong()
+    }
+
+    private fun applyRulesAndFixPages(pages: List<Int>, rules: List<List<Int>>): List<Int> {
+        var newPages = pages
+        var rr = applyRulesPages(newPages, rules).second
+        while (!resultOk(rr)) {
+            newPages = fixPages(newPages, rr)
+            rr = applyRulesPages(newPages, rules).second
+        }
+        return newPages
     }
 
     private fun fixPages(pages: List<Int>, results: List<List<Int>>): List<Int> {
@@ -67,7 +66,6 @@ object Day05 : Day<Long, List<String>> {
         return fixedPages
 
     }
-    // 5305 too low
 
-    private fun List<Int>.middleElement() = this[size / 2]
+    // 5305 too low
 }
