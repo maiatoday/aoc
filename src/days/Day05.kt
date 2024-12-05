@@ -46,7 +46,7 @@ object Day05 : Day<Long, List<String>> {
 
     private fun applyRulesAndFixPages(pages: List<Int>, rules: List<List<Int>>): List<Int> {
         var newPages = pages
-        var rr = applyRulesPages(newPages, rules).second
+        var (_, rr) = applyRulesPages(newPages, rules)
         while (!resultOk(rr)) {
             newPages = fixPages(newPages, rr)
             rr = applyRulesPages(newPages, rules).second
@@ -55,17 +55,12 @@ object Day05 : Day<Long, List<String>> {
     }
 
     private fun fixPages(pages: List<Int>, results: List<List<Int>>): List<Int> {
-        val violations = results.filter { it[0] > it[1] }
-        val fixedPages = violations.fold(pages) { p, fix ->
-            val wrong = p.elementAt(fix[0])
-            p.toMutableList().apply {
-                this -= wrong
-                add(fix[1], wrong)
-            }
+        val violation = results.first { it[0] > it[1] }
+        val wrong = pages.elementAt(violation[0])
+        return pages.toMutableList().apply {
+            this -= wrong
+            add(violation[1], wrong)
         }
-        return fixedPages
-
     }
 
-    // 5305 too low
 }
