@@ -8,11 +8,12 @@ object Day06 : Day<Long, List<String>> {
     override val expectedPart1Test: Long = 41L
     override val expectedPart2Test: Long = 6L
     override var useTestData = true
-    override val debug = false
+    override val debug = true
 
     override fun part1(input: List<String>): Long {
         val guard = Guard(input)
-        return guard.uniqueVisited().toLong()
+        val visited = guard.startWalking()
+        return visited.map { it.where }.distinct().size.toLong()
     }
 
     private fun Guard(input: List<String>): Guard {
@@ -24,42 +25,64 @@ object Day06 : Day<Long, List<String>> {
             xBoundary = input[0].indices,
             yBoundary = input.indices
         )
-        guard.startWalking()
         return guard
     }
 
     override fun part2(input: List<String>): Long {
         val guard = Guard(input)
-
-        return -1L
+        val answer = guard.findObstructions()
+        return answer.toLong()
     }
 
 
     class Guard(val start: Point, val obstacles: Set<Point>, val xBoundary: IntRange, val yBoundary: IntRange) {
-        val visited: MutableList<Pair<Point, Direction>> = mutableListOf()
-        private val visitCount: MutableMap<Point, Int> = mutableMapOf()
-        private var direction = Direction.UP
-        fun startWalking() {
-            var current = start
-            while (current.x in xBoundary && current.y in yBoundary) {
-                visited.add(current to direction)
-                val c = visitCount.getOrDefault(current, 0)
-                visitCount[current] = c + 1
-                current = walk(current)
+
+        fun startWalking(allObstacles: Set<Point> = obstacles): MutableSet<Spot> {
+            val visited: MutableSet<Spot> = mutableSetOf()
+            var current = Spot(start, Direction.UP)
+            while (current.where.x in xBoundary && current.where.y in yBoundary) {
+                visited.add(current)
+                current = walk(current, allObstacles)
             }
+            return visited
         }
 
-        private fun walk(now: Point): Point {
-            var next = now + direction.d
+        private fun walk(now:Spot, obstacles: Set<Point>): Spot {
+            var next = now.where + now.direction.d
+            var nextDirection = now.direction
             if (next in obstacles) {
-                direction = direction.turn()
-                next = now + direction.d
+                nextDirection = now.direction.turn()
+                next = now.where + nextDirection.d
             }
-            return next
+            return Spot(next, nextDirection)
         }
 
-        fun uniqueVisited() = visited.map { (point, _) -> point }.toSet().size
+        fun findObstructions(): Int {
+            // start with the known path
+            val originalPath = startWalking()
+            val boxes: MutableSet<Spot> = mutableSetOf()
+            for ((c, _) in originalPath.drop(1)) {
+                val (ok, box) = startWalkingCheckLoop(obstacles + c)
+                if (ok) boxes.add(box)
+            }
+            return boxes.size
+        }
+
+        fun startWalkingCheckLoop(allObstacles: Set<Point>): Pair<Boolean, Spot> {
+            val visited: MutableSet<Spot> = mutableSetOf()
+            var current = Spot(start, Direction.UP)
+            while (true) {
+                visited.add(current)
+                current = walk(current, allObstacles)
+                if (current.where.x !in xBoundary || current.where.y !in yBoundary) return false to current
+                else if (current in visited) return true to current
+            }
+            return false to current
+        }
+
     }
+
+    data class Spot(val where: Point, val direction: Direction)
 
     enum class Direction(val d: Point) {
         UP(Point(0, -1)),
