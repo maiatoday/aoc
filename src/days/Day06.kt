@@ -47,37 +47,41 @@ object Day06 : Day<Long, List<String>> {
             return visited
         }
 
-        private fun walk(now:Spot, obstacles: Set<Point>): Spot {
+        private fun walk(now: Spot, oo: Set<Point>): Spot {
             var next = now.where + now.direction.d
             var nextDirection = now.direction
-            if (next in obstacles) {
+            if (next in oo) {
                 nextDirection = now.direction.turn()
                 next = now.where + nextDirection.d
             }
             return Spot(next, nextDirection)
         }
 
+        //1563 bad 1564 bad
         fun findObstructions(): Int {
             // start with the known path
-            val originalPath = startWalking()
-            val boxes: MutableSet<Spot> = mutableSetOf()
-            for ((c, _) in originalPath.drop(1)) {
-                val (ok, box) = startWalkingCheckLoop(obstacles + c)
-                if (ok) boxes.add(box)
+            val originalPath = startWalking().map { it.where }.distinct()
+            val boxes: MutableSet<Point> = mutableSetOf()
+//            for (x in xBoundary) for (y in yBoundary) {
+//                val c = Point(x, y)
+            for (o in originalPath - start) {
+                val ok = startWalkingCheckLoop(obstacles + o)
+                if (ok) boxes.add(o)
             }
             return boxes.size
         }
 
-        fun startWalkingCheckLoop(allObstacles: Set<Point>): Pair<Boolean, Spot> {
+        fun startWalkingCheckLoop(allObstacles: Set<Point>): Boolean {
             val visited: MutableSet<Spot> = mutableSetOf()
             var current = Spot(start, Direction.UP)
+            visited.add(current)
             while (true) {
-                visited.add(current)
                 current = walk(current, allObstacles)
-                if (current.where.x !in xBoundary || current.where.y !in yBoundary) return false to current
-                else if (current in visited) return true to current
+                if (current.where.x !in xBoundary || current.where.y !in yBoundary) return false
+                else if (current in visited) return true
+                else visited.add(current)
             }
-            return false to current
+            return false
         }
 
     }

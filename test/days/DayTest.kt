@@ -9,7 +9,7 @@ class DayTest {
     private val day = Day06
     private val testInput = readInput(dayNumber, "Day_test")
     
-    //    private val testInput = readInput(day.number,"Day")
+     //   private val testInput = readInput(day.number,"Day")
     //    private val puzzleInput = readInput(day.number, "Day")
 
     //    private val testInputString = readInputString(day.number,"Day_test")
