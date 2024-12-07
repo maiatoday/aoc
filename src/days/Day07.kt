@@ -26,7 +26,7 @@ object Day07 : Day<Long, List<String>> {
         // based on n.length make combos
         val comboMax = 2.toDouble().pow(n.size.toDouble()).toLong()
         for (j in 0L..comboMax) {// j is the bits of operator combos
-            val o = j.toOperators(n.size)
+            val o = toOperators(j, n.size)
             val test = n.reduceIndexed { i, acc, n -> o[i].apply(acc, n) }
             return if (test == a) return true
             else continue
@@ -34,8 +34,7 @@ object Day07 : Day<Long, List<String>> {
         return false
     }
 
-    fun Long.toOperators(s: Int): List<Operator> = buildList {
-        val theNumber = this@toOperators
+    fun toOperators(theNumber: Long, s: Int): List<Operator> = buildList {
         // convert bit pattern to list of operators
         for (i in 0..s) {
             if ((theNumber shr i and 0x01) == 0L) {
