@@ -6,7 +6,7 @@ import kotlin.math.pow
 object Day07 : Day<Long, List<String>> {
     override val number: Int = 7
     override val expectedPart1Test: Long = 3749L
-    override val expectedPart2Test: Long = -1L //11387L
+    override val expectedPart2Test: Long = 11387L
     override var useTestData = true
     override val debug = false
 
@@ -24,11 +24,14 @@ object Day07 : Day<Long, List<String>> {
     fun Equation.isOk(): Boolean {
         val (a, n) = this
         // based on n.length make combos
-        val comboMax = 2.toDouble().pow(n.size.toDouble()).toLong()
+        val comboMax = 2.toDouble().pow((n.size - 1).toDouble()).toLong()
         for (j in 0L..comboMax) {// j is the bits of operator combos
-            val o = toOperators(j, n.size)
-            val test = n.reduceIndexed { i, acc, n -> o[i].apply(acc, n) }
-            return if (test == a) return true
+            val o = toOperators(j, n.size - 1)
+            var test = n[0]
+            for (xx in 0..<n.size - 1) {
+                test = o[xx].apply(test, n[xx + 1])
+            }
+            if (test == a) return true
             else continue
         }
         return false
@@ -36,7 +39,7 @@ object Day07 : Day<Long, List<String>> {
 
     fun toOperators(theNumber: Long, s: Int): List<Operator> = buildList {
         // convert bit pattern to list of operators
-        for (i in 0..s) {
+        for (i in 0..<s) {
             if ((theNumber shr i and 0x01) == 0L) {
                 add(Operator.PLUS)
             } else {
@@ -52,6 +55,12 @@ object Day07 : Day<Long, List<String>> {
         },
         MUL(1) {
             override fun apply(first: Long, second: Long): Long = first * second
+        },
+        CONCAT(2) {
+            override fun apply(first: Long, second: Long): Long = (first.toString() + second.toString()).toLong()
+        },
+        NOP(3) {
+            override fun apply(first: Long, second: Long): Long = -1L
         };
 
 
@@ -59,7 +68,41 @@ object Day07 : Day<Long, List<String>> {
     }
 
     override fun part2(input: List<String>): Long {
-        return -1L
+        val equations = parse(input)
+        val answer = equations.filter { it.isOk3() }.sumOf { (a, _) -> a }
+        return answer
+    }
+
+    fun Equation.isOk3(): Boolean {
+        val (a, n) = this
+        //println("checking $n for answer $a")
+        // based on n.length make combos
+        val comboMax = 2.toDouble().pow(((n.size * 2) - 1).toDouble()).toLong()
+        for (j in 0L..comboMax) {// j is the bits of operator combos
+            val o = toOperators3(j, n.size - 1)
+            var test = n[0]
+            for (xx in 0..<(n.size - 1)) {
+                test = o[xx].apply(test, n[xx + 1])
+            }
+            if (test == a) {
+               // println("$a 🍬")
+                return true
+            } else continue
+        }
+        return false
+    }
+
+    fun toOperators3(theNumber: Long, s: Int): List<Operator> = buildList {
+        // convert bit pattern to list of operators
+        for (i in 0..<s) {
+            when (theNumber shr (i * 2) and 0x03) {
+                0L -> add(Operator.PLUS)
+                1L -> add(Operator.MUL)
+                2L -> add(Operator.CONCAT)
+                3L -> add(Operator.NOP)
+                else -> continue// do nothing
+            }
+        }
     }
 }
 
