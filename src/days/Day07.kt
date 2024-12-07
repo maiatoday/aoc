@@ -30,6 +30,7 @@ object Day07 : Day<Long, List<String>> {
             var test = n[0]
             for (xx in 0..<n.size - 1) {
                 test = o[xx].apply(test, n[xx + 1])
+                if (test > a) return false
             }
             if (test == a) return true
             else continue
@@ -73,6 +74,7 @@ object Day07 : Day<Long, List<String>> {
         return answer
     }
 
+    // slow 116050 ms
     fun Equation.isOk3(): Boolean {
         val (a, n) = this
         //println("checking $n for answer $a")
@@ -80,9 +82,11 @@ object Day07 : Day<Long, List<String>> {
         val comboMax = 2.toDouble().pow(((n.size * 2) - 1).toDouble()).toLong()
         for (j in 0L..comboMax) {// j is the bits of operator combos
             val o = toOperators3(j, n.size - 1)
+            if (Operator.NOP in o) continue
             var test = n[0]
             for (xx in 0..<(n.size - 1)) {
                 test = o[xx].apply(test, n[xx + 1])
+                if (test > a) return false
             }
             if (test == a) {
                // println("$a 🍬")
