@@ -34,13 +34,15 @@ object Day06 : Day<Long, List<String>> {
         return answer.toLong()
     }
 
-
     class Guard(val start: Point, val obstacles: Set<Point>, val xBoundary: IntRange, val yBoundary: IntRange) {
 
-        fun startWalking(allObstacles: Set<Point> = obstacles): MutableSet<Spot> {
+        fun startWalking(
+            allObstacles: Set<Point> = obstacles
+        ): MutableSet<Spot> {
             val visited: MutableSet<Spot> = mutableSetOf()
             var current = Spot(start, Direction.UP)
             while (current.where.x in xBoundary && current.where.y in yBoundary) {
+                if (current in visited) throw LoopFoundException()
                 visited.add(current)
                 current = walk(current, allObstacles)
             }
@@ -63,27 +65,18 @@ object Day06 : Day<Long, List<String>> {
             val originalPath = startWalking().map { it.where }.distinct()
             val boxes: MutableSet<Point> = mutableSetOf()
 //            for (x in xBoundary) for (y in yBoundary) {
-//                val c = Point(x, y)
-            for (o in originalPath - start) {
-                val ok = startWalkingCheckLoop(obstacles + o)
-                if (ok) boxes.add(o)
+//                val newObstruction = Point(x, y)
+            for (newObstruction in originalPath - start) {
+                try {
+                    startWalking(obstacles + newObstruction)
+                } catch (e: LoopFoundException) {
+                    //println("loop at $newObstruction")
+                    boxes.add(newObstruction)
+                }
             }
+            //  debug(start, boxes.toSet(), obstacles, xBoundary, yBoundary)
             return boxes.size
         }
-
-        fun startWalkingCheckLoop(allObstacles: Set<Point>): Boolean {
-            val visited: MutableSet<Spot> = mutableSetOf()
-            var current = Spot(start, Direction.UP)
-            visited.add(current)
-            while (true) {
-                current = walk(current, allObstacles)
-                if (current.where.x !in xBoundary || current.where.y !in yBoundary) return false
-                else if (current in visited) return true
-                else visited.add(current)
-            }
-            return false
-        }
-
     }
 
     data class Spot(val where: Point, val direction: Direction)
@@ -105,4 +98,27 @@ object Day06 : Day<Long, List<String>> {
 
     operator fun Point.plus(d: Point) = Point(x + d.x, y + d.y)
 
+    class LoopFoundException : Exception("Found a loop")
+
+    fun debug(
+        start: Point,
+        boxes: Set<Point>,
+        obstacles: Set<Point>,
+        xRange: IntRange,
+        yRange: IntRange
+    ) {
+        for (y in yRange) {
+            for (x in xRange) {
+                when (Point(x, y)) {
+                    start -> print("^")
+                    in boxes -> print("O")
+                    in obstacles -> print("#")
+                    else -> print(".")
+                }
+            }
+            println()
+
+        }
+
+    }
 }
