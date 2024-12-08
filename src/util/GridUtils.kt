@@ -195,6 +195,9 @@ fun List<String>.listFromGridNotEmpty(p: String = "."): List<Pair<Char, Point>> 
     }
 }
 
+fun List<Pair<Char, Point>>.toMap() =
+        this.groupBy(keySelector = { it.first }, valueTransform = { it.second })
+
 fun Area(input: List<String>): Area = Area(input[0].indices, input.indices)
 
 operator fun Area.contains(p: Point) = p.x in xRange && p.y in yRange

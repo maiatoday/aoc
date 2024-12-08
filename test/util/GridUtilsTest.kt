@@ -79,16 +79,16 @@ class GridUtilsTest {
 
     @Test
     fun `extract forward diagonal`() {
-            val grid = listOf(
-                ".....",
-                "....1",
-                "...2.",
-                "..3..",
-                ".4...",
-            )
+        val grid = listOf(
+            ".....",
+            "....1",
+            "...2.",
+            "..3..",
+            ".4...",
+        )
 
-            val expected = "1234"
-            assertEquals(expected, grid.extractString(diagonalPoints(4, 1, 4, true)))
+        val expected = "1234"
+        assertEquals(expected, grid.extractString(diagonalPoints(4, 1, 4, true)))
 
     }
 
@@ -195,4 +195,22 @@ class GridUtilsTest {
 
     }
 
+    @Test
+    fun `extract multiple map from grid`() {
+        val grid = listOf(
+            "..*..", // 2 0
+            "..1..", // 2 1
+            ".2.2.", // 1 2 3 2
+            "3.3.3", // 0 3  2 3  4 3
+            "..|..", // 2 4
+        )
+        val expected = mapOf(
+            '*' to listOf(Point(2, 0)),
+            '1' to listOf(Point(2, 1)),
+            '2' to listOf(Point(1, 2), Point(3, 2)),
+            '3' to listOf(Point(0, 3), Point(2, 3), Point(4, 3)),
+            '|' to listOf(Point(2, 4)),
+        )
+        assertEquals(expected, grid.listFromGridNotEmpty().toMap())
+    }
 }
