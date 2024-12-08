@@ -58,6 +58,9 @@ data class Point(val x: Int, val y: Int) {
 
 }
 
+operator fun Point.plus(d: Point) = Point(x + d.x, y + d.y)
+operator fun Point.minus(d: Point) = Point(x - d.x, y - d.y)
+
 fun Point.neighbours(
     maxY: Int = Int.MAX_VALUE,
     maxX: Int = Int.MAX_VALUE,
