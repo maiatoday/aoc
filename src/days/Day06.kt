@@ -2,6 +2,7 @@ package days
 
 import util.Point
 import util.listFromGrid
+import util.plus
 
 object Day06 : Day<Long, List<String>> {
     override val number: Int = 6
@@ -95,8 +96,6 @@ object Day06 : Day<Long, List<String>> {
                 LEFT -> UP
             }
     }
-
-    operator fun Point.plus(d: Point) = Point(x + d.x, y + d.y)
 
     class LoopFoundException : Exception("Found a loop")
 
