@@ -12,8 +12,7 @@ object Day08 : Day<Long, List<String>> {
     override val debug = false
 
     override fun part1(input: List<String>): Long {
-        val antennas = input.listFromGridNotEmpty()
-            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
+        val antennas = parse(input)
         val boundaries = Area(input)
         val antinodes = antennas.values.flatMap { getAntinodes(it, boundaries, ::antinode) }
         return antinodes.toSet().size.toLong() // yes they need to be unique across all lists 😬
@@ -23,44 +22,21 @@ object Day08 : Day<Long, List<String>> {
         points: List<Point>,
         area: Area,
         doIt: (Point, Point, Area) -> List<Point>
-    ): Collection<Point> {
+    ): Collection<Point> =
         // here we don't care how its calculated just get all the combos
-        val xx = points.flatMap { a ->
+        points.flatMap { a ->
             (points - a).flatMap { b -> doIt(a, b, area) }
         }.toSet()
-        return xx
-    }
 
     override fun part2(input: List<String>): Long {
-        val antennas = input.listFromGridNotEmpty()
-            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
+        val antennas = parse(input)
         val boundaries = Area(input)
         val antinodes = antennas.values.flatMap { getAntinodes(it, boundaries, ::antinodeWithHarmonics) }
         return antinodes.toSet().size.toLong() // yes they need to be unique across all lists 😬
     }
-}
 
-//----- move to Grid Utils
-fun List<String>.listFromGridNotEmpty(p: String = "."): List<Pair<Char, Point>> {
-    val returnList = buildList {
-        val c = p.first()
-        for (y in this@listFromGridNotEmpty.indices) for (x in this@listFromGridNotEmpty.first().indices) {
-            if (this@listFromGridNotEmpty[y][x] != c) add(this@listFromGridNotEmpty[y][x] to Point(x, y))
-        }
-    }
-    return returnList
-}
-
-fun Area(input: List<String>): Area = Area(input[0].indices, input.indices)
-
-operator fun Area.contains(p: Point) = p.x in xRange && p.y in yRange
-
-data class Area(val xRange: IntRange, val yRange: IntRange)
-
-fun Area.toPoints(): List<Point> = buildList {
-    for (x in xRange) for (y in yRange) {
-        add(Point(x, y))
-    }
+    private fun parse(input: List<String>): Map<Char, List<Point>> = input.listFromGridNotEmpty()
+        .groupBy(keySelector = { it.first }, valueTransform = { it.second })
 }
 
 private fun antinode(a: Point, b: Point, area: Area): List<Point> = buildList {
@@ -84,21 +60,14 @@ private fun antinode(a: Point, b: Point, area: Area): List<Point> = buildList {
     if (f2 in area) add(f2)
 }
 
-fun Point.harmonic(h: Int) = Point(h * x, h * y) // nonono not  needed after all
+fun Point.harmonic(h: Int) = Point(h * x, h * y)
 
 private fun antinodeWithHarmonics(a: Point, b: Point, area: Area): List<Point> = buildList {
-    // this could be a fold of sorts... later
-//        ..........
-//        ...#...... #(3,1)
-//        ..........
-//        ....a..... (4,3) -> (4,3) + (-1,-2) -> (3,1)✅
-//        ..........
-//        .....a.... (5,5)-> (5,5) + (1,2) -> (6,7)✅
-//        ..........
-//        ......#... #(6,7)
-//        ..........
-//        ..........
     if (a == b) return emptyList()
+    // each antenna makes a resonance that is always at the other point,
+    // so I need to add both antenna points, duplicates are removed later
+    add(a)
+    add(b)
     val angle1 = (a - b)
     val angle2 = (b - a)
     var f1 = 1
@@ -117,16 +86,17 @@ private fun antinodeWithHarmonics(a: Point, b: Point, area: Area): List<Point> =
     }
 }
 
-fun align(a: Point, b: Point, p: Point): Boolean {
-    val angle = (a - b).toUnity()
-    val possibleAngle = (b - p).toUnity()
-    return angle == possibleAngle
+//----- TODO move to Grid Utils
+fun List<String>.listFromGridNotEmpty(p: String = "."): List<Pair<Char, Point>> = buildList {
+    val c = p.first()
+    for (y in this@listFromGridNotEmpty.indices) for (x in this@listFromGridNotEmpty.first().indices) {
+        if (this@listFromGridNotEmpty[y][x] != c) add(this@listFromGridNotEmpty[y][x] to Point(x, y))
+    }
 }
 
-fun Point.toUnity(): Point {
-    return if (this == Point(0, 0)) this
-    else if (this.x == 0) Point(0, y / y)
-    else if (this.y == 0) Point(x / x, 0)
-    else Point(x / x, y / x)
-}
+fun Area(input: List<String>): Area = Area(input[0].indices, input.indices)
 
+operator fun Area.contains(p: Point) = p.x in xRange && p.y in yRange
+
+data class Area(val xRange: IntRange, val yRange: IntRange)
+//--- GridUtils
