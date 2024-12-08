@@ -1,0 +1,132 @@
+package days
+
+import util.Point
+import util.minus
+import util.plus
+
+object Day08 : Day<Long, List<String>> {
+    override val number: Int = 8
+    override val expectedPart1Test: Long = 14L
+    override val expectedPart2Test: Long = 34L
+    override var useTestData = true
+    override val debug = false
+
+    override fun part1(input: List<String>): Long {
+        val antennas = input.listFromGridNotEmpty()
+            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
+        val boundaries = Area(input)
+        val antinodes = antennas.values.flatMap { getAntinodes(it, boundaries, ::antinode) }
+        return antinodes.toSet().size.toLong() // yes they need to be unique across all lists 😬
+    }
+
+    private fun getAntinodes(
+        points: List<Point>,
+        area: Area,
+        doIt: (Point, Point, Area) -> List<Point>
+    ): Collection<Point> {
+        // here we don't care how its calculated just get all the combos
+        val xx = points.flatMap { a ->
+            (points - a).flatMap { b -> doIt(a, b, area) }
+        }.toSet()
+        return xx
+    }
+
+    override fun part2(input: List<String>): Long {
+        val antennas = input.listFromGridNotEmpty()
+            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
+        val boundaries = Area(input)
+        val antinodes = antennas.values.flatMap { getAntinodes(it, boundaries, ::antinodeWithHarmonics) }
+        return antinodes.toSet().size.toLong() // yes they need to be unique across all lists 😬
+    }
+}
+
+//----- move to Grid Utils
+fun List<String>.listFromGridNotEmpty(p: String = "."): List<Pair<Char, Point>> {
+    val returnList = buildList {
+        val c = p.first()
+        for (y in this@listFromGridNotEmpty.indices) for (x in this@listFromGridNotEmpty.first().indices) {
+            if (this@listFromGridNotEmpty[y][x] != c) add(this@listFromGridNotEmpty[y][x] to Point(x, y))
+        }
+    }
+    return returnList
+}
+
+fun Area(input: List<String>): Area = Area(input[0].indices, input.indices)
+
+operator fun Area.contains(p: Point) = p.x in xRange && p.y in yRange
+
+data class Area(val xRange: IntRange, val yRange: IntRange)
+
+fun Area.toPoints(): List<Point> = buildList {
+    for (x in xRange) for (y in yRange) {
+        add(Point(x, y))
+    }
+}
+
+private fun antinode(a: Point, b: Point, area: Area): List<Point> = buildList {
+    // this could be a fold of sorts... later
+//        ..........
+//        ...#...... #(3,1)
+//        ..........
+//        ....a..... (4,3) -> (4,3) + (-1,-2) -> (3,1)✅
+//        ..........
+//        .....a.... (5,5)-> (5,5) + (1,2) -> (6,7)✅
+//        ..........
+//        ......#... #(6,7)
+//        ..........
+//        ..........
+    if (a == b) return emptyList()
+    val angleA = (a - b)
+    val angleB = (b - a)
+    var f1 = a + angleA.harmonic(1)
+    var f2 = b + angleB.harmonic(1)
+    if (f1 in area) add(f1)
+    if (f2 in area) add(f2)
+}
+
+fun Point.harmonic(h: Int) = Point(h * x, h * y) // nonono not  needed after all
+
+private fun antinodeWithHarmonics(a: Point, b: Point, area: Area): List<Point> = buildList {
+    // this could be a fold of sorts... later
+//        ..........
+//        ...#...... #(3,1)
+//        ..........
+//        ....a..... (4,3) -> (4,3) + (-1,-2) -> (3,1)✅
+//        ..........
+//        .....a.... (5,5)-> (5,5) + (1,2) -> (6,7)✅
+//        ..........
+//        ......#... #(6,7)
+//        ..........
+//        ..........
+    if (a == b) return emptyList()
+    val angle1 = (a - b)
+    val angle2 = (b - a)
+    var f1 = 1
+    var h1 = a + angle1.harmonic(f1)
+    while (h1 in area) {
+        add(h1)
+        f1++
+        h1 = a + angle1.harmonic(f1)
+    }
+    var f2 = 1
+    var h2 = b + angle2.harmonic(f2)
+    while (h2 in area) {
+        add(h2)
+        f2++
+        h2 = b + angle2.harmonic(f2)
+    }
+}
+
+fun align(a: Point, b: Point, p: Point): Boolean {
+    val angle = (a - b).toUnity()
+    val possibleAngle = (b - p).toUnity()
+    return angle == possibleAngle
+}
+
+fun Point.toUnity(): Point {
+    return if (this == Point(0, 0)) this
+    else if (this.x == 0) Point(0, y / y)
+    else if (this.y == 0) Point(x / x, 0)
+    else Point(x / x, y / x)
+}
+

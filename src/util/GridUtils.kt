@@ -102,11 +102,16 @@ fun List<Point>.boundaries(): Pair<IntRange, IntRange> {
     return (xMin..xMax to yMin..yMax)
 }
 
-fun List<Point>.debug(filled: String = "#", empty: String = ".") {
+fun List<Point>.debug(filled: String = "#", empty: String = ".", showPoints: Boolean = false) {
     val (xRange, yRange) = boundaries()
+    println(xRange)
+    println(yRange)
     for (y in yRange) {
         for (x in xRange) {
-            if (Point(x, y) in this) print(filled) else print(empty)
+            if (Point(x, y) in this) {
+                print(filled)
+                if (showPoints) print(Point(x, y))
+            } else print(empty)
         }
         println()
     }

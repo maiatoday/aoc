@@ -4,8 +4,8 @@ package days
 import util.readInput
 import kotlin.system.measureTimeMillis
 
-const val dayNumber = 6
-val day = Day06
+const val dayNumber = 8
+val day = Day08
 fun main() {
 
     println("***** Day$dayNumber *****")
