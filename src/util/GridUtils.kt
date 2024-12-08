@@ -191,5 +191,17 @@ fun diagonalPoints(x: Int, y: Int, length: Int, forward: Boolean): List<Point> =
             add(Point(x + i, y + i))
         }
     }
-
 }
+
+fun List<String>.listFromGridNotEmpty(p: String = "."): List<Pair<Char, Point>> = buildList {
+    val c = p.first()
+    for (y in this@listFromGridNotEmpty.indices) for (x in this@listFromGridNotEmpty.first().indices) {
+        if (this@listFromGridNotEmpty[y][x] != c) add(this@listFromGridNotEmpty[y][x] to Point(x, y))
+    }
+}
+
+fun Area(input: List<String>): Area = Area(input[0].indices, input.indices)
+
+operator fun Area.contains(p: Point) = p.x in xRange && p.y in yRange
+
+data class Area(val xRange: IntRange, val yRange: IntRange)
