@@ -1,8 +1,11 @@
 package days
 
+import util.Area
 import util.Point
+import util.listFromGridNotEmpty
 import util.minus
 import util.plus
+import util.contains
 
 object Day08 : Day<Long, List<String>> {
     override val number: Int = 8
@@ -85,18 +88,3 @@ private fun antinodeWithHarmonics(a: Point, b: Point, area: Area): List<Point> =
         h2 = b + angle2.harmonic(f2)
     }
 }
-
-//----- TODO move to Grid Utils
-fun List<String>.listFromGridNotEmpty(p: String = "."): List<Pair<Char, Point>> = buildList {
-    val c = p.first()
-    for (y in this@listFromGridNotEmpty.indices) for (x in this@listFromGridNotEmpty.first().indices) {
-        if (this@listFromGridNotEmpty[y][x] != c) add(this@listFromGridNotEmpty[y][x] to Point(x, y))
-    }
-}
-
-fun Area(input: List<String>): Area = Area(input[0].indices, input.indices)
-
-operator fun Area.contains(p: Point) = p.x in xRange && p.y in yRange
-
-data class Area(val xRange: IntRange, val yRange: IntRange)
-//--- GridUtils
