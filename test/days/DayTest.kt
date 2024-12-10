@@ -5,11 +5,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DayTest {
-    private val dayNumber = 10
-    private val day = Day10
-    private val testInput = if (day.useTestData) readInput(dayNumber, "Day_test") else  readInput(dayNumber, "Day")
-    
-     //   private val testInput = readInput(day.number,"Day")
+    private val dayNumber = 9
+    private val day = Day09
+    private val testInput = if (day.useTestData) readInput(dayNumber, "Day_test") else readInput(dayNumber, "Day")
+
+    //   private val testInput = readInput(day.number,"Day")
     //    private val puzzleInput = readInput(day.number, "Day")
 
     //    private val testInputString = readInputString(day.number,"Day_test")

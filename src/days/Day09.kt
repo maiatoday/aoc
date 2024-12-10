@@ -3,7 +3,7 @@ package days
 object Day09 : Day<Long, List<String>> {
     override val number: Int = 9
     override val expectedPart1Test: Long = 1928L
-    override val expectedPart2Test: Long = -1L //2858L
+    override val expectedPart2Test: Long = 2858L
     override var useTestData = true
     override val debug = false
 
@@ -27,31 +27,21 @@ object Day09 : Day<Long, List<String>> {
 
     fun defrag(disk: List<Int>): List<Int> {
         val dd = disk.toIntArray()
-        //  var forwardIndex = 0 // optimise by moving forward
         for (i in dd.size - 1 downTo 0) {
             val id = dd[i]
             if (id != -1) {
                 // find first empty spot from the beginning ii
                 for (ii in 0..<dd.size) {
+                    if (ii > i) continue
                     if (dd[ii] == -1) {
                         dd[ii] = id //move it
                         dd[i] = -1 //clear the original spot
-                        // forwardIndex = ii
                         break
                     }
-                    // need a break in here to detect if there are no more holes or to detect if we start moving forward
                 }
             }
-            //dd.debug()
         }
-        // it doesn't stop and then moves the last valid element up by one and then all of them up by one
-        /*
-        at the point of failure the array does this
-[0,0,9,9,8,1,1,1,8,8,8,2,7,7,7,3,3,3,6,4,4,6,5,5,5,5,6,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,]
-[0,0,9,9,8,1,1,1,8,8,8,2,7,7,7,3,3,3,6,4,4,6,5,5,5,5,6,-1,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,]
-[0,0,9,9,8,1,1,1,8,8,8,2,7,7,7,3,3,3,6,4,4,6,5,5,5,5,-1,6,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,]
-         */
-        return dd.toList().drop(1) //TODO FIX SUPER HACKY OFF BY ONE my array has a -1 as a first element!!!!!
+        return dd.toList()
     }
 
     fun IntArray.debug() {
@@ -80,45 +70,47 @@ object Day09 : Day<Long, List<String>> {
     override fun part2(input: List<String>): Long {
         val disk = parse(input.first())
         val maxId = disk.size - 1
+        val fileRecords = buildAmphiFiles(disk)
         val expandedDisk = expand(disk)
-        val defrag = defragByFile(expandedDisk, maxId)
+        val defrag = defragByFile(expandedDisk, maxId, fileRecords)
         val checksum = checksum(defrag)
         return checksum
     }
 
-    private fun defragByFile(disk: List<Int>, maxId: Int): List<Int> {
+    private fun buildAmphiFiles(disk: List<Pair<Int, Int>>): Map<Int, AmphiFile> = buildMap {
+        disk.mapIndexed { i, (b, _) ->
+            put(i, AmphiFile(i, b))
+        }
+    }
+
+    data class AmphiFile(val id: Int, val size: Int)
+
+    private fun defragByFile(disk: List<Int>, maxId: Int, fileRecords: Map<Int, AmphiFile>): List<Int> {
         val dd = disk.toIntArray()
         // loop backwards from maxId to 0
         for (id in maxId downTo 0) {
             // find the start of the file
             val start = dd.indexOfFirst { it == id }
-            val size = dd.indexOfLast { it == id } - start
+            val size = fileRecords[id]?.size ?: 0
             // loop forwards finding an open spot
             val gap = dd.indexOfGap(size)
-            if (gap != -1) {
+            if (gap != -1 && gap < start) {
                 // if found move the file
                 var gg = gap
-                for (i in start..start + size) {
+                for (i in start..start + size-1) {
                     dd[gg] = dd[i]
-                    dd[i] == -1
                     gg++
+                    dd[i] = -1
                 }
             }
         }
         return dd.toList()
     }
 
-    fun IntArray.indexOfGap(length: Int): Int {
-        var pos = 0
-        while (pos < this.size) {
-            if ((pos + length) > this.size) return -1
-            for (i in pos..pos + length) {
-                if (this[i] != -1) {
-                    pos = pos+i
-                    break
-                }
-            } // need to find the success case here
-        }
-        return -1
-    }
+    fun IntArray.indexOfGap(length: Int): Int = this
+        .withIndex()
+        .windowed(length)
+        .firstOrNull { sublist ->
+            sublist.map { it.value }.all { it == -1 }
+        }?.first()?.index ?: -1
 }
