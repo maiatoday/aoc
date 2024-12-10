@@ -26,7 +26,7 @@ object Day09 : Day<Long, List<String>> {
         }.sum()
 
     fun defrag(disk: List<Int>): List<Int> {
-        val dd = disk.toIntArray()
+        val dd = disk.toMutableList()
         for (i in dd.size - 1 downTo 0) {
             val id = dd[i]
             if (id != -1) {
@@ -86,7 +86,7 @@ object Day09 : Day<Long, List<String>> {
     data class AmphiFile(val id: Int, val size: Int)
 
     private fun defragByFile(disk: List<Int>, maxId: Int, fileRecords: Map<Int, AmphiFile>): List<Int> {
-        val dd = disk.toIntArray()
+        val dd = disk.toMutableList()
         // loop backwards from maxId to 0
         for (id in maxId downTo 0) {
             // find the start of the file
@@ -107,7 +107,7 @@ object Day09 : Day<Long, List<String>> {
         return dd.toList()
     }
 
-    fun IntArray.indexOfGap(length: Int): Int = this
+    fun MutableList<Int>.indexOfGap(length: Int): Int = this.asSequence()
         .withIndex()
         .windowed(length)
         .firstOrNull { sublist ->
