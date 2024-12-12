@@ -61,6 +61,13 @@ data class Point(val x: Int, val y: Int) {
 operator fun Point.plus(d: Point) = Point(x + d.x, y + d.y)
 operator fun Point.minus(d: Point) = Point(x - d.x, y - d.y)
 
+fun Point.neighbours(area:Area, includeSelf: Boolean = false) = this.neighbours(
+    maxX = area.xRange.last+1, // test is exclusive but the ranges are inclusive
+    maxY = area.yRange.last+1, // test is exclusive but the ranges are inclusive
+    stayBelowMax = true,
+    includeSelf = includeSelf
+)
+
 fun Point.neighbours(
     maxY: Int = Int.MAX_VALUE,
     maxX: Int = Int.MAX_VALUE,
