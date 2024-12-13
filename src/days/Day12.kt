@@ -48,6 +48,8 @@ object Day12 : Day<Long, List<String>> {
         return regions
     }
 
+    //1419673 too low
+
     data class Region(val cropType: Char) {
         // do I need a list of points? yes
         val points = mutableSetOf<Point>()
@@ -55,16 +57,18 @@ object Day12 : Day<Long, List<String>> {
         var perimeter = 0
 
         fun calculate(garden: Garden, gardenArea: Area): Int {
-            for (p in points) {
-                val nonCropNeighbours = p.neighbours(
-                    includeSelf = false,
-                    onlyPositive = false,
-                ).filter { garden[it] != cropType || it.x !in gardenArea.xRange || it.y !in gardenArea.yRange }
-                perimeter += p.neighbours(
-                    includeSelf = false,
-                    onlyPositive = false,
-                ).count { garden[it] != cropType || it.x !in gardenArea.xRange || it.y !in gardenArea.yRange }
+            if (perimeter == 0) {
+                for (p in points) {
+                    val nonCropNeighbours = p.neighbours(
+                        includeSelf = false,
+                        onlyPositive = false,
+                    ).filter { garden[it] != cropType || it.x !in gardenArea.xRange || it.y !in gardenArea.yRange }
+                    perimeter += p.neighbours(
+                        includeSelf = false,
+                        onlyPositive = false,
+                    ).count { garden[it] != cropType || it.x !in gardenArea.xRange || it.y !in gardenArea.yRange }
 
+                }
             }
             regionArea = points.size
            // println("A region of ${cropType} plants with price $regionArea * $perimeter = ${regionArea * perimeter}.")
