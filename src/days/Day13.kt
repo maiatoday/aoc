@@ -14,7 +14,7 @@ object Day13 : Day<Long, List<String>> {
     override fun part1(input: List<String>): Long {
         val machines = readMachineData(input)
         val minimums = machines.map { it.getMinimumPresses() }.also(::println)
-        val cost = minimums.filterNotNull().sumOf { (m, n) -> 3 * m + n }
+        val cost = minimums.filterNotNull().sumOf { (m, n) -> 3L * m + n }
         return cost
     }
 
@@ -25,18 +25,39 @@ object Day13 : Day<Long, List<String>> {
 
     data class ClawMachine(val a: Point, val b: Point, val prize: Point) {
         fun getMinimumPresses(isPart2: Boolean = false): Pair<Long, Long>? {
+            println("============= $this ==============")
             val X = if (isPart2) prize.x.toLong() + fuBigNumber else prize.x.toLong()
             val Y = if (isPart2) prize.y.toLong() + fuBigNumber else prize.y.toLong()
             val A = a.x.toLong()
             val B = b.x.toLong()
             val C = a.y.toLong()
             val D = b.y.toLong()
+            println("Input: X=$X Y=$Y A=$A B=$B C=$C D=$D")
 
             val mNominator: Long = X * D - B * Y
+            println("mNom = X * D - B * Y = $mNominator")
             val mDenominator: Long = A * D - C * B
-            if (mNominator % mDenominator != 0L) return null
-            val m = mNominator / mDenominator
-            val n = X / B - m * A / B
+            println("mDenom = A * D - C * B = $mDenominator")
+
+            if (mNominator<0 && mDenominator>0) print(".........suspicious?.....")
+            if (mNominator>0 && mDenominator<0) print(".........suspicious?.....")
+
+            if (mNominator % mDenominator != 0L) {
+                println("NoGo null!")
+                return null
+            }
+            val m: Long = mNominator / mDenominator
+            println("m=$m A=$A")
+            val n: Long = X / B - m * A / B
+            println("n=$n")
+            if ((m*A+n*B != X) || (m*C+n*D != Y)) {
+                println("m*A+n*B ${m*A+n*B} != $X")
+                println("m*C+n*D ${m*C+n*D} != $Y")
+                println("🤨Bad sums ----> suspicious 🤨")
+                return null
+            }
+            check(m*A+n*B == X)
+            check(m*C+n*D == Y)
             return (m to n)
         }
     }
@@ -56,4 +77,3 @@ object Day13 : Day<Long, List<String>> {
         return cost
     }
 }
-
