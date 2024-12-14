@@ -61,9 +61,9 @@ data class Point(val x: Int, val y: Int) {
 operator fun Point.plus(d: Point) = Point(x + d.x, y + d.y)
 operator fun Point.minus(d: Point) = Point(x - d.x, y - d.y)
 
-fun Point.neighbours(area:Area, includeSelf: Boolean = false) = this.neighbours(
-    maxX = area.xRange.last+1, // test is exclusive but the ranges are inclusive
-    maxY = area.yRange.last+1, // test is exclusive but the ranges are inclusive
+fun Point.neighbours(area: Area, includeSelf: Boolean = false) = this.neighbours(
+    maxX = area.xRange.last + 1, // test is exclusive but the ranges are inclusive
+    maxY = area.yRange.last + 1, // test is exclusive but the ranges are inclusive
     stayBelowMax = true,
     includeSelf = includeSelf
 )
@@ -107,6 +107,17 @@ fun List<Point>.boundaries(): Pair<IntRange, IntRange> {
     val yMin = minOf { it.y }
     val yMax = maxOf { it.y }
     return (xMin..xMax to yMin..yMax)
+}
+
+fun List<Point>.debug(filled: String = "#", empty: String = ".", area: Area) {
+    for (y in area.yRange) {
+        for (x in area.xRange) {
+            if (Point(x, y) in this) {
+                print(filled)
+            } else print(empty)
+        }
+        println()
+    }
 }
 
 fun List<Point>.debug(filled: String = "#", empty: String = ".", showPoints: Boolean = false) {

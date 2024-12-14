@@ -63,6 +63,11 @@ fun String.readInts() = Regex("""\d+""").findAll(this)
         .map(String::toInt)
         .toList()
 
+fun String.readIntsSign() = """-?\d+""".toRegex().findAll(this)
+    .map(MatchResult::value)
+    .map(String::toInt)
+    .toList()
+
 fun List<String>.splitByBlankLine(): List<List<String>> = this.fold(mutableListOf(mutableListOf<String>())) { acc, s ->
     if (s.isBlank())
         acc.add(mutableListOf())
