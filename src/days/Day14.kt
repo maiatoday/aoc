@@ -18,18 +18,11 @@ object Day14 : Day<Long, List<String>> {
         return part1(input)
     }
 
-    // val debugPoint = Point(0, 0)
     override fun part1(input: List<String>): Long {
         val robots = input.map { Robot(it, area) }
-//        println("--- area $area ----")
-//        println("================ start =============")
-        //     robots.debug(area)
         repeat(100) {
             robots.forEach { it.step() }
         }
-        val endPositions = robots.map { it.current }
-//        println("================ end =============")
-        //     robots.debug(area)
         val quadrantRanges = listOf(
             Area(0..(area.xRange.last / 2 - 1), 0..(area.yRange.last / 2 - 1)),
             Area((area.xRange.last / 2 + 1)..area.xRange.last, 0..(area.yRange.last / 2 - 1)),
@@ -75,50 +68,20 @@ object Day14 : Day<Long, List<String>> {
         this.map { it.current }.debug(area = area)
     }
 
-    fun List<Robot>.debug(area: Area, p: Point) {
-        this.filter { it.p == p }.map { it.current }.debug(area = area)
-    }
-
-    fun List<Robot>.xmasTree(area: Area): Boolean {
-        val points = this.map { it.current }
-        val quadrantRanges = listOf(
-            Area(0..(area.xRange.last / 2 - 1), 0..(area.yRange.last / 2 - 1)),
-            Area((area.xRange.last / 2 + 1)..area.xRange.last, 0..(area.yRange.last / 2 - 1)),
-            Area(0..(area.xRange.last / 2 - 1), (area.yRange.last / 2 + 1)..area.yRange.last),
-            Area((area.xRange.last / 2 + 1)..area.xRange.last, (area.yRange.last / 2 + 1)..area.yRange.last)
-        )
-        val pointsInQuadrants = quadrantRanges.map { range ->
-            points.filter { it in range }
-        }
-        val pqCount = pointsInQuadrants.map { it.size }
-        if (((pqCount[0] == pqCount[1] && pqCount[2] == pqCount[3]) && (pqCount[0] < pqCount[2]))) {
-            val left = pointsInQuadrants[0] + pointsInQuadrants[2]
-            val right = pointsInQuadrants[1] + pointsInQuadrants[3]
-            if (left.mirror(area) == right) return true
-        }
-        return false
-    }
-
-    private fun List<Point>.mirror(area: Area): List<Point> = buildList {
-        val maxX = area.xRange.last + 1
-        for (p in this) {
-            add(Point(maxX - p.x, p.y))
-        }
+    fun List<Robot>.xmasTree(): Boolean {
+        val points = this.map { it.current }.toSet()
+        return points.size == this.size
     }
 
     override fun part2(input: List<String>): Long {
         area = REAL_AREA
         val robots = input.map { Robot(it, area) }
         var stepCount = 0L
-        while (true) {
+        while (!robots.xmasTree()) {
             robots.forEach { it.step() }
             stepCount++
-            if (robots.xmasTree(area)) {
-                println("======== Step $stepCount===========")
-                robots.debug(area)
-                break
-            }
         }
+        robots.debug(area)
         return stepCount
     }
 
