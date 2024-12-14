@@ -25,8 +25,4 @@ class DayTest {
         assertEquals(day.expectedPart2Test, day.part2(testInput))
     }
 
-    @Test
-    fun xmasTreeTest() {
-
-    }
 }
