@@ -20,7 +20,15 @@ object Day17 : Day<String, List<String>> {
 
     override fun part2(input: List<String>): String {
         val littleComputer = LittleComputer(input)
-        return ""
+        val originalProgramDigits = littleComputer.originalProgram.readInts()
+       // for (i in 0..50) {
+        val i = 15
+            littleComputer.initialRegisters = Registers(i, 0, 0)
+            val output = littleComputer.run()
+            println("$i gives $output")
+        //}
+
+        return "aa"
     }
 
     fun LittleComputer(input: List<String>): LittleComputer {
@@ -28,16 +36,18 @@ object Day17 : Day<String, List<String>> {
         val registersList = r.flatMap { it.readInts() }
         val registers = Registers(registersList[0], registersList[1], registersList[2])
         val instructions = i.joinToString("").readInts().chunked(2).map { Instruction(Pair(it[0], it[1])) }
-        return LittleComputer(instructions, registers, i.joinToString(""))
+        return LittleComputer(instructions, registers, i.joinToString("").substringAfter("Program: "))
     }
 
-    class LittleComputer(val instructions: List<Instruction>, val initialRegisters: Registers, val originalProgram:String) {
+    class LittleComputer(val instructions: List<Instruction>, var initialRegisters: Registers, val originalProgram:String) {
 
         var registers: Registers = initialRegisters
 
         var output = ""
 
         fun run(): String {
+            output = ""
+            registers = initialRegisters
             var instructionPointer = 0
             var endlessLoopDetector = 0
             while (instructionPointer in instructions.indices && endlessLoopDetector < 1000) {
