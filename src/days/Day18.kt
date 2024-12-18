@@ -41,13 +41,12 @@ object Day18 : Day<Long, List<String>> {
             point?.let {
                 it.neighbours(area)
                     .filter { p -> p !in mazePoints.map { it.p } }
-                    .forEach { front ->
+                    .forEach { frontier ->
                         val newDist = (distance[point] ?: 0) + 1
-                        if ((distance[front] ?:0) > newDist) {
-                            distance[front] = newDist
-                            previous[front] = point
+                        if ((distance[frontier] ?: 0) > newDist) {
+                            distance[frontier] = newDist
+                            previous[frontier] = point
                         }
-
                     }
             }
         }
@@ -63,6 +62,22 @@ object Day18 : Day<Long, List<String>> {
     data class TickPoint(val tick: Int, val p: Point)
 
     override fun part2(input: List<String>): Long {
+        val area = if (useTestData) TEST_AREA else ACTUAL_AREA
+        val tickMax = if (useTestData) TEST_TICK_MAX else ACTUAL_TICK_MAX
+        val bytes = readFallingBytes(input)
+        var tick = bytes.size - 1
+        while (tick > tickMax) {
+            println("searching at $tick")
+            val steps = calculatePath(area, bytes, tick)
+            println("Path steps $steps")
+            if (steps > 0) {
+                // first path after being blocked
+                val xx = bytes.filter { it.tick == tick }
+                println("First path possible $xx")
+                break
+            }
+            tick--
+        }
         return -1L
     }
 }
