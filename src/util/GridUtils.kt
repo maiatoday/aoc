@@ -109,6 +109,12 @@ fun List<Point>.boundaries(): Pair<IntRange, IntRange> {
     return (xMin..xMax to yMin..yMax)
 }
 
+fun toList(area: Area) = buildList {
+    for (y in area.yRange) for (x in area.xRange) add(Point(x, y))
+}
+
+fun List<Point>.toPath(area: Area) = toList(area) - this
+
 fun List<Point>.debug(filled: String = "#", empty: String = ".", area: Area) {
     for (y in area.yRange) {
         for (x in area.xRange) {

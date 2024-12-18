@@ -24,25 +24,34 @@ object Day18 : Day<Long, List<String>> {
     private fun calculatePath(area: Area, bytes: List<TickPoint>, tickMax: Int): Int {
         val end = Point(area.xRange.last, area.yRange.last)
         val start = Point(0, 0)
-        val visited = mutableListOf<Point>()
-        val q = ArrayDeque<TickPoint>()
-        q.add(TickPoint(0, start))
+        val distance = mutableMapOf<Point, Int>()
         val mazePoints = bytes.filter { it.tick < tickMax }
-        var pathLength = 0
+        val q = mazePoints.map { it.p }.toPath(area).toMutableSet()
+        q.forEach { distance[it] = Int.MAX_VALUE }
+        distance[start] = 0
+        val previous = mutableMapOf<Point, Point>()
+
         while (q.isNotEmpty()) {
-            val (tick, point) = q.removeLast()
-            println("Checking point $point at tick $tick")
-            bytes.filter { it.tick < tick }.map { it.p }.debug(area = area)
-            visited.add(point)
+            val point = q.minByOrNull { distance[it] ?: 0 } // greedy for lowest distance
+            q.remove(point)
             if (point == end) {
-                pathLength = tick
+                // do end things?
                 break
             }
-            val neighbours = point.neighbours(area)
-                .filter { p -> (p !in visited && p !in mazePoints.filter { it.tick < tick + 1 }.map { it.p }) }
-            q.addAll(neighbours.map { TickPoint(tick + 1, it) })
+            point?.let {
+                it.neighbours(area)
+                    .filter { p -> p !in mazePoints.map { it.p } }
+                    .forEach { front ->
+                        val newDist = (distance[point] ?: 0) + 1
+                        if ((distance[front] ?:0) > newDist) {
+                            distance[front] = newDist
+                            previous[front] = point
+                        }
+
+                    }
+            }
         }
-        return pathLength
+        return distance[end] ?: 0
     }
 
     private fun readFallingBytes(input: List<String>): List<TickPoint> =
