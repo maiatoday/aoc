@@ -11,21 +11,34 @@ object Day19 : Day<Long, List<String>> {
 
     override fun part1(input: List<String>): Long {
         val (towels, patterns) = readOnsenBranding(input)
-        val answer = tidyTowelsCount(towels, patterns)
+        val answer = tidyTowels(towels, patterns).count { it.isNotEmpty() }
         return answer.toLong()
     }
 
-    private fun tidyTowelsCount(towels: List<String>, patterns: List<String>): Int =
-        patterns.filter { makeMatch(it, towels) }.size
+    private fun tidyTowels(towels: List<String>, patterns: List<String>): List<List<String>> =
+        patterns
+            .mapNotNull {
+                println("matching $it with brandguide ${brandGuide.size}")
+                makeMatch(it, towels)
+            }
 
-    val brandGuide = mutableMapOf<String, Boolean>()
+    val brandGuide = mutableMapOf<String, List<String>>()
 
-    private fun makeMatch(pattern: String, towels: List<String>): Boolean {
+    private fun makeMatch(pattern: String, towels: List<String>): List<String>? {
         val answer = brandGuide[pattern]
         if (answer != null) return answer
-        if (pattern.isEmpty()) return true
+        if (pattern.isEmpty()) return emptyList()
         val startTowels = towels.filter { pattern.startsWith(it) }
-        return  startTowels.map { makeMatch(pattern.substringAfter(it), towels) }.any { it }
+        var result: List<String>? = null
+        for (ss in startTowels) {
+            val nextPattern = pattern.substringAfter(ss)
+            val nextResult = makeMatch(nextPattern, towels)
+            if (nextResult != null) {
+                brandGuide[nextPattern] = nextResult
+                result = listOf(ss) + nextResult
+            }
+        }
+        return result
     }
 
     private fun readOnsenBranding(input: List<String>): Pair<List<String>, List<String>> =
