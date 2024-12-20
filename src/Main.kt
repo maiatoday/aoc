@@ -15,9 +15,9 @@ fun main() {
         var part1Test:Long
         val part1TestMillis = measureTimeMillis {
             day.useTestData = true
-         //   part1Test = day.part1(testInput)
+            part1Test = day.part1(testInput)
         }
-      //  check(part1Test == day.expectedPart1Test)
+        check(part1Test == day.expectedPart1Test)
         println("✅ one with ${day.expectedPart1Test} ✅ in $part1TestMillis ms")
     }
     val input = readInput(dayNumber, "Day")

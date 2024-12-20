@@ -4,7 +4,7 @@ import util.*
 
 object Day20 : Day<Long, List<String>> {
     override val number: Int = 20
-    override val expectedPart1Test: Long = -1L
+    override val expectedPart1Test: Long = 84L
     override val expectedPart2Test: Long = -1L
     override var useTestData = true
     override val debug = false
@@ -20,6 +20,7 @@ object Day20 : Day<Long, List<String>> {
         walls = input.listFromGrid("#")
         maze = walls.toPath(area).toSet()
         val answer = race(start, end)
+        println("answer $answer")
         return -1L //answer.count { it > 100 }.toLong()
     }
 
@@ -27,22 +28,27 @@ object Day20 : Day<Long, List<String>> {
         start: Point,
         end: Point
     ): List<Int> {
-        // need to implement the cheets
-        return listOf(findPath(start, end, 0))
+        val basePath = findPath(start, end)
+        val fullLength = basePath.size
+        val pathsWithCheats = (listOf(start) + basePath).mapIndexed { i, p ->
+            basePath.take(i) + findPath(p, end, true, fullLength)
+        }
+        return pathsWithCheats.map { it.size }
     }
 
-    val findPathCache: MutableMap<Triple<Point, Point, Int>, Int> = mutableMapOf()
     private fun findPath(
         start: Point,
         end: Point,
-        cheat: Int
-    ): Int = findPathCache.getOrPut(Triple(start, end, cheat)) {
+        cheat: Boolean = false,
+        fullLength: Int = Int.MAX_VALUE
+    ): List<Point> {
         var distance: MutableMap<Point, Int> = mutableMapOf()
         var q = maze.toMutableSet()
         q.forEach { distance[it] = Int.MAX_VALUE }
         distance[start] = 0
         val previous = mutableMapOf<Point, Point>()
 
+        var doCheat = cheat
         while (q.isNotEmpty()) {
             val point = q.minByOrNull { distance[it] ?: 0 } // greedy for lowest distance
             q.remove(point)
@@ -63,7 +69,15 @@ object Day20 : Day<Long, List<String>> {
                 }
             }
         }
-        distance[end] ?: 0
+        val finalPath = buildList {
+            var currentPoint = end
+            while (currentPoint != start) {
+                add(currentPoint)
+                currentPoint = previous[currentPoint] ?: error("can't build path")
+            }
+
+        }.reversed()
+        return finalPath
     }
 
     override fun part2(input: List<String>): Long {
