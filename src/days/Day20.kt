@@ -28,27 +28,25 @@ object Day20 : Day<Long, List<String>> {
         start: Point,
         end: Point
     ): List<Int> {
-        val basePath = findPath(start, end)
-        val fullLength = basePath.size
-        val pathsWithCheats = (listOf(start) + basePath).mapIndexed { i, p ->
-            basePath.take(i) + findPath(p, end, true, fullLength)
+        val (basePath, startEndDistances) = findPath(start, end)
+        val (_, endStartDistances) = findPath(end, start)
+        basePath.mapIndexed { i, p ->
+            
         }
-        return pathsWithCheats.map { it.size }
+
+        return emptyList()//pathsWithCheats.map { it.size }
     }
 
     private fun findPath(
         start: Point,
-        end: Point,
-        cheat: Boolean = false,
-        fullLength: Int = Int.MAX_VALUE
-    ): List<Point> {
+        end: Point
+    ): Pair<List<Point>, Map<Point, Int>> {
         var distance: MutableMap<Point, Int> = mutableMapOf()
         var q = maze.toMutableSet()
         q.forEach { distance[it] = Int.MAX_VALUE }
         distance[start] = 0
         val previous = mutableMapOf<Point, Point>()
 
-        var doCheat = cheat
         while (q.isNotEmpty()) {
             val point = q.minByOrNull { distance[it] ?: 0 } // greedy for lowest distance
             q.remove(point)
@@ -77,7 +75,7 @@ object Day20 : Day<Long, List<String>> {
             }
 
         }.reversed()
-        return finalPath
+        return finalPath to distance
     }
 
     override fun part2(input: List<String>): Long {
