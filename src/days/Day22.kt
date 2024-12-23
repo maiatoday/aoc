@@ -33,7 +33,24 @@ object Day22 : Day<Long, List<String>> {
     fun Long.mix(original: Long): Long = this xor original
     fun Long.prune(): Long = this % 16777216
 
+    fun Long.toLastDigit():Int = this.toString().takeLast(1).toInt()
+
+    fun getMaxBananasFor(seed:Long, repeats:Int):Int {
+        val history = buildList {
+            var current = seed
+            add(current.toLastDigit())
+            repeat(repeats) {
+                current = current.secretNumber()
+                add(current.toLastDigit())
+            }
+        }
+
+        return 9
+    }
+
     override fun part2(input: List<String>): Long {
-        return -1L
+        val seeds = input.flatMap { it.readLongs() }
+        val answer = seeds.map { getMaxBananasFor(it, 2000) }
+        return answer.sum().toLong()
     }
 }
