@@ -75,19 +75,22 @@ object Day24 : Day<String, List<String>> {
             state[w.label] = w.initial
         }
         val initialisedWires = wires.map { it.label }
-        connections.filter { it.inputLabel.all { it in initialisedWires } }.forEach { it.evaluate() }
-        val outputLabels = connections.filter { it.outputLabel.startsWith("z") }
-        var allOutputs = state.keys.filter { it.startsWith("z") }.size == outputLabels.size
-        while (!allOutputs) {
-            connections.forEach { it.evaluate() }
-            allOutputs = state.keys.filter { it.startsWith("z") }.size == outputLabels.size
+        val q = mutableListOf<Connection>()
+        connections.filter { it.inputLabel[0] in initialisedWires && it.inputLabel[1] in initialisedWires }
+            .forEach { q.add(it) }
+        while (q.isNotEmpty()) {
+            val current = q.removeLast()
+            current.evaluate()
+            connections.filter { it.inputLabel[0] == current.outputLabel || it.inputLabel[1] == current.outputLabel }
+                .forEach { q.add(it) }
         }
         val theOutputs = state.keys.filter { it.startsWith("z") }.sorted().reversed()
         println("The outputs $theOutputs")
+        println("The ouputs values ${theOutputs.map { state[it] }}")
         val theAnswer = theOutputs.joinToString("") { state[it].toString() }
         println(theAnswer)
         val bi = BigInteger(theAnswer, 2)
-        println("The answer in decimal ${bi.toString(10)}")
+        println("The answer in decimal $bi")
         return bi.toString(10)
         // 48510377256936 too high 48510377256936
     }
