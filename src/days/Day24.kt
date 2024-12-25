@@ -91,7 +91,7 @@ object Day24 : Day<String, List<String>> {
                     connections.filter { it.inputLabel[0] == current.outputLabel || it.inputLabel[1] == current.outputLabel }
                         .forEach { q.add(it) }
                 } catch (e: Exception) {
-                    PRINTLN("SOME WEIRDNESS")
+                    println("SOME WEIRDNESS")
                 }
             } else {
                 val x = q.removeLast()
