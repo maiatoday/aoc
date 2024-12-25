@@ -46,6 +46,8 @@ object Day24 : Day<String, List<String>> {
                 val j = state[inputLabel[1]] ?: error("oops")
                 if (debug) println("evaluating ${inputLabel[0]}  $operation ${inputLabel[1]}")
                 state.getOrPut(outputLabel) { operation.doIt(listOf(i, j)) }
+            } else {
+                error("Oops Oops Oops")
             }
         }
     }
@@ -57,7 +59,7 @@ object Day24 : Day<String, List<String>> {
             when (this) {
                 AND -> operands[0] and operands[1]
                 OR -> operands[0] or operands[1]
-                XOR -> operands[0] xor operands[1]
+                XOR -> (operands[0] xor operands[1]) and 1
             }
     }
 
@@ -79,10 +81,23 @@ object Day24 : Day<String, List<String>> {
         connections.filter { it.inputLabel[0] in initialisedWires && it.inputLabel[1] in initialisedWires }
             .forEach { q.add(it) }
         while (q.isNotEmpty()) {
-            val current = q.removeLast()
-            current.evaluate()
-            connections.filter { it.inputLabel[0] == current.outputLabel || it.inputLabel[1] == current.outputLabel }
-                .forEach { q.add(it) }
+            val peek = q.last()
+            val i = peek.inputLabel[0]
+            val j = peek.inputLabel[1]
+            if (state[i] != null && state[j] != null) {
+                val current = q.removeLast()
+                try {
+                    current.evaluate()
+                    connections.filter { it.inputLabel[0] == current.outputLabel || it.inputLabel[1] == current.outputLabel }
+                        .forEach { q.add(it) }
+                } catch (e: Exception) {
+                    PRINTLN("SOME WEIRDNESS")
+                }
+            } else {
+                val x = q.removeLast()
+                q.add(0, x)
+            }
+
         }
         val theOutputs = state.keys.filter { it.startsWith("z") }.sorted().reversed()
         println("The outputs $theOutputs")
