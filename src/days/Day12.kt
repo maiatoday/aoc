@@ -50,7 +50,7 @@ object Day12 : Day<Long, List<String>> {
         return regions
     }
 
-    //1419673 too low 1358705 also too low 1347608 1437584 not right
+    //1419673 too low 1358705 also too low 1347608 1437584 not right 1437584
 
     data class Region(val cropType: Char) {
         // do I need a list of points? yes
