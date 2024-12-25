@@ -2,6 +2,7 @@ package days
 
 import util.Area
 import util.Point
+import util.debug
 import util.neighbours
 
 object Day12 : Day<Long, List<String>> {
@@ -21,34 +22,35 @@ object Day12 : Day<Long, List<String>> {
 
     private fun splitRegions(garden: Map<Point, Char>, area: Area): List<Region> {
         val regions = mutableListOf<Region>()
-        for ((point, crop) in garden) {
-            // one of the existing regions -> add it to the list of points in that region
-            // is this a new region -> make a new one
-            if (regions.none { it.cropType == crop }) {
-                regions.add(Region(crop).also { it.points.add(point) })
+        val q = garden.map { it.key to it.value }.toMutableList()
+        while (q.isNotEmpty()) {
+            val (point, crop) = q.removeFirst()
+            if (regions.any { it.cropType == crop && point in it.points }) continue
+            val newRegion = Region(crop).also { it.points.add(point) }
+
+            val floodQ = mutableListOf<Point>()
+            floodQ.add(point)
+            val visited = mutableListOf<Point>()
+            while (floodQ.isNotEmpty()) {
+                val newCurrent = floodQ.removeFirst()
+                if (newCurrent in visited) continue
+                else visited.add(newCurrent)
+                val validNeighbours = newCurrent.neighbours(area, includeSelf = false).filter { garden[it] == crop }
+                newRegion.points.addAll(validNeighbours)
+                floodQ.addAll(validNeighbours)
             }
-            var searchPoint = point
-            val connectedPoints: MutableList<Point> = mutableListOf()
-            while (garden[searchPoint] == crop) { // if I go outside the garden this will fail so we will break
-                connectedPoints += searchPoint.neighbours(area, includeSelf = true).filter { garden[it] == crop }
-                searchPoint = searchPoint.copy(x = searchPoint.x + 1)
-            }
-            val connectedRegion = regions.firstOrNull() {
-                it.cropType == crop && it.points.any { it in connectedPoints }
-            } //  massive assumption that my code works! and there is a region and only one that is connected
-            if (connectedRegion == null) {
-                // there was a region of the same crop type but we are not connected to it
-                // so this is a brand new one
-                regions.add(Region(crop).also { it.points.add(point) })
-            } else {
-                //println("Adding ${connectedPoints.size} connecting points to region ${connectedRegion.cropType}")
-                connectedRegion.points.addAll(connectedPoints)
-            }
+
+            regions.add(newRegion)
+//            if (!useTestData) {
+//                newRegion.points.toList().debug(filled = newRegion.cropType.toString(), empty = ".", area)
+//                println()
+//            }
         }
+
         return regions
     }
 
-    //1419673 too low
+    //1419673 too low 1358705 also too low 1347608 1437584 not right
 
     data class Region(val cropType: Char) {
         // do I need a list of points? yes
@@ -59,10 +61,6 @@ object Day12 : Day<Long, List<String>> {
         fun calculate(garden: Garden, gardenArea: Area): Int {
             if (perimeter == 0) {
                 for (p in points) {
-                    val nonCropNeighbours = p.neighbours(
-                        includeSelf = false,
-                        onlyPositive = false,
-                    ).filter { garden[it] != cropType || it.x !in gardenArea.xRange || it.y !in gardenArea.yRange }
                     perimeter += p.neighbours(
                         includeSelf = false,
                         onlyPositive = false,
@@ -71,7 +69,8 @@ object Day12 : Day<Long, List<String>> {
                 }
             }
             regionArea = points.size
-           // println("A region of ${cropType} plants with price $regionArea * $perimeter = ${regionArea * perimeter}.")
+            println("A region of ${cropType} plants with price $regionArea * $perimeter = ${regionArea * perimeter}.")
+            this.points.toList().debug(filled = this.cropType.toString(), empty = ".", gardenArea)
             return regionArea * perimeter
         }
 
