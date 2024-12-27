@@ -89,6 +89,16 @@ fun Point.neighbours(
     return points
 }
 
+// index into the list of neighbours without diagonals
+enum class CardinalDirections(val index: Int) {
+    N(3), E(1), S(0), W(2)
+}
+
+// index into the list of neighbours with diagonals
+enum class RoseDirections(val index: Int) {
+    N(6), NE(5), E(3), SE(0), S(1), SW(2), W(4), NW(7)
+}
+
 fun Point.roseNeighbours(): List<Point> = this.neighbours(diagonal = true, onlyPositive = false, stayBelowMax = false)
 
 fun List<String>.listFromGrid(p: String): List<Point> {
