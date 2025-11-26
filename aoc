@@ -8,7 +8,7 @@ then
 else
     day=$1
 fi
-year=2023
+year=2025
 url=https://adventofcode.com/$year/day/$day/input
 echo "Fetching $year AoC data for day" "$day"
 # echo "from" "$url"
