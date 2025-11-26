@@ -1,8 +1,8 @@
 package util
 
-import junit.framework.TestCase.assertFalse
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class PointTest {
