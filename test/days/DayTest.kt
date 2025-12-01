@@ -5,10 +5,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DayTest {
-    private val dayNumber = 99
-    private val day = Day99
-    private val dayTestAnswer1 = -1L
-    private val dayTestAnswer2 = -1L
+    private val dayNumber = 1
+    private val day = Day01
     private val testInput = readInput(dayNumber, "Day_test")
     
     //    private val testInput = readInput(day.number,"Day")
