@@ -1,12 +1,12 @@
 .gradle
 .idea
 build
-
+.kotlin/
+local.properties
 out/
+
 Day_test.txt
 Day.txt
+src/**/*.txt
 
 .DS_Store
-
-amper
-/amper.bat
