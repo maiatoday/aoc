@@ -1,5 +1,3 @@
-package days
-
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
