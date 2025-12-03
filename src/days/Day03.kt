@@ -1,12 +1,15 @@
 package days
 
 object Day03 : Day<Long, List<String>> {
+    //region plumbing
     override val number: Int = 3
     override val expectedPart1Test: Long = 357L
     override val expectedPart2Test: Long = 3121910778619L
     override var useTestData = true
     override val debug = false
+    //endregion
 
+    //region part1
     override fun part1(input: List<String>): Long {
         val banks = input.toBanks()
         val joltages = banks.map { findMaxJoltage(it) }
@@ -39,7 +42,7 @@ object Day03 : Day<Long, List<String>> {
                 tensIndexList?.let { tensIndices ->
                     unitsIndexList?.let { unitsIndices ->
                         if (tensIndices.isNotEmpty() && unitsIndices.isNotEmpty())
-                            if (tensIndices.any { tens -> unitsIndices.any { tens < it } }) {
+                            if (tensIndices.any { tens -> unitsIndices.any { units -> tens < units } }) {
                                 return (tensDigit to unitDigit).toJoltage()
                             }
                     }
@@ -50,8 +53,9 @@ object Day03 : Day<Long, List<String>> {
     }
 
     fun Pair<Int, Int>.toJoltage() = (this.first.toString() + this.second.toString()).toInt()
+    //endregion
 
-    //region part 2
+    //region part2
     override fun part2(input: List<String>): Long {
         val joltages = input.map { findMaxBigJoltage(it) }
         return joltages.sum()
@@ -79,7 +83,7 @@ object Day03 : Day<Long, List<String>> {
         //!!!!! NOOOO there can be gaps....
         //endregion
 
-        // start again
+        //region start again
 
         // build a new string from digits
 
@@ -93,10 +97,12 @@ object Day03 : Day<Long, List<String>> {
 
         // What is `evaluate what is left?` start at 9 again but check for 10 to the right
         // and only work on the rest of the string from the position of the 9
+        //endregion
 
         return nextBiggest(bankString, numDigits, "")
     }
 
+    //region The interesting part
     private fun nextBiggest(bankString: String, position: Int, maxString: String): Long {
         if (position == 0) return maxString.toLong()
         for (digitToMatch in 9 downTo 1) {
@@ -116,6 +122,7 @@ object Day03 : Day<Long, List<String>> {
         buildList {
             bank.mapIndexed { index, digit -> if (digit == digitToMatch) add(index) }
         }.filter { it <= bank.length - count }
+    //endregion
 
     //endregion
 }
