@@ -37,16 +37,12 @@ object Day03 : Day<Long, List<String>> {
     private fun findMaxJoltageFromLookup(positionLookup: Map<Int, List<Int>>): Int {
         for (tensDigit in 9 downTo 1) {
             for (unitDigit in 9 downTo 1) {
-                val tensIndexList = positionLookup[tensDigit]
-                val unitsIndexList = positionLookup[unitDigit]
-                tensIndexList?.let { tensIndices ->
-                    unitsIndexList?.let { unitsIndices ->
-                        if (tensIndices.isNotEmpty() && unitsIndices.isNotEmpty())
-                            if (tensIndices.any { tens -> unitsIndices.any { units -> tens < units } }) {
-                                return (tensDigit to unitDigit).toJoltage()
-                            }
+                val tensIndices = positionLookup[tensDigit] ?: continue
+                val unitsIndices = positionLookup[unitDigit] ?: continue
+                if (tensIndices.isNotEmpty() && unitsIndices.isNotEmpty())
+                    if (tensIndices.any { tens -> unitsIndices.any { units -> tens < units } }) {
+                        return (tensDigit to unitDigit).toJoltage()
                     }
-                }
             }
         }
         return 0
