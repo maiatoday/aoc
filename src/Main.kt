@@ -6,7 +6,7 @@ import kotlin.system.measureTimeMillis
 const val dayNumber = 3
 val day = Day03
 const val dayTestAnswer1 = 357L
-const val dayTestAnswer2 = -1L
+const val dayTestAnswer2 = 3121910778619L
 fun main() {
 
     println("***** Day$dayNumber *****")
