@@ -21,7 +21,7 @@ object Day03 : Day<Long, List<String>> {
 
     fun findMaxJoltage(bank: List<Int>): Int {
         val positionLookup = buildPositionLookup(bank)
-        val joltage= findMaxJoltage(positionLookup)
+        val joltage = findMaxJoltageFromLookup(positionLookup)
         return joltage
     }
 
@@ -34,17 +34,17 @@ object Day03 : Day<Long, List<String>> {
         }
     }
 
-    private fun findMaxJoltage(positionLookup: Map<Int, List<Int>>): Int {
+    private fun findMaxJoltageFromLookup(positionLookup: Map<Int, List<Int>>): Int {
         val possibleJoltages = buildList {
             for (tensDigit in 9 downTo 1) {
                 for (unitDigit in 9 downTo 1) {
                     val tensIndexList = positionLookup[tensDigit]
                     val unitsIndexList = positionLookup[unitDigit]
-                    tensIndexList?.let { tens ->
-                        unitsIndexList?.let { units ->
-                            if (tens.isNotEmpty() && units.isNotEmpty())
-                                if (tens.first() < units.first()) {
-                                    add(( tensDigit to unitDigit).toJoltage())
+                    tensIndexList?.let { tensIndices ->
+                        unitsIndexList?.let { unitsIndices ->
+                            if (tensIndices.isNotEmpty() && unitsIndices.isNotEmpty())
+                                if (tensIndices.any { tens -> unitsIndices.any { tens < it } }) {
+                                    add((tensDigit to unitDigit).toJoltage())
                                 }
                         }
                     }
@@ -57,6 +57,6 @@ object Day03 : Day<Long, List<String>> {
 
     // 17303 too low
 
-    fun Pair<Int,Int>.toJoltage() = (this.first.toString() + this.second.toString()).toInt()
+    fun Pair<Int, Int>.toJoltage() = (this.first.toString() + this.second.toString()).toInt()
 
 }
