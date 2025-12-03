@@ -3,10 +3,10 @@ package days
 import util.readInput
 import kotlin.system.measureTimeMillis
 
-const val dayNumber = 2
-val day = Day02
-const val dayTestAnswer1 = 1227775554L
-const val dayTestAnswer2 = 4174379265L
+const val dayNumber = 3
+val day = Day03
+const val dayTestAnswer1 = 357L
+const val dayTestAnswer2 = -1L
 fun main() {
 
     println("***** Day$dayNumber *****")
