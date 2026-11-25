@@ -1,0 +1,22 @@
+#!/bin/zsh
+
+if [ -z "$1" ]
+then
+    echo "Enter a day number between 1 and 25"
+    read -r day
+else
+    day=$1
+fi
+
+if [[ ! "$day" =~ '^(0?[1-9]|1[0-9]|2[0-5])$' ]]
+then
+    echo "Enter a day number between 1 and 25" >&2
+    exit 1
+fi
+
+daySuffix=$(printf '%02d' "$((10#$day))")
+projectDir=${0:A:h}
+kotlinFile="$projectDir/src/days/Day${daySuffix}.kt"
+if [ ! -e "$kotlinFile" ]; then
+    printf 'package days\n' > "$kotlinFile"
+fi
